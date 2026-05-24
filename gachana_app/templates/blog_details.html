@@ -1,0 +1,211 @@
+{% include 'components/navbar.html' %}
+{% load static %}
+
+    <link rel="stylesheet" href="{% static 'css/blog_detail.css' %}">
+    <!-- Page Header Start -->
+    <div class="container-fluid page-header mb-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container text-center">
+            <h1 class="display-4 text-white animated slideInDown mb-4">{{blog.title}}</h1>
+            <nav aria-label="breadcrumb animated slideInDown">
+                <ol class="breadcrumb justify-content-center mb-0">
+                    <li class="breadcrumb-item"><a class="text-white" href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a class="text-white" href="{% url 'blogs' %}">Pages</a></li>
+                    <li class="breadcrumb-item text-primary active" aria-current="page">Blog Detail</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!-- Page Header End -->
+
+        <!-- Single Post Start-->
+        <div class="single">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8" style="padding-right: 20px;">
+                        <div class="single-content">
+                            <img src="{{blog.banner.url}}" />
+                            <!-- <h2>{{blog.title}}</h2> -->
+                            <p>
+                                {{blog.description|safe}}
+                            </p>
+                            
+                        </div>
+                        <div class="single-tags">
+                            {% for category in categories %}
+                            <a href="{% url 'blog_by_category_with_id' category.id %}">{{ category.name }}</a>
+                            {% endfor %}
+                        </div>
+                        <div class="single-bio">
+                            <div class="single-bio-img">
+                                <img src="{% static 'img/img_7130.jpg' %}" />
+                            </div>
+                            <div class="single-bio-text">
+                                <h3>ACFDO Excutive Director</h3>
+                                <p>
+                                    Gachana Charity Association is dedicated to empowering communities in Dire Dawa through education, healthcare, skills training, women's empowerment, and children's welfare.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="single-related">
+                            <h2>Related Post</h2>
+                            <div class="owl-carousel1 related-slider1">
+                                {% for top in top5 %}
+                                <div class="post-item">
+                                    <div class="post-img">
+                                        <img src="{{top.banner.url}}" />
+                                    </div>
+                                    <div class="post-text">
+                                        <a href="{% url 'blog_details' top.id %}">{{top.title}}</a>
+                                        <div class="post-meta">
+                                            <p>By<a href="">Gachana Charity Association</a></p>
+                                            <p>In
+                                                {% for cati in top.categories.all %}
+                                                <a href="">{{ cati.name }} {% if not forloop.last %}, {% endif %}</a>
+                                                {% endfor %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div> 
+                                {% endfor %}
+                                
+                            </div>
+                        </div>
+
+                        <div class="single-comment">
+                            <h2>{{ comments|length }} Comments</h2>
+                            <ul class="comment-list">
+                                {% for comment in comments %}
+                                    <li class="comment-item">
+                                        <div class="comment-body">
+                                            <div class="comment-img">
+                                                <img src="https://bootdey.com/img/Content/avatar/avatar{{ forloop.counter }}.png" alt="User Avatar" />
+                                            </div>
+                                            <div class="comment-text">
+                                                <h3><a href="">{{ comment.name }}</a></h3>
+                                                <span>{{ comment.created_at|date:"d M Y \a\t h:i A" }}</span>
+                                                <p>{{ comment.message }}</p>
+                                                <a class="btn" href="#">Reply</a>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% empty %}
+                                    <p>No comments yet. Be the first to comment!</p>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        <!-- Comment Form -->
+                        <div class="comment-form">
+                            <h2>Leave a comment</h2>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="id_name">Name *</label>
+                                    <input type="text" class="form-control" id="id_name" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_email">Email *</label>
+                                    <input type="email" class="form-control" id="id_email" name="email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_message">Message *</label>
+                                    <textarea id="id_message" cols="30" rows="5" class="form-control" name="message" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <style>.sub:hover{color: rgb(6, 163, 6);} .sub{background-color: rgb(211, 231, 249);} </style>
+                                    <input type="submit" value="Post Comment" class="btn sub btn-custom">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="sidebar">
+                            <div class="sidebar-widget">
+                                <div class="search-widget">
+                                    <form>
+                                        <input class="form-control" type="text" placeholder="Search Keyword">
+                                        <button class="btn"><i class="fa fa-search"></i></button>
+                                    </form>
+                                </div>
+                            </div>
+                            <style>
+                                .post-img {
+                                    width: 100%; /* Ensures it fills the parent container */
+                                    height: 75px; /* Set a fixed height */
+                                    overflow: hidden; /* Hides overflow to maintain uniformity */
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    background: #f5f5f5; /* Optional: Background color */
+                                }
+                                
+                                .post-img img {
+                                    width: 100%;
+                                    height: 100%;
+                                    object-fit: cover; /* Ensures images are cropped to fit without distortion */
+                                }
+                                </style>
+                            <div class="sidebar-widget">
+                                <h2 class="widget-title">Recent Post</h2>
+                                <div class="recent-post">
+                                    {% for top in top5 %}
+                                    <div class="post-item">
+                                        <div class="post-img">
+                                            <img src="{{top.banner.url}}" />
+                                        </div>
+                                        <div class="post-text">
+                                            <a href="{% url 'blog_details' top.id %}">{{top.title}}</a>
+                                            <div class="post-meta">
+                                                <p>By<a href="">Gachana Charity Association</a></p>
+                                                <p>In
+                                                    {% for cati in top.categories.all %}
+                                                    <a href="">{{ cati.name }} {% if not forloop.last %}, {% endif %}</a>
+                                                    {% endfor %}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="sidebar-widget">
+                                <h2 class="widget-title">Categories</h2>
+                                <div class="category-widget">
+                                    <ul>
+                                        <li><a href="{% url 'blog_by_category' %}">All</a><span>({{ all_blogs.count }})</span></li>
+                                        {% for category in categories %}
+                                        <li>
+                                            <a href="{% url 'blog_by_category_with_id' category.id %}">{{ category.name }}</a>
+                                            <span>({{ category.count }})</span>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="sidebar-widget">
+                                <h2 class="widget-title">Tags Cloud</h2>
+                                <div class="tag-widget">
+                                    {% for category in categories %}
+                                    <a href="{% url 'blog_by_category_with_id' category.id %}">{{ category.name }}</a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="sidebar-widget">
+                                <h2 class="widget-title">Text Widget</h2>
+                                <div class="text-widget">
+                                    <p>
+                                        At Gachana Charity Association, we believe every child deserves a strong start in life. Our initiatives provide essential care, learning opportunities, and family support to foster healthy growth and development. Join us in making a lasting impact!                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Single Post End-->   
+
+{% include 'components/footer.html' %}
