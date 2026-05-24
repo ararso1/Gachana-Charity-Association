@@ -1,0 +1,237 @@
+{% include 'admin_page/navbar.html' %}
+{%load static%}
+<link rel="stylesheet" href="{% static 'css/style_admin.css' %}">
+<!--     <style>
+
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #9dc3e8;
+            font-size: 28px;
+        }
+
+        .cards-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 400px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+        }
+
+        .card-blogs::before {
+            background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+        }
+
+        .card-vacancies::before {
+            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .card-blogs .card-icon {
+            background: linear-gradient(135deg, rgba(106, 17, 203, 0.1) 0%, rgba(37, 117, 252, 0.1) 100%);
+            color: #6a11cb;
+        }
+
+        .card-vacancies .card-icon {
+            background: linear-gradient(135deg, rgba(17, 153, 142, 0.1) 0%, rgba(56, 239, 125, 0.1) 100%);
+            color: #11998e;
+        }
+
+        .card-icon i {
+            font-size: 28px;
+        }
+
+        .card-title {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .card-value {
+            color: #2c3e50;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            color: #95a5a6;
+            font-size: 14px;
+        }
+
+        .card-footer i {
+            margin-right: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .cards-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+ -->
+  <div class="app-content">
+    <div class="app-content-header">
+      <div class="hamburger-menu" id="sidebarToggle">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+        </svg>
+      </div>
+      <h1 class="app-content-headerText">Welcome Ararso</h1>
+      <button class="mode-switch" title="Switch Theme">
+        <svg class="moon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="24" height="24" viewBox="0 0 24 24">
+          <defs></defs>
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+        </svg>
+      </button>
+      <a href="{% url 'logout' %}"><button id="" class="app-content-headerButton">Logout</button></a>
+    </div>
+   
+    <div class="app-content-actions">
+      <input class="search-bar" placeholder="Search..." type="text">
+      <div class="app-content-actions-wrapper">
+        <div class="filter-button-wrapper">
+          <button class="action-button filter jsFilter"><span>Filter</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-filter"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></button>
+          <div class="filter-menu">
+            <label>Category</label>
+            <select>
+              <option>All Categories</option>
+              <option>Furniture</option>                     <option>Decoration</option>
+              <option>Kitchen</option>
+              <option>Bathroom</option>
+            </select>
+            <label>Status</label>
+            <select>
+              <option>All Status</option>
+              <option>Published</option>
+              <option>Unpublished</option>
+            </select>
+            <div class="filter-menu-buttons">
+              <button class="filter-button reset">
+                Reset
+              </button>
+              <button class="filter-button apply">
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+        <button class="action-button list active" title="List View">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-list"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+        <button class="action-button grid" title="Grid View">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-grid"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <div class="header">
+          <h1>Admin Dashboard</h1>
+      </div>
+      
+      <div class="cards-container">
+        <a href="{% url 'blog_list' %}" style="text-decoration: none;">
+          <div class="card card-blogs">
+            <div class="card-icon">
+                <i class="fas fa-blog"></i>
+            </div>
+            <div class="card-title">Blog Posts</div>
+            <div class="card-value">{{ blog }}</div>
+            <div class="card-footer">
+                <i class="fas fa-calendar-alt"></i>
+                {% if last_blog != "No updates yet" %}
+                Last updated: {{ last_blog|date:"F d, Y H:i" }}
+                {% else %}
+                    Last updated: No updates yet
+                {% endif %}
+            </div>
+          </div>
+        </a>
+    
+        <a href="{% url 'vacancy_list' %}" style="text-decoration: none;">
+          <div class="card card-vacancies">
+            <div class="card-icon">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <div class="card-title">Vacancy Posts</div>
+            <div class="card-value">{{ vacancy }}</div>
+            <div class="card-footer">
+                <i class="fas fa-calendar-alt"></i>
+                {% if last_vacancy != "No updates yet" %}
+                Last updated: {{ last_vacancy|date:"F d, Y H:i" }}
+                {% else %}
+                    Last updated: No updates yet
+                {% endif %}
+            </div>
+          </div>   
+        </a>
+      </div>
+    
+      
+  </div>
+
+  </div>
+</div>
+<script>
+  
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar = document.querySelector('.sidebar');
+
+  // When the toggle button is clicked, toggle the sidebar
+  sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      document.querySelector('.app-content').classList.toggle('expanded'); // Ensure content expands on toggle
+  });
+</script>
+
+<script  src="{% static 'js/script.js' %}"></script>
+
+</body>
+</html>

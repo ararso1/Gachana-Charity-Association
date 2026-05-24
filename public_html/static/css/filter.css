@@ -1,0 +1,179 @@
+
+/* .................Start Projects Section................... */
+#Projects {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 30px 0; 
+}
+
+#Projects .container {
+    width: 80%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#Projects .container .items-links {
+    width: 100%;
+    margin: 40px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;  
+    gap: 40px;
+}
+
+#Projects .container .item-link {
+    white-space: nowrap;
+    border: 2px solid #0be369;
+    padding: 10px 30px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #007bff;
+    cursor: pointer;
+    border-radius: 30px;
+    transition: background 0.4s ease, color 0.4s ease;
+}
+
+#Projects .container .item-link:hover, .menu-active {
+    background: #0be369;
+    color: #fff;
+}
+
+#Projects .container .gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+#Projects .container .project-img {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 4px rgba(175, 175, 175, 0.4);   
+    height: 14rem; 
+    animation: scaleAnimation 0.4s ease;
+    position: relative;
+}
+
+@keyframes scaleAnimation {
+    from {
+        transform: scale(0);
+    }  
+    to {
+        transform: scale(1);
+    }  
+}
+
+#Projects .container .project-img:hover .overlay {
+    top: 0;
+}
+
+#Projects .container .overlay {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: linear-gradient(transparent, #06e46a);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+    transition: top 0.4s ease;
+}
+
+#Projects .container .overlay h4 {
+    font-size: 20px;
+    color: #fff;
+}
+
+#Projects .container .overlay p {
+    font-size: 14px;
+    color: #fff;
+    text-align: center;
+    width: 90%;
+}
+
+#Projects .container .action-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#Projects .container .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #fff;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #007bff;
+    font-size: 16px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+}
+
+#Projects .container .btn-light {
+    background: transparent;
+    border-color: #fff;
+    color: #fff;  
+}
+
+#Projects .container .btn:hover {
+    background: transparent;
+    border-color: #fff;
+    color: #fff;
+}
+
+#Projects .container .btn-light:hover {
+    background: #fff;
+    color: #007bff;
+}
+
+#Projects .container .project-img:hover img {
+    transform: scale(1.1);
+}
+
+#Projects .container img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+/* .................End Projects Section.................... */
+
+
+/* .................Start Projects Section Media Screen.................... */
+@media (max-width: 1024px) {
+    #Projects .container {
+        width: 90%;
+    }   
+    #Projects .container .items-links {
+        width: 90%;
+    } 
+}
+
+@media (max-width: 991px) {
+    #Projects .container .items-links {
+        width: 100%;
+    }
+    #Projects .container .gallery {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    #Projects .container .items-links {       
+        gap: 20px;  
+        flex-wrap: wrap;  
+    }
+    #Projects .container .gallery {
+        grid-template-columns: 1fr;
+    }
+    #Projects .container .project-img {
+        height: max-content;
+    }
+}
+/* .................End Projects Section Media Screen.................... */

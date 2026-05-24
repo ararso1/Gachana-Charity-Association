@@ -1,0 +1,278 @@
+{% include 'components/navbar.html' %}
+{% load static %}
+<link href="{% static 'css/filter.css' %}" rel="stylesheet">
+
+    <!-- Page Header Start -->
+    <div class="container-fluid page-header mb-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container text-center">
+            <h1 class="display-4 text-white animated slideInDown mb-4">Our Work</h1>
+            <nav aria-label="breadcrumb animated slideInDown">
+                <ol class="breadcrumb justify-content-center mb-0">
+                    <li class="breadcrumb-item"><a class="text-white" href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a class="text-white" href="{% url 'our_work' %}">Pages</a></li>
+                    <li class="breadcrumb-item text-primary active" aria-current="page">Our Work</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!-- Page Header End -->
+
+        <!-- Facts Start -->
+        <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
+            <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Our Impact</div>
+            <h1 class="display-6 mb-5">Improving the Well-Being of Children and Families Through Sustainable Approaches.</h1>
+        </div>
+        <!-- Facts Start -->
+        <div class="facts" data-parallax="scroll" data-image-src="{% static 'img/facts.jpg' %}">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="facts-item">
+                            <i class="flaticon-people"></i>
+                            <div class="facts-text">
+                                <h3 class="facts-plus" data-toggle="counter-up">100</h3>
+                                <p>Children Enrolled</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="facts-item">
+                            <i class="flaticon-charity"></i>
+                            <div class="facts-text">
+                                <h3 class="facts-plus" data-toggle="counter-up">1000</h3>
+                                <p>Youth Trained</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="facts-item">
+                            <i class="flaticon-kindness"></i>
+                            <div class="facts-text">
+                                <h3 class="facts-plus" data-toggle="counter-up">500</h3>
+                                <p>Women Empowered</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="facts-item">
+                            <i class="flaticon-donation"></i>
+                            <div class="facts-text">
+                                <h3 class="facts-plus" data-toggle="counter-up">200</h3>
+                                <p>Students Helped</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Facts End -->    
+
+    <!-- Causes Start -->
+    <div class="container-xxl bg-light my-5 py-5">
+        <div class="container py-5">
+            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
+                <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Our Work</div>
+                <h1 class="display-6 mb-5">Supporting Children Through Every Life Stage</h1>
+            </div>
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="causes-item d-flex flex-column bg-white border-top border-5 border-primary rounded-top overflow-hidden h-100">
+                        <div class="text-center p-4 pt-0">
+                            <div class="d-inline-block bg-primary text-white rounded-bottom fs-5 pb-1 px-3 mb-4">
+                                <small>0-5 years</small>
+                            </div>
+                            <h5 class="mb-3">Early Childhood Development</h5>
+                            <p>Health and nutrition programs for mothers and infants. Early learning initiatives for cognitive development. Family support systems for nurturing care.</p>
+                        </div>
+                        <div class="position-relative mt-auto">
+                            <img class="img-fluid" src="{% static 'img/courses-1.jpg' %}" alt="">
+                            <div class="causes-overlay">
+                                <a class="btn btn-outline-primary" href="{% url 'gallery' %}">
+                                    Our Gallery
+                                    <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                        <i class="fa fa-arrow-right"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="causes-item d-flex flex-column bg-white border-top border-5 border-primary rounded-top overflow-hidden h-100">
+                        <div class="text-center p-4 pt-0">
+                            <div class="d-inline-block bg-primary text-white rounded-bottom fs-5 pb-1 px-3 mb-4">
+                                <small>6-14 years</small>
+                            </div>
+                            <h5 class="mb-3">Basic Education Program</h5>
+                            <p>Quality primary education with life skills. School feeding programs to enhance learning. Safe environments with gender equality focus.</p>
+
+                        </div>
+                        <div class="position-relative mt-auto">
+                            <img class="img-fluid" src="{% static 'img/basicedu.jpg' %}" alt="">
+                            <div class="causes-overlay">
+                                <a class="btn btn-outline-primary" href="{% url 'gallery' %}">
+                                    Our Gallery
+                                    <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                        <i class="fa fa-arrow-right"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="causes-item d-flex flex-column bg-white border-top border-5 border-primary rounded-top overflow-hidden h-100">
+                        <div class="text-center p-4 pt-0">
+                            <div class="d-inline-block bg-primary text-white rounded-bottom fs-5 pb-1 px-3 mb-4">
+                                <small>15-24 years</small>
+                            </div>
+                            <h5 class="mb-3">Youth Development Program</h5>
+                            <p>Vocational training and entrepreneurship opportunities. Leadership development initiatives. Mental health support and career counseling. Monthly pocket money support for collage or university students</p>
+
+                        </div>
+                        <div class="position-relative mt-auto">
+                            <img class="img-fluid" src="{% static 'img/youthdevt.jpg' %}" alt="">
+                            <div class="causes-overlay">
+                                <a class="btn btn-outline-primary" href="{% url 'gallery' %}">
+                                    Our Gallery
+                                    <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                        <i class="fa fa-arrow-right"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 justify-content-center" style="margin-top: 50px;">
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="causes-item d-flex flex-column bg-white border-top border-5 border-primary rounded-top overflow-hidden h-100">
+                        <div class="text-center p-4 pt-0">
+                            <div class="d-inline-block bg-primary text-white rounded-bottom fs-5 pb-1 px-3 mb-4">
+                                <small>Sponsor</small>
+                            </div>
+                            <h5 class="mb-3">Sponsor Relation and communication</h5>
+                            <p>Personalized child-sponsor connections. Regular progress reporting and updates. Community-based communication platforms..</p>
+                        </div>
+                        <div class="position-relative mt-auto">
+                            <img class="img-fluid" src="{% static 'img/Preschool.jpg' %}" alt="">
+                            <div class="causes-overlay">
+                                <a class="btn btn-outline-primary" href="{% url 'gallery' %}">
+                                    Our Gallery
+                                    <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                        <i class="fa fa-arrow-right"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="causes-item d-flex flex-column bg-white border-top border-5 border-primary rounded-top overflow-hidden h-100">
+                        <div class="text-center p-4 pt-0">
+                            <div class="d-inline-block bg-primary text-white rounded-bottom fs-5 pb-1 px-3 mb-4">
+                                <small>Women</small>
+                            </div>
+                            <h5 class="mb-3">Women Empowerment</h5>
+                            <p>Financial literacy by Providing goats and ships. Leadership training and rights awareness. GBV prevention and economic cooperatives.</p>
+
+                        </div>
+                        <div class="position-relative mt-auto">
+                            <img class="img-fluid" src="{% static 'img/modelm.jpg' %}" alt="">
+                            <div class="causes-overlay">
+                                <a class="btn btn-outline-primary" href="{% url 'gallery' %}">
+                                    Our Gallery
+                                    <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                        <i class="fa fa-arrow-right"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="causes-item d-flex flex-column bg-white border-top border-5 border-primary rounded-top overflow-hidden h-100">
+                        <div class="text-center p-4 pt-0">
+                            <div class="d-inline-block bg-primary text-white rounded-bottom fs-5 pb-1 px-3 mb-4">
+                                <small>Aid</small>
+                            </div>
+                            <h5 class="mb-3">Healthcare & Medical Aid</h5>
+                            <p>Delivers essential healthcare through mobile clinics, maternal care, disease prevention, lab services, medical supplies, and hygienic toilets to improve community well-being.</p>
+
+                        </div>
+                        <div class="position-relative mt-auto">
+                            <img class="img-fluid" src="{% static 'img/pedatric.jpg' %}" alt="">
+                            <div class="causes-overlay">
+                                <a class="btn btn-outline-primary" href="{% url 'gallery' %}">
+                                    Our Gallery
+                                    <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                        <i class="fa fa-arrow-right"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Causes End -->
+
+
+    <!-- Gallary -->
+    <section id="Projects">
+        <div class="container">
+            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
+                <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Gallery</div>
+                <h1 class="display-6 mb-5">See Our Latest Gallery</h1>
+            </div>
+            <div class="items-links">
+                <div class="item-link menu-active" data-filter="all">All</div>
+                <div class="item-link" data-filter="early_child_development">Early Childhood Dev't</div>
+                <div class="item-link" data-filter="basic_educations">Basic Education</div>
+                <div class="item-link" data-filter="youth_Development">Yout Dev't</div>
+                <div class="item-link" data-filter="community_empowerment">Community Empowerment</div>
+                <div class="item-link" data-filter="certifications">Certifications</div>
+            </div>
+            
+            <div class="gallery" id="gallery-container">
+                <!-- Gallery images will be dynamically added here -->
+            </div>
+
+        </div>
+    </section>
+    
+            <!-- Blog Start -->
+            <div class="blog1" style="margin-top: 50px;">
+                <div class="container">
+                    <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
+                        <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Our Blog</div>
+                        <h1 class="display-6 mb-5">See Our Latest news & articles</h1>
+                    </div>
+                    <div class="row">
+                        {% for blog in blogs %}
+                        <div class="col-lg-4">
+                            <div class="blog-item">
+                                <div class="blog-img">
+                                    <img src="{{blog.banner.url}}" alt="Image">
+                                </div>
+                                <div class="blog-text">
+                                    <h3><a href="{% url 'blog_details' blog.id %}">📌 {{blog.title}}</a></h3>
+                                    <p>
+                                        {{blog.description|safe|truncatechars:150}}
+                                    </p>
+                                </div>
+                                <div class="blog-meta">
+                                    <p><i class="fa fa-user"></i><a href="">Admin</a></p>
+                                    <p><i class="fa fa-comments"></i><a href="">15 Comments</a></p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- Blog End -->
+
+    {% include 'components/footer.html' %}

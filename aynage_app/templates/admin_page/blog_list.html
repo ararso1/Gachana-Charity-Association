@@ -1,0 +1,239 @@
+{% include 'admin_page/navbar.html' %}
+{%load static%}
+<style>
+/* Modal Background */
+.modal {
+  display: none; /* Initially hidden */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.3s ease-in-out; /* Fade-in effect */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  margin: 15% auto;
+  width: 30%;
+  text-align: center;
+  border-radius: 8px;
+  transform: scale(0.7); /* Start small */
+  opacity: 0;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+/* Show Animation */
+.modal.show .modal-content {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Close Button */
+.close {
+  float: right;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Buttons */
+.confirm-delete {
+  background-color: red;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.cancel-delete {
+  background-color: gray;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Fade-in Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+</style>
+  <div class="app-content">
+    <div class="app-content-header">
+      <h1 class="app-content-headerText">Blogs</h1>
+      <button class="mode-switch" title="Switch Theme">
+        <svg class="moon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="24" height="24" viewBox="0 0 24 24">
+          <defs></defs>
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+        </svg>
+      </button>
+      <a href="{% url 'create_blogs' %}"><button id="" class="app-content-headerButton">New Blog</button></a>
+    </div>
+
+    <div class="app-content-actions">
+      <form method="GET" action="{% url 'blog_list' %}" class="search-form">
+        <input
+            class="search-bar"
+            name="q"
+            placeholder="Search..."
+            type="text"
+            value="{{ query|default:'' }}"
+        >
+        <button type="submit" class="search-button">🔍</button>
+      </form>    
+      <div class="app-content-actions-wrapper">
+        <div class="filter-button-wrapper">
+          <button class="action-button filter jsFilter"><span>Filter</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-filter"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></button>
+          <div class="filter-menu">
+            <label>Category</label>
+            <select>
+              <option>All Categories</option>
+              <option>Furniture</option>                     
+              <option>Decoration</option>
+              <option>Kitchen</option>
+              <option>Bathroom</option>
+            </select>
+            <label>Status</label>
+            <select>
+              <option>All Status</option>
+              <option>Published</option>
+              <option>Unpublished</option>
+            </select>
+            <div class="filter-menu-buttons">
+              <button class="filter-button reset">
+                Reset
+              </button>
+              <button class="filter-button apply">
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+        <button class="action-button list active" title="List View">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-list"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+        <button class="action-button grid" title="Grid View">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-grid"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="products-area-wrapper tableView">
+      <div class="products-header">
+        <div class="product-cell image">
+          Title
+        </div>
+        <div class="product-cell category">Category</div>
+        <div class="product-cell status-cell">Status</div>
+        <div class="product-cell sales">Description</div>
+        <div class="product-cell price">Published Date</div>
+        <div class="product-cell action">Action</div>
+      </div>
+      {% for blog in blogs %}
+      <div class="products-row">
+
+          <div class="product-cell image">
+            {% if blog.banner %}
+            <img src="{{ blog.banner.url }}" alt="{{ blog.title }}" width="50">
+            {% endif %}
+            <span>{{ blog.title|truncatechars:30 }}</span>
+          </div>
+          <div class="product-cell category">
+            <span class="cell-label">Category:</span>
+            {% for category in blog.categories.all %}
+              <span>{{ category.name }}</span>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          </div>
+        <div class="product-cell status-cell">
+          <span class="cell-label">Status:</span>
+          {% if blog.status %} 
+          <span class="status active">Published</span>
+          {% else %}
+          <span class="status disabled">UnPublished</span>
+          {% endif %}
+        </div>
+        <div class="product-cell sales"><span class="cell-label">Description:</span>{{ blog.description|truncatechars:50|safe }}</div>
+        <div class="product-cell stock"><span class="cell-label">Date:</span>{{blog.created_at}}</div>
+        
+        <div class="product-cell action">
+          <a href="{% url 'edit_blog' blog.id %}">
+            <button class="edit-button" title="Edit" style="cursor: pointer;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button> 
+          </a>
+          <form action="{% url 'delete_blog' blog.id %}" method="POST" style="display: inline;">
+            {% csrf_token %}
+            <button type="button" class="delete-button" title="Delete" style="cursor: pointer;" data-blog-id="{{ blog.id }}" onclick="openDeleteModal(this)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <line x1="10" y1="11" x2="10" y2="17"/>
+                <line x1="14" y1="11" x2="14" y2="17"/>
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+<style>
+
+</style>
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeDeleteModal()">&times;</span>
+        <h2>Confirm Deletion</h2>
+        <p>Are you sure you want to delete this blog?</p>
+        <form id="deleteForm" method="POST">
+          {% csrf_token %}
+          <button type="submit" class="confirm-delete">Yes, Delete</button>
+          <button type="button" class="cancel-delete" onclick="closeDeleteModal()">Cancel</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script  src="{% static 'js/script.js' %}"></script>
+<script>
+  function openDeleteModal(button) {
+    var blogId = button.getAttribute("data-blog-id");
+    var form = document.getElementById("deleteForm");
+    form.action = `/delete_blog/${blogId}/`;  // Ensure this matches your URL pattern
+    var modal = document.getElementById("deleteModal");
+    
+    modal.style.display = "block";
+    setTimeout(() => modal.classList.add("show"), 10); // Delay to trigger animation
+  }
+
+  function closeDeleteModal() {
+    var modal = document.getElementById("deleteModal");
+    modal.classList.remove("show");
+    setTimeout(() => (modal.style.display = "none"), 300); // Delay hiding until animation ends
+  }
+
+  // Close modal when clicking outside of it
+  window.onclick = function(event) {
+    var modal = document.getElementById("deleteModal");
+    if (event.target === modal) {
+      closeDeleteModal();
+    }
+  }
+</script>
+
+
+</body>
+</html>

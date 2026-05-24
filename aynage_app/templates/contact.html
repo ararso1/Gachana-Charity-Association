@@ -1,0 +1,222 @@
+{% include 'components/navbar.html' %}
+
+
+    <!-- Page Header Start -->
+    <div class="container-fluid page-header mb-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container text-center">
+            <h1 class="display-4 text-white animated slideInDown mb-4">Contact Us</h1>
+            <nav aria-label="breadcrumb animated slideInDown">
+                <ol class="breadcrumb justify-content-center mb-0">
+                    <li class="breadcrumb-item"><a class="text-white" href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a class="text-white" href="{% url 'contact' %}">Pages</a></li>
+                    <li class="breadcrumb-item text-primary active" aria-current="page">Contact Us</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!-- Page Header End -->
+
+    <!-- Contact Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
+                    <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Contact Us</div>
+                    <h1 class="display-6 mb-5">If You Have Any Query, Please Contact Us</h1>
+                    <p class="mb-4">If you have any questions or need assistance, feel free to reach out! Our team is here to help.</p>
+            
+                    <form id="contactForm">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required>
+                                    <label for="name">Your Name</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="Your Email" required>
+                                    <label for="email">Your Email</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="subject" name="subject" placeholder="Subject" required>
+                                    <label for="subject">Subject</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <textarea class="form-control" name="message" id="message" placeholder="Leave a message here" style="height: 100px" required></textarea>
+                                    <label for="message">Message</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary py-2 px-3 me-3">
+                                    Send Message
+                                    <div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
+                                        <i class="fa fa-arrow-right"></i>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s" style="min-height: 450px;">
+                    <div class="position-relative rounded overflow-hidden h-100">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3950.7192983774457!2d38.32414327482107!3d8.027851291998832!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x17b36b0005771bc7%3A0xbe5151c39390c079!2sAynage%20Children%20and%20family%20Development%20Organization!5e0!3m2!1sen!2set!4v1743112462384!5m2!1sen!2set" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Confirmation Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content animate">
+            <div class="modal-header">
+                <h3>Your message was successfully sent!</h3>
+            </div>
+            <div class="modal-body">
+                <p>Thanks for contacting us. We'll get back to you soon!</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-button" onclick="closeModal()">Okay</button>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow: auto;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.show {
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 80%;
+            max-width: 500px;
+            transform: translateY(-50px);
+            transition: all 0.3s ease;
+        }
+        
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 15px;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: #069c42;
+            font-size: 1.5rem;
+        }
+        
+        .modal-body {
+            padding: 10px 0;
+            margin-bottom: 15px;
+        }
+        
+        .modal-body p {
+            margin: 0;
+            color: #555;
+            font-size: 1.1rem;
+        }
+        
+        .modal-footer {
+            text-align: right;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .modal-button {
+            background-color: #0ccc49;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .modal-button:hover {
+            background-color: #2980b9;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); }
+            to { transform: translateY(0); }
+        }
+    </style>
+    
+    <script>
+        document.getElementById("contactForm").addEventListener("submit", function(event) {
+            event.preventDefault();  // Prevent normal form submission
+        
+            let formData = new FormData(this);
+        
+            fetch("{% url 'contact' %}", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const modal = document.getElementById("successModal");
+                    modal.style.display = "block";
+                    setTimeout(() => {
+                        modal.classList.add("show");
+                    }, 10);
+                    document.getElementById("contactForm").reset();  // Reset the form
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+        
+        function closeModal() {
+            const modal = document.getElementById("successModal");
+            modal.classList.remove("show");
+            setTimeout(() => {
+                modal.style.display = "none";
+            }, 300);
+        }
+        
+        // Close modal when clicking outside of it
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById("successModal");
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+    </script>
+    
+    {% include 'components/footer.html' %}

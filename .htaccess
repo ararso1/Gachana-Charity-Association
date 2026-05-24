@@ -1,0 +1,8 @@
+
+RewriteEngine On
+
+# Serve static files
+RewriteRule ^static/(.*)$ staticfiles/$1 [L]
+
+# Serve media files (images uploaded to gallery)
+RewriteRule ^media/(.*)$ static/images/$1 [L]

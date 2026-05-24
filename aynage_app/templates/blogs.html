@@ -1,0 +1,84 @@
+{% include 'components/navbar.html' %}
+{% load static %}
+    <!-- Page Header Start -->
+    <div class="container-fluid page-header mb-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container text-center">
+            <h1 class="display-4 text-white animated slideInDown mb-4">Blogs</h1>
+            <nav aria-label="breadcrumb animated slideInDown">
+                <ol class="breadcrumb justify-content-center mb-0">
+                    <li class="breadcrumb-item"><a class="text-white" href="#">Home</a></li>
+                    <li class="breadcrumb-item"><a class="text-white" href="#">Pages</a></li>
+                    <li class="breadcrumb-item text-primary active" aria-current="page">Blogs</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+        <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
+            <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Our Blog</div>
+            <h1 class="display-6 mb-5">Latest news & articles directly from our blog</h1>
+        </div>
+        <div class="blog-container1">
+            {% for blog in blogs %}
+            <div class="blog-card1">
+              <img src="{{blog.banner.url}}" alt="Blog Image" class="blog-image1">
+              <div class="blog-content1">
+                <h3 class="blog-title1"><a href="{% url 'blog_details' blog.id %}" style="color: #2e3a59;">{{blog.title}}</a></h3>
+                <p class="blog-description1">{{ blog.description|striptags|truncatechars:60 }}<span><a href="{% url 'blog_details' blog.id %}" style="color: rgb(7, 25, 156);">see more</a></span></p>
+              </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        
+        <!-- Blog End -->
+
+<style>
+.blog-container1 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+.blog-card1 {
+  width: 100%;
+  max-width: 400px;
+  background: #f0f4ff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+  font-family: 'Arial', sans-serif;
+}
+
+.blog-card1:hover {
+  transform: translateY(-5px);
+}
+
+.blog-image1 {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
+.blog-content1 {
+  padding: 16px;
+}
+
+.blog-title1 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #2e3a59;
+  margin-bottom: 10px;
+}
+
+.blog-description1 {
+  font-size: 0.95rem;
+  color: #5c6c7f;
+}
+
+</style>
+
+    {% include 'components/footer.html' %}

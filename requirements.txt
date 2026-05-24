@@ -1,0 +1,7 @@
+Django==5.1.7
+django_ckeditor==6.5.1
+Pillow==10.4.0
+python-decouple==3.8
+gunicorn==21.2.0
+whitenoise==6.7.0
+psycopg2-binary==2.9.9

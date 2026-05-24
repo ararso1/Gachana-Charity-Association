@@ -1,0 +1,614 @@
+{% include 'components/navbar.html' %}
+{% load static %}
+<link href="{% static 'css/filter.css' %}" rel="stylesheet">
+    <!-- Page Header Start -->
+    <div class="container-fluid page-header mb-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container text-center">
+            <h1 class="display-4 text-white animated slideInDown mb-4">About Us</h1>
+            <nav aria-label="breadcrumb animated slideInDown">
+                <ol class="breadcrumb justify-content-center mb-0">
+                    <li class="breadcrumb-item"><a class="text-white" href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a class="text-white" href="{% url 'about' %}">Pages</a></li>
+                    <li class="breadcrumb-item text-primary active" aria-current="page">About Us</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!-- Page Header End -->
+
+    <!-- About Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="position-relative overflow-hidden" style="width: 100%; height: 100%;">
+                        <img src="{% static 'img/Gachana 1.jpg' %}" alt="" 
+                             style="width: 550px; height: 600px; object-fit: cover;">
+                    </div>
+                </div>
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="h-100">
+                        <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">About Us</div>
+                        <h1 class="display-6 mb-5">Empowering Those in Need</h1>
+                        <div class="bg-light border-bottom border-5 border-primary rounded p-4 mb-4">
+                            <p class="text-dark mb-2">At Gachana Charity Association, we believe that every act of kindness, no matter how small, can create a ripple of change. Together, we strive to build a community where everyone is supported, empowered, and no one is left behind.</p>
+                            <span class="text-primary">Gachana Charity Association, Board</span>
+                        </div>
+                    
+                        <div class="about1">
+                            <div class="container">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-">
+                                        <div class="about-tab">
+                                            <ul class="nav nav-pills nav-justified">
+                                                <li class="nav-item">
+                                                    <a class="nav-link active" data-toggle="pill" href="#tab-content-1">About</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" data-toggle="pill" href="#tab-content-2">Mission</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" data-toggle="pill" href="#tab-content-3">Vision</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" data-toggle="pill" href="#tab-content-4">Values</a>
+                                                </li>
+                                            </ul>
+                
+                                            <div class="tab-content">
+                                                <div id="tab-content-1" class="container tab-pane active">
+                                                 Gachana Charity Association is a non-profit organization based in Dire Dawa, founded three years ago, currently providing services within Dire Dawa, with a future goal of expanding its support across Ethiopia. The association focuses on education, healthcare, skills training, women’s empowerment, and children’s welfare to promote self-reliance and improve community well-being.   .                                </div>
+                                                <div id="tab-content-2" class="container tab-pane fade">
+                                                    Gachana Charity Association aim to establish youth training centers and craft-learning facilities, support women facing various hardships, create sustainable job opportunities for women, and strengthen children’s welfare. Our mission includes establishing schools from kindergarten through high school, setting up a clinic under the name of Gachena Charity, developing our own sustainable sources of economic income, empowering individuals to build strong and independent mindsets, and expanding employment opportunities to improve lives and strengthen the community as a whole
+                                                </div>
+                                                <div id="tab-content-3" class="container tab-pane fade">
+                                                    Gachana Charity Association 2018 - 2038 E.C. Create a comprehensive association that future generations can inherit. When we say a comprehensive association, we mean that it works on the aspects of our children, youth, women, and the elderly in the community service. If there is anything to be done on the above-mentioned aspects, it is on how to develop them psychologically, economically, and in faith and physical strength, as well as craftsmanship.                                
+                                                </div>
+                                                <div id="tab-content-4" class="container tab-pane fade">
+                                                    <ul class="values-list">
+                                                        <li><i class="fas fa-hands-helping"></i> Respect cultural and religious diversity</li>
+                                                        <li><i class="fas fa-comments"></i> Responsiveness to children and community voices</li>
+                                                        <li><i class="fas fa-user-shield"></i> Respect personal dignity of beneficiaries/clients</li>
+                                                        <li><i class="fas fa-eye"></i> Transparency in all services</li>
+                                                        <li><i class="fas fa-balance-scale"></i> Fair and non-discriminatory services for all</li>
+                                                        <li><i class="fas fa-users"></i> Respect stakeholders' voices and participation</li>
+                                                        <li><i class="fas fa-handshake"></i> Honor commitments to sponsors and donors</li>
+                                                    </ul>
+                                                </div>
+                                                <style>
+                                                    .values-list {
+                                                        list-style: none;
+                                                        padding-left: 0;
+                                                    }
+                
+                                                    .values-list li {
+                                                        padding: 8px 0;
+                                                        border-bottom: 1px solid #eee;
+                                                        display: flex;
+                                                        align-items: center;
+                                                    }
+                
+                                                    .values-list i {
+                                                        color: #0cdb7b;
+                                                        margin-right: 12px;
+                                                        width: 20px;
+                                                        text-align: center;
+                                                    }
+                                                </style>
+                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- About End -->
+                        <a class="btn btn-primary py-2 px-3 me-3" href="{% url 'donate' %}">
+                            Donate Now
+                            <div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </a>
+                        <a class="btn btn-outline-primary py-2 px-3" href="{% url 'contact' %}">
+                            Contact Us
+                            <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- About End -->
+
+
+    <!-- Service Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
+                <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">What We Do</div>
+                <h1 class="display-6 mb-5">Learn More About What We Do And Get Involved</h1>
+            </div>
+            <div class="row g-4 justify-content-center">
+                
+                <!-- Education & Youth Development -->
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="service-item bg-white text-center h-100 p-4 p-xl-5">
+                        <img class="img-fluid mb-4" src="{% static 'img/icon-4.png' %}" style="width: 30%;" alt="">
+                        <h4 class="mb-3">Early Childhood Development</h4>
+                        <p class="mb-4">Health and nutrition programs for mothers and infants. Initiatives for cognitive development. Family support systems for nurturing care.</p>
+                        <a class="btn btn-outline-primary px-3" href="">
+                            Learn More
+                            <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <!-- Education & Youth Development -->
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="service-item bg-white text-center h-100 p-4 p-xl-5">
+                        <img class="img-fluid mb-4" src="{% static 'img/Youth 1.jpg' %}" alt="">
+                        <h4 class="mb-3">Basic Education Program</h4>
+                        <p class="mb-4">Quality primary education with life skills. School feeding programs to enhance learning. Safe environments with gender equality focus.</p>
+                        <a class="btn btn-outline-primary px-3" href="">
+                            Learn More
+                            <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <!-- Education & Youth Development -->
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="service-item bg-white text-center h-100 p-4 p-xl-5">
+                        <img class="img-fluid mb-4" src="{% static 'img/icon-5.png' %}" style="width: 30%;" alt="">
+                        <h4 class="mb-3">Youth Development Program</h4>
+                        <p class="mb-4">Vocational training and entrepreneurship opportunities. Leadership development initiatives. Monthly pocket money support for collage or university students</p>
+                        <a class="btn btn-outline-primary px-3" href="">
+                            Learn More
+                            <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <!-- Education & Youth Development -->
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="service-item bg-white text-center h-100 p-4 p-xl-5">
+                        <img class="img-fluid mb-4" src="{% static 'img/icon-6.png' %}" style="width: 30%;" alt="">
+                        <h4 class="mb-3">Sponsor Relation and communication</h4>
+                        <p class="mb-4">Personalized child-sponsor connections. Regular progress reporting and updates.</p>
+                        <a class="btn btn-outline-primary px-3" href="">
+                            Learn More
+                            <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Healthcare & Medical Aid -->
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="service-item bg-white text-center h-100 p-4 p-xl-5">
+                        <img class="img-fluid mb-4" src="{% static 'img/icon-2.png' %}" alt="">
+                        <h4 class="mb-3">Healthcare & Medical Aid</h4>
+                        <p class="mb-4">Offering free medical services, disease prevention programs, and maternal and child healthcare support.</p>
+                        <a class="btn btn-outline-primary px-3" href="">
+                            Learn More
+                            <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Water, Sanitation & Hygiene (WASH) -->
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="service-item bg-white text-center h-100 p-4 p-xl-5">
+                        <img class="img-fluid mb-4" src="{% static 'img/icon-3.png' %}" alt="">
+                        <h4 class="mb-3">Water, Sanitation & Hygiene (WASH)</h4>
+                        <p class="mb-4">Ensuring clean drinking water, sanitation facilities, and hygiene education to improve community health.</p>
+                        <a class="btn btn-outline-primary px-3" href="">
+                            Learn More
+                            <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Food Security & Nutrition -->
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="service-item bg-white text-center h-100 p-4 p-xl-5">
+                        <img class="img-fluid mb-4" src="{% static 'img/icon-7.png' %}" style="width: 30%;" alt="">
+                        <h4 class="mb-3">Food Security & Nutrition</h4>
+                        <p class="mb-4">Implementing feeding programs, agricultural support, and malnutrition prevention for vulnerable populations.</p>
+                        <a class="btn btn-outline-primary px-3" href="">
+                            Learn More
+                            <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Poverty Alleviation & Livelihood Support -->
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="service-item bg-white text-center h-100 p-4 p-xl-5">
+                        <img class="img-fluid mb-4" src="{% static 'img/icon-8.png' %}" style="width: 30%;" alt="">
+                        <h4 class="mb-3">Poverty Alleviation & Livelihood Support</h4>
+                        <p class="mb-4">Empowering communities through microfinance, job creation, and skills development initiatives.</p>
+                        <a class="btn btn-outline-primary px-3" href="">
+                            Learn More
+                            <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Disaster Relief & Humanitarian Aid -->
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="service-item bg-white text-center h-100 p-4 p-xl-5">
+                        <img class="img-fluid mb-4" src="{% static 'img/icon-2.png' %}" alt="">
+                        <h4 class="mb-3">Disaster Relief & Humanitarian Aid</h4>
+                        <p class="mb-4">Providing emergency response, shelter, and essential supplies to communities affected by crises and natural disasters.</p>
+                        <a class="btn btn-outline-primary px-3" href="">
+                            Learn More
+                            <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Environmental Protection & Climate Action -->
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="service-item bg-white text-center h-100 p-4 p-xl-5">
+                        <img class="img-fluid mb-4" src="{% static 'img/icon-9.png' %}" style="width: 30%;" alt="">
+                        <h4 class="mb-3">Environmental Protection & Climate Action</h4>
+                        <p class="mb-4">Promoting sustainability, conservation, and climate change awareness to protect our planet.</p>
+                        <a class="btn btn-outline-primary px-3" href="">
+                            Learn More
+                            <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Housing & Shelter -->
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="service-item bg-white text-center h-100 p-4 p-xl-5">
+                        <img class="img-fluid mb-4" src="{% static 'img/icon-8.png' %}" style="width: 30%;" alt="">
+                        <h4 class="mb-3">Support for People with Disabilities & Special Needs</h4>
+                        <p class="mb-4">Enhancing accessibility, inclusion, and healthcare support for individuals with disabilities.</p>
+                        <a class="btn btn-outline-primary px-3" href="">
+                            Learn More
+                            <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Community Development & Social Welfare -->
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="service-item bg-white text-center h-100 p-4 p-xl-5">
+                        <img class="img-fluid mb-4" src="{% static 'img/icon-8.png' %}" style="width: 30%;" alt="">
+                        <h4 class="mb-3">Community Development & Social Welfare</h4>
+                        <p class="mb-4">Supporting economic growth, empowerment programs, and initiatives to strengthen community resilience.</p>
+                        <a class="btn btn-outline-primary px-3" href="">
+                            Learn More
+                            <div class="d-inline-flex btn-sm-square bg-primary text-white rounded-circle ms-2">
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- Service End -->
+        
+        
+        <!-- banner Start -->
+         <style>
+            .blog1 .blog-img1 {
+            width: 100%; /* Ensures it fills the parent container */
+        }
+
+        .blog1 .blog-img1 img {
+            width: 100%;
+        }
+         </style>
+        <!--<div class="blog1">-->
+        <!--    <div class="container">-->
+        <!--        <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">-->
+        <!--            <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Our Rules</div>-->
+        <!--            <h1 class="display-6 mb-5">Revised Guidelines for Child Enrollment</h1>-->
+        <!--        </div>-->
+        <!--        <div class="row">-->
+        <!--            <div class="col-lg-4">-->
+        <!--                <div class="blog-item">-->
+        <!--                    <div class="blog-text">-->
+        <!--                        <h3>ለህጻናት ምዝገባ ብቁነት መስፈርቶች</h3>-->
+        <!--                    </div>-->
+        <!--                    <div class="blog-img1">-->
+        <!--                        <img src="{% static 'img/img_7173.jpg' %}" alt="Image">-->
+        <!--                    </div>-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--            <div class="col-lg-4">-->
+        <!--                <div class="blog-item">-->
+        <!--                    <div class="blog-text">-->
+        <!--                        <h3>Eligibility Criteria for Child Enrollment</h3>-->
+        <!--                    </div>-->
+        <!--                    <div class="blog-img1">-->
+        <!--                        <img src="{% static 'img/img_7174.jpg' %}" alt="Image">-->
+        <!--                    </div>-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--            <div class="col-lg-4">-->
+        <!--                <div class="blog-item">-->
+        <!--                    <div class="blog-text">-->
+        <!--                        <h3>Interrity starts with you</h3>-->
+        <!--                    </div>-->
+        <!--                    <div class="blog-img1">-->
+        <!--                        <img src="{% static 'img/img_7175.jpg' %}" alt="Image">-->
+        <!--                    </div>-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--        </div>-->
+        <!--    </div>-->
+        <!--</div>-->
+        <!-- banner End -->
+
+        <!-- Management Structure Image -->
+        <!--<div class="container-xxl py-5">-->
+        <!--    <div class="container">-->
+        <!--        <div class="text-center mx-auto mb-4 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">-->
+        <!--            <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Our Structure</div>-->
+        <!--            <h1 class="display-6 mb-4">Management Structure</h1>-->
+        <!--        </div>-->
+        <!--        <div class="text-center wow fadeInUp" data-wow-delay="0.2s">-->
+        <!--            <img class="img-fluid" src="{% static 'img/image.png' %}" alt="Management Structure" style="max-width: 100%; height: auto;">-->
+        <!--        </div>-->
+        <!--    </div>-->
+        <!--</div>-->
+        <!-- Management Structure End -->
+
+    <!-- Team Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
+                <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Team Members</div>
+                <h1 class="display-6 mb-5">Meet Our Enlisted Soldiers</h1>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="team-item position-relative rounded overflow-hidden">
+                        <div class="overflow-hidden">
+                            <img class="img-fluid" src="{% static 'img/omer.JPG' %}" alt="">
+                        </div>
+                        <div class="team-text bg-light text-center p-4">
+                            <h5>Umarmuktar Ahmad</h5>
+                            <p class="text-primary">Genaral Manager</p>
+                            <div class="team-social text-center">
+                                <a class="btn btn-square" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-square" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-square" href=""><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="team-item position-relative rounded overflow-hidden">
+                        <div class="overflow-hidden">
+                            <img class="img-fluid" src="{% static 'img/murti.jpg' %}" alt="">
+                        </div>
+                        <div class="team-text bg-light text-center p-4">
+                            <h5>Murti Ali</h5>
+                            <p class="text-primary">Vice Manager</p>
+                            <div class="team-social text-center">
+                                <a class="btn btn-square" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-square" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-square" href=""><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="team-item position-relative rounded overflow-hidden">
+                        <div class="overflow-hidden">
+                            <img class="img-fluid" src="{% static 'img/kanita0.jpg' %}" alt="">
+                        </div>
+                        <div class="team-text bg-light text-center p-4">
+                            <h5>kanita Harun</h5>
+                            <p class="text-primary">Financial Manager and Cashier</p>
+                            <div class="team-social text-center">
+                                <a class="btn btn-square" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-square" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-square" href=""><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.7s">
+                    <div class="team-item position-relative rounded overflow-hidden">
+                        <div class="overflow-hidden">
+                            <img class="img-fluid" src="{% static 'img/Abdulaziz.jpg' %}" alt="">
+                        </div>
+                        <div class="team-text bg-light text-center p-4">
+                            <h5>Abdulaziz Abdurehman</h5>
+                            <p class="text-primary">Lawyer</p>
+                            <div class="team-social text-center">
+                                <a class="btn btn-square" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-square" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-square" href=""><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="team-item position-relative rounded overflow-hidden">
+                        <div class="overflow-hidden">
+                            <img class="img-fluid" src="{% static 'img/Nabat.jpg' %}" alt="">
+                        </div>
+                        <div class="team-text bg-light text-center p-4">
+                            <h5>Nabat Ahmed</h5>
+                            <p class="text-primary">Secretary</p>
+                            <div class="team-social text-center">
+                                <a class="btn btn-square" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-square" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-square" href=""><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="team-item position-relative rounded overflow-hidden">
+                        <div class="overflow-hidden">
+                            <img class="img-fluid" src="{% static 'img/ibsa.jpg' %}" alt="">
+                        </div>
+                        <div class="team-text bg-light text-center p-4">
+                            <h5>Ibsa Shamshddin</h5>
+                            <p class="text-primary">Communication</p>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="team-item position-relative rounded overflow-hidden">
+                        <div class="overflow-hidden">
+                            <img class="img-fluid" src="{% static 'img/taju.JPG' %}" alt="">
+                        </div>
+                        <div class="team-text bg-light text-center p-4">
+                            <h5>Taju Ahmadnur</h5>
+                            <p class="text-primary">Oditar</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.7s">
+                    <div class="team-item position-relative rounded overflow-hidden">
+                        <div class="overflow-hidden">
+                            <img class="img-fluid" src="{% static 'img/Kanita.jpg' %}" alt="">
+                        </div>
+                        <div class="team-text bg-light text-center p-4">
+                            <h5>Ayan Nasraddin</h5>
+                            <p class="text-primary">Cashier</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Team End -->
+
+    <!-- Testimonial Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
+                <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Testimonial</div>
+                <h1 class="display-6 mb-5">Committed to Sustainable Community Development</h1>
+            </div>
+            <div class="owl-carousel testimonial-carousel wow fadeInUp" data-wow-delay="0.1s">
+                <div class="testimonial-item text-center">
+                    <img class="img-fluid bg-light rounded-circle p-2 mx-auto mb-4" src="{% static 'img/icons8-person-24.png' %}" style="width: 100px; height: 100px;">
+                    <div class="testimonial-text rounded text-center p-4">
+                        <p>Gachana Charity Association is making a real difference in the lives of those in need. Their dedication, compassion, and commitment to community support bring hope and positive change to many families. I truly admire and support their impactful work.</p>
+                        <h5 class="mb-1">Child Beneficiary </h5>
+                        <!-- <span class="fst-italic">Profession</span> -->
+                    </div>
+                </div>
+                <div class="testimonial-item text-center">
+                    <img class="img-fluid bg-light rounded-circle p-2 mx-auto mb-4" src="{% static 'img/icons8-person-24.png' %}" style="width: 100px; height: 100px;">
+                    <div class="testimonial-text rounded text-center p-4">
+                        <p>Through the sponsorship program, my child is attending school with all the necessary supplies. We no longer worry about affording uniforms or books. I have also learned about how to better support my children's education at home</p>
+                        <h5 class="mb-1">Child Parent</h5>
+                        <!-- <span class="fst-italic">Profession</span> -->
+                    </div>
+                </div>
+                <div class="testimonial-item text-center">
+                    <img class="img-fluid bg-light rounded-circle p-2 mx-auto mb-4" src="{% static 'img/icons8-person-24.png' %}" style="width: 100px; height: 100px;">
+                    <div class="testimonial-text rounded text-center p-4">
+                        <p>The youth development program helped me discover my talents and build confidence. Thanks to the skills training sessions, I started a small business and can now support my family. I also advocate for other young people to stay in school and pursue their dreams.</p>
+                        <h5 class="mb-1">Youth Participant</h5>
+                        <!-- <span class="fst-italic">Profession</span> -->
+                    </div>
+                </div>
+                <div class="testimonial-item text-center">
+                    <img class="img-fluid bg-light rounded-circle p-2 mx-auto mb-4" src="{% static 'img/icons8-person-24.png' %}" style="width: 100px; height: 100px;">
+                    <div class="testimonial-text rounded text-center p-4">
+                        <p>Thanks to Gachana Charity Association, more children are learning, thriving, and staying in school—especially girls who now have brighter futures."</p>
+                        <h5 class="mb-1">School Principal</h5>
+                        <!-- <span class="fst-italic">Profession</span> -->
+                    </div>
+                </div>
+                <div class="testimonial-item text-center">
+                    <img class="img-fluid bg-light rounded-circle p-2 mx-auto mb-4" src="{% static 'img/icons8-person-24.png' %}" style="width: 100px; height: 100px;">
+                    <div class="testimonial-text rounded text-center p-4">
+                        <p>The child and environmental advocacy training changed the way we think about our surroundings. Today, we organize regular community cleanups, plant trees, and teach our children to respect the environment.</p>
+                        <h5 class="mb-1">Community Leader</h5>
+                        <!-- <span class="fst-italic">Profession</span> -->
+                    </div>
+                </div>
+                <div class="testimonial-item text-center">
+                    <img class="img-fluid bg-light rounded-circle p-2 mx-auto mb-4" src="{% static 'img/icons8-person-24.png' %}" style="width: 100px; height: 100px;">
+                    <div class="testimonial-text rounded text-center p-4">
+                        <p>Our partnership with Gachana Charity Association has strengthened local education and child protection systems. Their efforts have reduced school dropouts and nurtured a generation of responsible, aware, and empowered youth.</p>
+                        <h5 class="mb-1">Government Official</h5>
+                        <!-- <span class="fst-italic">Profession</span> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Testimonial End -->
+
+    <!-- Sponsors and Partners Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
+                <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Support & Collaboration</div>
+                <h1 class="display-6 mb-5">Our Sponsors and Partners</h1>
+            </div>
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="bg-light p-3 rounded text-center">
+                        <img src="{% static 'img/childfund.jpeg' %}" class="img-fluid mb-2" alt="Sponsor 1 Logo">
+                        <p class="mb-0 small">UNICEF</p>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6 wow fadeInUp" data-wow-delay="0.2s">
+                    <div class="bg-light p-3 rounded text-center">
+                        <img src="{% static 'img/blog-1.jpg' %}" class="img-fluid mb-2" alt="Sponsor 2 Logo">
+                        <p class="mb-0 small">Save the Children</p>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="bg-light p-3 rounded text-center">
+                        <img src="{% static 'img/sponsor3.png' %}" class="img-fluid mb-2" alt="Sponsor 3 Logo">
+                        <p class="mb-0 small">Pamoja</p>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6 wow fadeInUp" data-wow-delay="0.4s">
+                    <div class="bg-light p-3 rounded text-center">
+                        <img src="{% static 'img/sponsor4.png' %}" class="img-fluid mb-2" alt="Sponsor 4 Logo">
+                        <p class="mb-0 small">Local Government</p>
+                    </div>
+                </div>
+                <!-- Add more partners/sponsors as needed -->
+            </div>
+        </div>
+    </div>
+    <!-- Sponsors and Partners End -->
+
+    {% include 'components/footer.html' %}

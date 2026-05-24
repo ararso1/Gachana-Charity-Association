@@ -1,0 +1,400 @@
+{% include 'admin_page/navbar.html' %}
+{% load static %}
+
+<div class="app-content">
+    <div class="app-content-header">
+        <h1 class="app-content-headerText">Vacancies</h1>
+        <button class="mode-switch" title="Switch Theme">
+            <svg class="moon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="24" height="24" viewBox="0 0 24 24">
+                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+            </svg>
+        </button>
+        <a href="{% url 'create_vacancy' %}"><button id="" class="app-content-headerButton">New Vacancy</button></a>
+    </div>
+
+    <div class="app-content-actions">
+        <input class="search-bar" placeholder="Search..." type="text">
+        <div class="app-content-actions-wrapper">
+            <div class="filter-button-wrapper">
+                <button class="action-button filter jsFilter"><span>Filter</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-filter">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                    </svg>
+                </button>
+                <div class="filter-menu">
+                    <label>Category</label>
+                    <select>
+                        <option>All Categories</option>
+                        <option>Furniture</option>
+                        <option>Decoration</option>
+                        <option>Kitchen</option>
+                        <option>Bathroom</option>
+                    </select>
+                    <label>Status</label>
+                    <select>
+                        <option>All Status</option>
+                        <option>Published</option>
+                        <option>Unpublished</option>
+                    </select>
+                    <div class="filter-menu-buttons">
+                        <button class="filter-button reset">Reset</button>
+                        <button class="filter-button apply">Apply</button>
+                    </div>
+                </div>
+            </div>
+            <button class="action-button list active" title="List View">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-list">
+                    <line x1="8" y1="6" x2="21" y2="6"/>
+                    <line x1="8" y1="12" x2="21" y2="12"/>
+                    <line x1="8" y1="18" x2="21" y2="18"/>
+                    <line x1="3" y1="6" x2="3.01" y2="6"/>
+                    <line x1="3" y1="12" x2="3.01" y2="12"/>
+                    <line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+            </button>
+            <button class="action-button grid" title="Grid View">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-grid">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Vacancy Form Section -->
+    <div class="products-area-wrapper tableView">
+        <h1 class="app-content-headerText">Edit Vacancy</h1>
+        <form method="POST" id="createBlogForm" action="{% url 'edit_vacancy' vacancy.id %}" enctype="multipart/form-data" class="vacancy-form">
+            {% csrf_token %}
+            {{ form.media }}
+            <div class="products-row1">
+                <div class="product-cell">
+                    <div class="form-group">
+                        <label for="title">Title:</label>
+                        <input type="text" id="title" name="title" value="{{ vacancy.title }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="products-row1">
+                <div class="product-cell">
+                    <div class="form-group">
+                        <label for="department">Department:</label>
+                        <input type="text" id="department" name="department" value="{{ vacancy.department }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="products-row1">
+                <div class="product-cell">
+                    <div class="form-group">
+                        <label for="experience">Years of Experience:</label>
+                        <input type="text" id="experience" name="experience" value="{{ vacancy.experience }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="products-row1">
+                <div class="product-cell">
+                    <div class="form-group">
+                        <label for="experience">Number of Position:</label>
+                        <input type="text" id="experience" name="position" value="{{ vacancy.position }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="products-row1">
+                <div class="product-cell">
+                    <div class="form-group">
+                        <label for="job_type">Job Type:</label>
+                        <select id="job_type" name="job_type" required>
+                            <option value="" disabled>Choose...</option>
+                            <option value="full_time" {% if vacancy.job_type == "full_time" %}selected{% endif %}>Full Time</option>
+                            <option value="part_time" {% if vacancy.job_type == "part_time" %}selected{% endif %}>Part Time</option>
+                            <option value="contract" {% if vacancy.job_type == "contract" %}selected{% endif %}>Contract</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="products-row1">
+                <div class="product-cell">
+                    <div class="form-group">
+                        <label for="location">Location:</label>
+                        <input type="text" id="location" name="location" value="{{ vacancy.location }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="products-row1">
+                <div class="product-cell">
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        {{ form.description }}  <!-- ✅ This will automatically apply CKEditor -->
+                    </div>
+                </div>
+            </div> 
+
+            <div class="products-row1">
+                <div class="product-cell">
+                    <div class="form-group">
+                        <label for="salary">Salary:</label>
+                        <input type="text" id="salary" name="salary" value="{{ vacancy.salary }}" placeholder="Write 'Attractive' if confidential" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="products-row1">
+                <div class="product-cell">
+                    <div class="form-group">
+                        <label for="banner">Banner Image:</label>
+                        <input type="file" id="banner" name="banner" accept="image/*">
+                        {% if vacancy.banner %}
+                            <p>Current Image:</p>
+                            <img src="{{ vacancy.banner.url }}" alt="Current Banner" style="width: 150px; height: 120px;">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="products-row1">
+                <div class="product-cell">
+                    <div class="form-group">
+                        <label for="status">Status:</label>
+                        <select id="status" name="status" required>
+                            <option value="1" {% if vacancy.status == 1 %}selected{% endif %}>Published</option>
+                            <option value="0" {% if vacancy.status == 0 %}selected{% endif %}>Unpublished</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="products-row1">
+                <div class="product-cell">
+                    <div class="form-group">
+                        <label for="deadline">Application Submission Form Link:</label>
+                        <input type="text" id="link" name="link" value="{{vacancy.link}}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="products-row1">
+                <div class="product-cell">
+                    <div class="form-group">
+                        <label for="deadline">Application Deadline:</label>
+                        <input type="date" id="deadline" name="deadline" value="{{ vacancy.deadline|date:'Y-m-d' }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="products-row1">
+                <div class="product-cell">
+                    <div class="form-group">
+                        <button type="submit" id="updateVacancyButton" class="app-content-headerButton">Update Vacancy</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Success Confirmation Modal -->
+    <div id="successModal" class="modall">
+        <div class="modal-content">
+            <h3>Vacancy Updated Successfully!</h3>
+            <p>Your vacancy has been updated successfully.</p>
+            <p>Redirecting...</p>
+            
+        </div>
+    </div>
+
+</div>
+
+<style>
+    /* Style for the Blog Form Section */
+.products-area-wrapper.tableView {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.app-content-headerText {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+
+}
+
+.products-row1 {
+    margin-bottom: 20px;
+}
+
+.product-cell {
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #727171;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"],
+.form-group select,
+.form-group textarea {
+    width: 200%;
+    padding: 10px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="file"]:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.form-group select {
+    appearance: none;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+/* Add some spacing and styling for the form */
+
+    /* Modal background */
+    .modall {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+        opacity: 0; /* Initial opacity for fade-in effect */
+        animation: fadeIn 0.5s forwards; /* Animation for modal fade-in */
+    }
+
+    /* Modal content */
+    .modall .modal-content {
+        background: rgb(255, 255, 255);
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+        animation: slideUp 0.5s ease-out; /* Slide-up animation for modal */
+    }
+    .modall .modal-content h3{
+        color: rgb(26, 124, 26)
+
+    }
+
+    /* Button animation */
+    .modall .modal-button {
+        margin-top: 10px;
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        opacity: 0;
+        animation: fadeInButton 0.5s forwards 0.3s; /* Fade-in button animation */
+    }
+
+    .modall .modal-button:hover {
+        background-color: #45a049;
+    }
+
+    /* Fade-in animation for modal */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* Slide-up animation for modal content */
+    @keyframes slideUp {
+        from {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Fade-in animation for the button */
+    @keyframes fadeInButton {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+</style>
+<script>
+    // Show the success modal after the form is submitted successfully
+    const form = document.getElementById("createBlogForm");
+    const successModal = document.getElementById("successModal");
+
+    form.onsubmit = async function (event) {
+        event.preventDefault(); // Prevent the form from submitting immediately
+
+        // Ensure CKEditor updates textarea content
+        if (typeof CKEDITOR !== 'undefined') {
+            for (let instance in CKEDITOR.instances) {
+                CKEDITOR.instances[instance].updateElement();
+            }
+        }
+        
+        // Submit the form via AJAX
+        const formData = new FormData(form);
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            // Show success modal after successful submission
+            successModal.style.display = "flex";
+
+            // Automatically redirect after 3 seconds
+            setTimeout(() => {
+                window.location.href = "{% url 'vacancy_list' %}"; // Replace with actual URL to the blog list page
+            }, 3000); // Redirect after 3 seconds
+        } else {
+            // Handle error if necessary
+            alert("Error creating Vacancy. Please try again.");
+        }
+    }
+</script>
+<script src="{% static 'js/script.js' %}"></script>
+
+
+</body>
+</html>
