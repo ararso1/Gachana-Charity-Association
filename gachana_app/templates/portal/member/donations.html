@@ -1,32 +1,55 @@
-{% extends 'portal/base_portal.html' %}
+{% extends 'portal/member/base_member.html' %}
 {% block title %}Donation History{% endblock %}
-{% block sidebar %}
-<a href="{% url 'member_dashboard' %}"><i class="fa fa-home me-2"></i>Dashboard</a>
-<a href="{% url 'member_donate' %}"><i class="fa fa-hand-holding-heart me-2"></i>Donate</a>
-<a href="{% url 'member_donations' %}" class="active"><i class="fa fa-history me-2"></i>Donation history</a>
-<a href="{% url 'member_card' %}"><i class="fa fa-id-card me-2"></i>Membership card</a>
-<a href="{% url 'member_profile' %}"><i class="fa fa-user me-2"></i>Profile</a>
-{% endblock %}
 {% block content %}
-<h2 class="mb-4">Donation History</h2>
-<div class="portal-card">
-  <table class="table">
-    <thead>
-      <tr><th>Date</th><th>Amount</th><th>Method</th><th>Reference</th><th>Status</th></tr>
-    </thead>
-    <tbody>
-      {% for d in donations %}
-      <tr>
-        <td>{{ d.created_at|date:"M d, Y H:i" }}</td>
-        <td>{{ d.amount }} {{ d.currency }}</td>
-        <td>{{ d.get_payment_method_display }}</td>
-        <td>{{ d.manual_reference|default:d.chapa_tx_ref|default:"—" }}</td>
-        <td><span class="badge bg-{% if d.status == 'confirmed' %}success{% elif d.status == 'pending' %}warning text-dark{% elif d.status == 'rejected' %}danger{% else %}secondary{% endif %}">{{ d.get_status_display }}</span></td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="5" class="text-muted">No donations recorded yet.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<header class="member-page-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+  <div>
+    <h1>Donation history</h1>
+    <p>Track all your contributions and their confirmation status.</p>
+  </div>
+  <a href="{% url 'member_donate' %}" class="btn member-btn member-btn--primary btn-sm">
+    <i class="fa fa-plus me-1"></i>New donation
+  </a>
+</header>
+
+<div class="member-panel p-0 overflow-hidden">
+  <div class="table-responsive">
+    <table class="table table-hover member-donations-table mb-0">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Amount</th>
+          <th>Method</th>
+          <th>Bank / reference</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in donations %}
+        <tr>
+          <td>{{ d.created_at|date:"M d, Y H:i" }}</td>
+          <td class="fw-semibold">{{ d.amount }} {{ d.currency }}</td>
+          <td>{{ d.get_payment_method_display }}</td>
+          <td>
+            {% if d.bank %}{{ d.bank.name }} — {% endif %}
+            {{ d.manual_reference|default:d.chapa_tx_ref|default:"—" }}
+          </td>
+          <td>
+            <span class="badge bg-{% if d.status == 'confirmed' %}success{% elif d.status == 'pending' %}warning text-dark{% elif d.status == 'rejected' %}danger{% else %}secondary{% endif %}">
+              {{ d.get_status_display }}
+            </span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center py-5 text-muted">
+            <i class="fa fa-hand-holding-heart fa-2x d-block mb-2 opacity-25"></i>
+            No donations recorded yet.
+            <br><a href="{% url 'member_donate' %}" class="btn btn-success btn-sm mt-3">Make a donation</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

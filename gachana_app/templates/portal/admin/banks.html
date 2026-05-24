@@ -1,0 +1,89 @@
+{% extends 'portal/admin/base_admin.html' %}
+{% block title %}Bank accounts{% endblock %}
+{% block content %}
+<div class="portal-page-header d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+  <div>
+    <h2 class="mb-1">Donation bank accounts</h2>
+    <p class="text-muted mb-0">Accounts shown to members when they choose bank transfer on the donate page.</p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="portal-card">
+      {% if edit_form %}
+      <h5 class="mb-3">Edit bank</h5>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update">
+        <input type="hidden" name="bank_id" value="{{ edit_bank.pk }}">
+        {% for field in edit_form %}
+        <div class="mb-3">
+          <label class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-success btn-sm">Save changes</button>
+        <a href="{% url 'portal_admin_banks' %}" class="btn btn-outline-secondary btn-sm">Cancel</a>
+      </form>
+      {% else %}
+      <h5 class="mb-3">Add bank account</h5>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create">
+        {% for field in bank_form %}
+        <div class="mb-3">
+          <label class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-success btn-sm"><i class="fa fa-plus me-1"></i>Add bank</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="portal-card p-0 overflow-hidden">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Bank</th>
+              <th>Account name</th>
+              <th>Account number</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in banks %}
+            <tr>
+              <td>{{ b.name }}{% if b.branch %}<br><small class="text-muted">{{ b.branch }}</small>{% endif %}</td>
+              <td>{{ b.account_name }}</td>
+              <td><code>{{ b.account_number }}</code></td>
+              <td>
+                {% if b.is_active %}<span class="badge bg-success">Active</span>
+                {% else %}<span class="badge bg-secondary">Hidden</span>{% endif %}
+              </td>
+              <td class="text-end text-nowrap">
+                <a href="?edit={{ b.pk }}" class="btn btn-outline-primary btn-sm">Edit</a>
+                <form method="post" class="d-inline" onsubmit="return confirm('Remove this bank account?');">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="delete">
+                  <input type="hidden" name="bank_id" value="{{ b.pk }}">
+                  <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center text-muted py-4">No banks yet. Add one for members to use manual transfer.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

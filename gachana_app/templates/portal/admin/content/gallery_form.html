@@ -1,0 +1,51 @@
+{% extends 'portal/admin/base_admin.html' %}
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Gallery Image{% endblock %}
+{% block content %}
+<div class="portal-page-header">
+  <h2>{% if is_edit %}Edit gallery image{% else %}Add gallery image{% endif %}</h2>
+  <a href="{% url 'gallery_list' %}" class="btn btn-outline-secondary"><i class="fa fa-arrow-left me-2"></i>Back to gallery</a>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="portal-card portal-form-card">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label" for="id_category">Category</label>
+          {{ form.category }}
+          <div class="form-text">Matches the filters on the public gallery page.</div>
+          {% for error in form.category.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="id_description">Description</label>
+          {{ form.description }}
+          <div class="form-text">Shown as a caption on the gallery (optional).</div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="id_img">Image {% if is_edit %}(leave empty to keep current){% endif %}</label>
+          {{ form.img }}
+          {% for error in form.img.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-success">
+          {% if is_edit %}Save changes{% else %}Upload image{% endif %}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  {% if is_edit and item.img %}
+  <div class="col-lg-5">
+    <div class="portal-card">
+      <h6 class="text-muted mb-3">Current image</h6>
+      <img src="{{ item.img.url }}" alt="" class="img-fluid rounded" style="max-height:320px;width:100%;object-fit:cover">
+      <p class="small text-muted mt-2 mb-0">{{ item.get_category_display }}</p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

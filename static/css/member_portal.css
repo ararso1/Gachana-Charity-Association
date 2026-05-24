@@ -1,0 +1,927 @@
+/* Member dashboard */
+
+.member-dash-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.75rem 2rem;
+  margin: 0 0 1.75rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0b3d2e 0%, #06a84a 55%, #04c45c 100%);
+  color: #fff;
+  box-shadow: 0 12px 32px rgba(11, 61, 46, 0.2);
+}
+
+.member-dash-hero__eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  margin-bottom: 0.35rem;
+}
+
+.member-dash-hero h1 {
+  font-size: 1.65rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+}
+
+.member-dash-hero__sub {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 0.95rem;
+}
+
+.member-dash-hero__actions .btn-light {
+  color: #0b3d2e;
+  font-weight: 600;
+}
+
+.member-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.member-stat {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.35rem;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(11, 61, 46, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.member-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.member-stat__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.member-stat__icon--id {
+  background: rgba(11, 61, 46, 0.1);
+  color: #0b3d2e;
+}
+
+.member-stat__icon--gift {
+  background: rgba(6, 168, 74, 0.12);
+  color: #06a84a;
+}
+
+.member-stat__icon--clock {
+  background: rgba(240, 180, 41, 0.2);
+  color: #b8860b;
+}
+
+.member-stat__label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 0.2rem;
+}
+
+.member-stat__value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0b3d2e;
+  line-height: 1.2;
+}
+
+.member-stat__value--sm {
+  font-size: 1rem;
+  font-family: ui-monospace, monospace;
+}
+
+.member-giving-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(6, 168, 74, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.member-giving-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #06a84a, #04ea5c);
+}
+
+.member-giving-card__headline {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0b3d2e;
+  margin-bottom: 0.5rem;
+}
+
+.member-giving-card__message {
+  color: #5a6c65;
+  margin-bottom: 1.5rem;
+  max-width: 52ch;
+  line-height: 1.55;
+}
+
+.member-giving-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 575px) {
+  .member-giving-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+.member-giving-metric__label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.member-giving-metric__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #06a84a;
+}
+
+.member-giving-metric__value span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6c757d;
+}
+
+.member-progress-block {
+  margin-bottom: 0.75rem;
+}
+
+.member-progress-block:last-child {
+  margin-bottom: 0;
+}
+
+.member-progress-block__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+}
+
+.member-progress-block__row strong {
+  color: #0b3d2e;
+}
+
+.member-progress-bar {
+  background: #e9ecef;
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.member-progress-bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #06a84a, #04ea5c);
+  transition: width 0.4s ease;
+}
+
+.member-progress-bar__fill--personal {
+  background: linear-gradient(90deg, #0b3d2e, #06a84a);
+}
+
+.member-donations-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1.25rem;
+}
+
+.member-donations-card h5 {
+  font-weight: 700;
+  color: #0b3d2e;
+  margin-bottom: 1rem;
+}
+
+.member-donations-table {
+  margin-bottom: 0;
+}
+
+.member-donations-table thead th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6c757d;
+  border-bottom-width: 1px;
+  font-weight: 600;
+}
+
+.member-donations-table tbody td {
+  vertical-align: middle;
+  padding: 0.75rem 0.5rem;
+}
+
+.member-card-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(6, 168, 74, 0.12), rgba(4, 234, 92, 0.08));
+  border: 1px solid rgba(6, 168, 74, 0.25);
+  color: #0b3d2e;
+}
+
+.member-card-banner i {
+  font-size: 1.5rem;
+  color: #06a84a;
+}
+
+.member-empty-donations {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #6c757d;
+}
+
+.member-empty-donations i {
+  font-size: 2.5rem;
+  color: #cde8d6;
+  margin-bottom: 0.75rem;
+}
+
+.member-card-actions .member-btn {
+  white-space: nowrap;
+}
+
+/* Shared member pages */
+
+.member-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.member-page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0b3d2e;
+  margin-bottom: 0.35rem;
+}
+
+.member-page-header p {
+  color: #6c757d;
+  margin: 0;
+}
+
+.member-panel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(11, 61, 46, 0.06);
+  margin-bottom: 1.5rem;
+}
+
+.member-panel--narrow {
+  max-width: 640px;
+}
+
+.member-input,
+.member-panel .form-control,
+.member-panel .form-select {
+  border-radius: 10px;
+  border-color: #d8e5de;
+  padding: 0.6rem 0.85rem;
+}
+
+.member-input:focus,
+.member-panel .form-control:focus,
+.member-panel .form-select:focus {
+  border-color: #06a84a;
+  box-shadow: 0 0 0 0.2rem rgba(6, 168, 74, 0.15);
+}
+
+.member-btn {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 0.65rem 1.25rem;
+}
+
+.member-btn--primary {
+  background: linear-gradient(135deg, #06a84a, #04c45c);
+  border: none;
+  color: #fff;
+}
+
+.member-btn--primary:hover {
+  background: linear-gradient(135deg, #058c3f, #06a84a);
+  color: #fff;
+}
+
+.member-btn--outline {
+  border: 2px solid #06a84a;
+  color: #06a84a;
+  background: transparent;
+}
+
+.member-btn--outline:hover {
+  background: rgba(6, 168, 74, 0.08);
+  color: #058c3f;
+}
+
+/* Donate — payment tabs */
+
+.member-donate-wrap {
+  max-width: 720px;
+}
+
+.member-donate-intro {
+  background: linear-gradient(135deg, rgba(11, 61, 46, 0.06), rgba(6, 168, 74, 0.08));
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #06a84a;
+}
+
+.member-donate-intro strong {
+  color: #0b3d2e;
+}
+
+.member-pay-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.35rem;
+  background: #e8f0ec;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.member-pay-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #5a6c65;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.member-pay-tab:hover {
+  color: #0b3d2e;
+}
+
+.member-pay-tab.is-active {
+  background: #fff;
+  color: #0b3d2e;
+  box-shadow: 0 2px 8px rgba(11, 61, 46, 0.1);
+}
+
+.member-pay-tab i {
+  margin-right: 0.4rem;
+}
+
+.member-pay-tab:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.member-pay-panel {
+  display: none;
+}
+
+.member-pay-panel.is-active {
+  display: block;
+  animation: memberFadeIn 0.25s ease;
+}
+
+@keyframes memberFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.member-pay-panel__lead {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+.member-form-label {
+  font-weight: 600;
+  color: #0b3d2e;
+  font-size: 0.875rem;
+  margin-bottom: 0.35rem;
+}
+
+.member-bank-details {
+  display: none;
+  background: linear-gradient(135deg, #0b3d2e, #0d5c38);
+  color: #fff;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  margin: 1rem 0 1.25rem;
+}
+
+.member-bank-details.is-visible {
+  display: block;
+}
+
+.member-bank-details__title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.8;
+  margin-bottom: 0.75rem;
+}
+
+.member-bank-details dl {
+  margin: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.member-bank-details dt {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin: 0;
+}
+
+.member-bank-details dd {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-family: ui-monospace, 'Consolas', monospace;
+  word-break: break-all;
+}
+
+.member-bank-copy-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.member-bank-copy-row span,
+.member-account-number {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.member-account-number {
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 0.15rem 0.35rem;
+  margin: -0.15rem -0.35rem;
+  transition: background 0.2s;
+}
+
+.member-account-number:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.member-account-number.is-copied {
+  background: rgba(4, 234, 92, 0.25);
+}
+
+.member-copy-btn {
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.member-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.65);
+}
+
+.member-copy-btn.is-copied {
+  background: rgba(4, 234, 92, 0.35);
+  border-color: #04ea5c;
+}
+
+.member-bank-details__copy-hint {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
+.member-manual-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.member-manual-steps li {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #06a84a;
+  background: rgba(6, 168, 74, 0.1);
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+}
+
+.member-file-hint {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 0.35rem;
+}
+
+.member-alert-no-banks {
+  border-radius: 12px;
+  background: #fff8e6;
+  border: 1px solid #f0d78c;
+  color: #7a5c00;
+  padding: 1rem 1.25rem;
+}
+
+/* Shared member pages */
+
+.member-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.member-page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0b3d2e;
+  margin-bottom: 0.35rem;
+}
+
+.member-page-header p {
+  color: #6c757d;
+  margin: 0;
+}
+
+.member-panel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(11, 61, 46, 0.06);
+}
+
+.member-panel--narrow {
+  max-width: 640px;
+}
+
+.member-input {
+  border-radius: 10px;
+  border-color: #dee2e6;
+  padding: 0.6rem 0.85rem;
+}
+
+.member-input:focus {
+  border-color: #06a84a;
+  box-shadow: 0 0 0 0.2rem rgba(6, 168, 74, 0.15);
+}
+
+.member-btn {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 0.65rem 1.25rem;
+}
+
+.member-btn--primary {
+  background: linear-gradient(135deg, #06a84a, #04c45c);
+  border: none;
+  color: #fff;
+}
+
+.member-btn--primary:hover {
+  background: linear-gradient(135deg, #059440, #06a84a);
+  color: #fff;
+}
+
+.member-btn--outline {
+  border: 2px solid #06a84a;
+  color: #06a84a;
+  background: transparent;
+}
+
+.member-btn--outline:hover {
+  background: rgba(6, 168, 74, 0.08);
+  color: #059440;
+}
+
+/* Donate — payment tabs */
+
+.member-donate-wrap {
+  max-width: 720px;
+}
+
+.member-donate-intro {
+  background: linear-gradient(135deg, rgba(11, 61, 46, 0.06), rgba(6, 168, 74, 0.08));
+  border: 1px solid rgba(6, 168, 74, 0.15);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.member-donate-intro strong {
+  color: #0b3d2e;
+}
+
+.member-pay-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.35rem;
+  background: #eef2f0;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0.35rem;
+}
+
+.member-pay-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #5a6c65;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.member-pay-tab:hover {
+  color: #0b3d2e;
+}
+
+.member-pay-tab.is-active {
+  background: #fff;
+  color: #0b3d2e;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.member-pay-tab i {
+  font-size: 1.1rem;
+}
+
+.member-pay-tab--chapa.is-active i {
+  color: #2563eb;
+}
+
+.member-pay-tab--manual.is-active i {
+  color: #06a84a;
+}
+
+.member-pay-panel {
+  display: none;
+}
+
+.member-pay-panel.is-active {
+  display: block;
+  animation: memberFadeIn 0.25s ease;
+}
+
+@keyframes memberFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.member-form-label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #0b3d2e;
+  margin-bottom: 0.35rem;
+}
+
+.member-form-hint {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+.member-bank-details {
+  display: none;
+  margin: 1.25rem 0;
+  padding: 1.25rem 1.35rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0b3d2e 0%, #0d5c38 100%);
+  color: #fff;
+}
+
+.member-bank-details.is-visible {
+  display: block;
+}
+
+.member-bank-details__title {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+  margin-bottom: 0.75rem;
+}
+
+.member-bank-details__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.9rem;
+}
+
+.member-bank-details__row:last-child {
+  border-bottom: none;
+}
+
+.member-bank-details__row span:first-child {
+  opacity: 0.75;
+}
+
+.member-bank-details__row strong {
+  text-align: right;
+  word-break: break-all;
+}
+
+.member-manual-steps {
+  margin-top: 0.5rem;
+}
+
+.member-manual-step {
+  display: none;
+}
+
+.member-manual-step.is-visible {
+  display: block;
+}
+
+.member-proof-zone {
+  border: 2px dashed #cde8d6;
+  border-radius: 12px;
+  padding: 1.25rem;
+  background: #f8fbf9;
+  text-align: center;
+}
+
+.member-proof-zone.has-file {
+  border-color: #06a84a;
+  background: rgba(6, 168, 74, 0.05);
+}
+
+.member-proof-zone i {
+  font-size: 1.75rem;
+  color: #06a84a;
+  margin-bottom: 0.5rem;
+}
+
+.member-chapa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+}
+
+.member-alert-empty {
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  background: #fff8e6;
+  border: 1px solid #f0d78c;
+  color: #7a6520;
+  margin-bottom: 1rem;
+}
+
+/* Member portal — responsive */
+@media (max-width: 991.98px) {
+  .member-dash-hero {
+    padding: 1.35rem 1.25rem;
+  }
+
+  .member-dash-hero h1 {
+    font-size: 1.35rem;
+  }
+
+  .member-dash-hero__actions {
+    width: 100%;
+  }
+
+  .member-dash-hero__actions .btn {
+    width: 100%;
+  }
+
+  .member-giving-card {
+    padding: 1.35rem 1.25rem;
+  }
+
+  .member-donate-wrap {
+    max-width: 100%;
+  }
+
+  .member-page-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .member-card-actions {
+    width: 100%;
+  }
+
+  .member-card-actions .member-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .member-card-banner {
+    flex-wrap: wrap;
+  }
+
+  .member-card-banner .btn {
+    width: 100%;
+    margin-left: 0 !important;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .member-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .member-dash-hero h1 {
+    font-size: 1.2rem;
+  }
+
+  .member-giving-card__headline {
+    font-size: 1.15rem;
+  }
+
+  .member-pay-tab {
+    font-size: 0.8rem;
+    padding: 0.65rem 0.5rem;
+  }
+
+  .member-pay-tab i {
+    display: block;
+    margin: 0 auto 0.25rem;
+  }
+
+  .member-panel {
+    padding: 1.15rem;
+  }
+
+  .member-page-header.d-flex {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .member-page-header .btn {
+    width: 100%;
+  }
+}

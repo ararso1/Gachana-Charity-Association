@@ -18,4 +18,6 @@ admin.site.register(StaffDesignation)
 admin.site.register(StaffProfile)
 admin.site.register(MemberProfile)
 admin.site.register(Donation)
+admin.site.register(DonationBank)
+admin.site.register(PortalSettings)
 

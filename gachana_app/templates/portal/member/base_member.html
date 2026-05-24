@@ -1,0 +1,10 @@
+{% extends 'portal/base_portal.html' %}
+{% load static %}
+{% block mobile_topbar_title %}Member Portal{% endblock %}
+{% block extra_css %}
+<link href="{% static 'css/member_portal.css' %}" rel="stylesheet">
+{% block member_extra_css %}{% endblock %}
+{% endblock %}
+{% block sidebar %}
+{% include 'portal/includes/member_sidebar.html' %}
+{% endblock %}

@@ -1,16 +1,152 @@
-.portal-layout {
-  display: flex;
-  min-height: 100vh;
-  background: #f4f7f5;
-  font-family: 'Inter', sans-serif;
+/* Portal shell — fixed viewport; sidebar and main scroll independently */
+
+html.portal-html,
+body.portal-body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
 }
 
+body.portal-nav-open {
+  overflow: hidden;
+}
+
+.portal-layout {
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  overflow: hidden;
+  background: #f4f7f5;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+}
+
+/* —— Mobile top bar (hidden on desktop) —— */
+.portal-mobile-topbar {
+  display: none;
+}
+
+.portal-menu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.portal-menu-toggle:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.portal-mobile-topbar__title {
+  font-weight: 600;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.portal-sidebar-overlay {
+  display: none;
+}
+
+.portal-sidebar__close {
+  display: none;
+}
+
+/* —— Sidebar —— */
 .portal-sidebar {
   width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
   background: #0b3d2e;
   color: #fff;
-  padding: 1.5rem 1rem;
+  padding: 0;
+  position: relative;
+  z-index: 1200;
+}
+
+.portal-sidebar__brand {
   flex-shrink: 0;
+  padding: 1.25rem 1rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.portal-sidebar__logo {
+  width: 48px;
+  height: auto;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.portal-sidebar__title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.3;
+  margin-bottom: 0.25rem;
+}
+
+.portal-sidebar__user {
+  display: block;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+}
+
+.portal-sidebar__nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.75rem 1rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+
+.portal-sidebar__nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.portal-sidebar__nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 3px;
+}
+
+.portal-sidebar__footer {
+  flex-shrink: 0;
+  padding: 0.75rem 1rem 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.portal-sidebar a {
+  display: block;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 0.2rem;
+}
+
+.portal-sidebar a:hover,
+.portal-sidebar a.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
 }
 
 .portal-sidebar .brand {
@@ -20,25 +156,27 @@
   line-height: 1.3;
 }
 
-.portal-sidebar a {
-  display: block;
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: none;
-  padding: 0.6rem 0.75rem;
-  border-radius: 8px;
-  margin-bottom: 0.25rem;
-}
-
-.portal-sidebar a:hover,
-.portal-sidebar a.active {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-}
-
+/* —— Main content —— */
 .portal-main {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 2rem;
-  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(11, 61, 46, 0.25) transparent;
+}
+
+.portal-main::-webkit-scrollbar {
+  width: 8px;
+}
+
+.portal-main::-webkit-scrollbar-thumb {
+  background: rgba(11, 61, 46, 0.2);
+  border-radius: 4px;
 }
 
 .portal-card {
@@ -97,12 +235,146 @@
   border: 3px solid #06a84a;
 }
 
+/* —— Tablet & mobile —— */
+@media (max-width: 991.98px) {
+  .portal-mobile-topbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1100;
+    height: 56px;
+    padding: 0 1rem;
+    background: #0b3d2e;
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .portal-sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1150;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .portal-sidebar-overlay.is-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .portal-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(300px, 88vw);
+    max-width: 100%;
+    height: 100%;
+    max-height: 100dvh;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+  }
+
+  .portal-sidebar.is-open {
+    transform: translateX(0);
+    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.25);
+  }
+
+  .portal-sidebar__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-size: 1.15rem;
+    cursor: pointer;
+    z-index: 2;
+    transition: background 0.2s;
+  }
+
+  .portal-sidebar__close:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  .portal-sidebar__brand {
+    padding-right: 3rem;
+  }
+
+  .portal-layout {
+    flex-direction: column;
+  }
+
+  .portal-main {
+    padding: calc(56px + 1.25rem) 1rem 1.5rem;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .portal-card {
+    padding: 1.15rem;
+    border-radius: 10px;
+  }
+
+  .portal-stat {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .portal-main {
+    padding: calc(56px + 1rem) 0.85rem 1.25rem;
+  }
+
+  .portal-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
 @media print {
+  html.portal-html,
+  body.portal-body {
+    overflow: visible;
+    height: auto;
+  }
+
+  body.portal-nav-open {
+    overflow: visible;
+  }
+
+  .portal-layout {
+    height: auto;
+    overflow: visible;
+  }
+
+  .portal-mobile-topbar,
   .portal-sidebar,
+  .portal-sidebar-overlay,
+  .portal-sidebar__close,
   .no-print {
     display: none !important;
   }
+
   .portal-main {
+    height: auto;
+    overflow: visible;
     padding: 0;
   }
 }

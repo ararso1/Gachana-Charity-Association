@@ -1,19 +1,22 @@
-{% extends 'portal/base_portal.html' %}
+{% extends 'portal/member/base_member.html' %}
 {% load static %}
 {% block title %}Membership Card{% endblock %}
-{% block sidebar %}
-<a href="{% url 'member_dashboard' %}"><i class="fa fa-home me-2"></i>Dashboard</a>
-<a href="{% url 'member_donate' %}"><i class="fa fa-hand-holding-heart me-2"></i>Donate</a>
-<a href="{% url 'member_donations' %}"><i class="fa fa-history me-2"></i>Donation history</a>
-<a href="{% url 'member_card' %}" class="active"><i class="fa fa-id-card me-2"></i>Membership card</a>
-<a href="{% url 'member_profile' %}"><i class="fa fa-user me-2"></i>Profile</a>
-{% endblock %}
 {% block content %}
-<div class="no-print mb-3">
-  <h2 class="d-inline-block me-3">Membership Card</h2>
-  <button onclick="window.print()" class="btn btn-primary"><i class="fa fa-print me-2"></i>Print card</button>
-</div>
-<div class="membership-card-print">
+<header class="member-page-header no-print d-flex flex-wrap align-items-center gap-3">
+  <div class="flex-grow-1">
+    <h1>Membership card</h1>
+    <p>Your official Gachana Charity Association member card.</p>
+  </div>
+  <div class="member-card-actions no-print d-flex flex-wrap gap-2">
+    <button type="button" id="download-card-btn" class="btn member-btn member-btn--outline">
+      <i class="fa fa-download me-2"></i>Download
+    </button>
+    <button type="button" onclick="window.print()" class="btn member-btn member-btn--primary">
+      <i class="fa fa-print me-2"></i>Print card
+    </button>
+  </div>
+</header>
+<div class="membership-card-print" id="membership-card">
   <div class="membership-card-header">
     <img src="{% static 'img/gachana.png' %}" alt="" style="width:56px">
     <h4 class="mt-2 mb-0">Gachana Charity Association</h4>
@@ -31,4 +34,41 @@
     <p class="small mt-3">Dire Dawa, Ethiopia · www.gachanacharity.com</p>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
+<script>
+(function () {
+  const btn = document.getElementById('download-card-btn');
+  const card = document.getElementById('membership-card');
+  if (!btn || !card) return;
+
+  const defaultLabel = btn.innerHTML;
+
+  btn.addEventListener('click', async function () {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i>Preparing…';
+
+    try {
+      const canvas = await html2canvas(card, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+      const link = document.createElement('a');
+      link.download = 'GCA-{{ profile.membership_id|escapejs }}-membership-card.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      alert('Could not generate the download. Please try Print card instead.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = defaultLabel;
+    }
+  });
+})();
+</script>
 {% endblock %}

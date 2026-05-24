@@ -1,5 +1,6 @@
 {% extends 'portal/base_portal.html' %}
 {% load static %}
+{% block mobile_topbar_title %}{% if request.user.is_portal_admin %}Admin Portal{% else %}Staff Portal{% endif %}{% endblock %}
 {% block sidebar %}
   {% if request.user.is_portal_admin %}
     {% include 'portal/includes/admin_sidebar.html' %}

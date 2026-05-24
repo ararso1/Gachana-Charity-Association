@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="portal-html">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,20 +10,52 @@
   <link href="{% static 'css/portal.css' %}" rel="stylesheet">
   {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="portal-body">
 <div class="portal-layout">
-  <aside class="portal-sidebar">
-    <div class="brand">
-      <img src="{% static 'img/gachana.png' %}" alt="Gachana" style="width:48px;margin-bottom:8px;">
-      <div>Gachana Charity Association</div>
-      <small class="text-white-50">{{ request.user.get_full_name|default:request.user.username }}</small>
+  <header class="portal-mobile-topbar no-print" aria-label="Portal toolbar">
+    <button
+      type="button"
+      class="portal-menu-toggle"
+      id="portal-menu-toggle"
+      aria-expanded="false"
+      aria-controls="portal-sidebar"
+      aria-label="Open navigation menu"
+    >
+      <i class="fa fa-bars" aria-hidden="true"></i>
+    </button>
+    <span class="portal-mobile-topbar__title">{% block mobile_topbar_title %}Member Portal{% endblock %}</span>
+  </header>
+
+  <div
+    class="portal-sidebar-overlay no-print"
+    id="portal-sidebar-overlay"
+    aria-hidden="true"
+  ></div>
+
+  <aside class="portal-sidebar" id="portal-sidebar" aria-label="Portal navigation">
+    <button
+      type="button"
+      class="portal-sidebar__close no-print"
+      id="portal-sidebar-close"
+      aria-label="Close navigation menu"
+    >
+      <i class="fa fa-times" aria-hidden="true"></i>
+    </button>
+    <div class="portal-sidebar__brand">
+      <img src="{% static 'img/gachana.png' %}" alt="Gachana" class="portal-sidebar__logo">
+      <div class="portal-sidebar__title">Gachana Charity Association</div>
+      <small class="portal-sidebar__user">{{ request.user.get_full_name|default:request.user.username }}</small>
     </div>
-    {% block sidebar %}{% endblock %}
-    <hr style="border-color:rgba(255,255,255,.2)">
-    <a href="{% url 'home' %}"><i class="fa fa-globe me-2"></i>Public site</a>
-    <a href="{% url 'logout' %}"><i class="fa fa-sign-out-alt me-2"></i>Logout</a>
+    <nav class="portal-sidebar__nav">
+      {% block sidebar %}{% endblock %}
+    </nav>
+    <div class="portal-sidebar__footer">
+      <a href="{% url 'home' %}"><i class="fa fa-globe me-2"></i>Public site</a>
+      <a href="{% url 'logout' %}"><i class="fa fa-sign-out-alt me-2"></i>Logout</a>
+    </div>
   </aside>
-  <main class="portal-main">
+
+  <main class="portal-main" id="portal-main-content">
     {% if messages %}
       {% for message in messages %}
         <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
@@ -36,6 +68,7 @@
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/portal.js' %}"></script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -40,6 +40,11 @@ urlpatterns = [
     path('edit_vacancy/<int:vacancy_id>/', views.update_vacancy, name='edit_vacancy'),
     path('delete_vacancy/<int:vacancy_id>/', views.delete_vacancy, name='delete_vacancy'),
 
+    path('gallery_list', views.gallery_list, name='gallery_list'),
+    path('create_gallery', views.create_gallery, name='create_gallery'),
+    path('edit_gallery/<int:gallery_id>/', views.update_gallery, name='edit_gallery'),
+    path('delete_gallery/<int:gallery_id>/', views.delete_gallery, name='delete_gallery'),
+
     path('admin_page/profile', views.profile, name='profile'),
     path('admin_page/edit_profile', views.profile_edit, name='profile_edit'),
 
@@ -62,6 +67,9 @@ urlpatterns = [
     # Admin portal (members, staff, donations)
     path('portal/admin/', portal_views.portal_admin_dashboard, name='portal_admin_dashboard'),
     path('portal/admin/members/', portal_views.portal_manage_members, name='portal_manage_members'),
+    path('portal/admin/members/<int:user_id>/', portal_views.portal_member_detail, name='portal_member_detail'),
+    path('portal/admin/member-settings/', portal_views.portal_admin_member_settings, name='portal_admin_member_settings'),
+    path('portal/admin/banks/', portal_views.portal_admin_banks, name='portal_admin_banks'),
     path('portal/admin/staff/', portal_views.portal_manage_staff, name='portal_manage_staff'),
 
     # Donations (staff + admin)

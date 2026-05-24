@@ -1,63 +1,204 @@
-{% extends 'portal/base_portal.html' %}
+{% extends 'portal/member/base_member.html' %}
 {% block title %}Donate{% endblock %}
-{% block sidebar %}
-<a href="{% url 'member_dashboard' %}"><i class="fa fa-home me-2"></i>Dashboard</a>
-<a href="{% url 'member_donate' %}" class="active"><i class="fa fa-hand-holding-heart me-2"></i>Donate</a>
-<a href="{% url 'member_donations' %}"><i class="fa fa-history me-2"></i>Donation history</a>
-<a href="{% url 'member_card' %}"><i class="fa fa-id-card me-2"></i>Membership card</a>
-<a href="{% url 'member_profile' %}"><i class="fa fa-user me-2"></i>Profile</a>
-{% endblock %}
 {% block content %}
-<h2 class="mb-4">Make a Donation</h2>
-<div class="row g-4">
-  <div class="col-lg-6">
-    <div class="portal-card">
-      <h5><i class="fa fa-credit-card text-primary me-2"></i>Pay with Chapa (Online)</h5>
-      <p class="text-muted small">Instant confirmation when payment succeeds.</p>
-      <form method="post">
+<div class="member-donate-wrap">
+  <header class="member-page-header">
+    <h1>Make a donation</h1>
+    <p>{{ portal_settings.giving_goal_headline }} — every gift supports our community programs.</p>
+  </header>
+
+  <div class="member-donate-intro">
+    <strong>{{ portal_settings.giving_goal_headline }}</strong>
+  </div>
+
+  <div class="member-panel">
+    <div class="member-pay-tabs" role="tablist">
+      <button type="button" class="member-pay-tab{% if active_tab == 'chapa' %} is-active{% endif %}" data-tab="chapa" role="tab" aria-selected="{% if active_tab == 'chapa' %}true{% else %}false{% endif %}">
+        <i class="fa fa-credit-card"></i>Chapa (online)
+      </button>
+      <button type="button" class="member-pay-tab{% if active_tab == 'manual' %} is-active{% endif %}" data-tab="manual" role="tab" aria-selected="{% if active_tab == 'manual' %}true{% else %}false{% endif %}"{% if not has_banks %} disabled title="No bank accounts configured"{% endif %}>
+        <i class="fa fa-university"></i>Bank transfer
+      </button>
+    </div>
+
+    <div id="panel-chapa" class="member-pay-panel{% if active_tab == 'chapa' %} is-active{% endif %}" role="tabpanel">
+      <p class="member-pay-panel__lead">
+        <i class="fa fa-bolt text-warning me-1"></i>
+        Pay securely online. Your donation is confirmed automatically when payment succeeds.
+      </p>
+      <form method="post" novalidate>
         {% csrf_token %}
         <input type="hidden" name="payment_type" value="chapa">
         <div class="mb-3">
-          <label class="form-label">Amount (ETB)</label>
+          <label class="member-form-label">Amount (ETB)</label>
           {{ chapa_form.amount }}
+          {% if chapa_form.amount.errors %}<div class="text-danger small">{{ chapa_form.amount.errors }}</div>{% endif %}
         </div>
-        <div class="mb-3">
-          <label class="form-label">Purpose (optional)</label>
-          {{ chapa_form.purpose }}
-        </div>
-        <button type="submit" class="btn btn-primary w-100">Pay with Chapa</button>
+        <button type="submit" class="btn member-btn member-btn--primary w-100 mt-2">
+          <i class="fa fa-lock me-2"></i>Continue to Chapa
+        </button>
       </form>
     </div>
-  </div>
-  <div class="col-lg-6">
-    <div class="portal-card">
-      <h5><i class="fa fa-university text-success me-2"></i>Manual bank transfer</h5>
-      <p class="small text-muted mb-3">
-        <strong>Account:</strong> Gachana Charity Association<br>
-        Submit your transfer reference after payment. Staff will confirm your donation.
+
+    <div id="panel-manual" class="member-pay-panel{% if active_tab == 'manual' %} is-active{% endif %}" role="tabpanel">
+      {% if not has_banks %}
+      <div class="member-alert-no-banks">
+        <i class="fa fa-info-circle me-2"></i>
+        Bank transfer is not available right now. Please use Chapa or contact the association office.
+      </div>
+      {% else %}
+      <ul class="member-manual-steps">
+        <li>1. Enter amount</li>
+        <li>2. Choose bank</li>
+        <li>3. Transfer & upload proof</li>
+      </ul>
+      <p class="member-pay-panel__lead">
+        Transfer the amount to our account, then upload your payment proof. Staff will confirm your donation.
       </p>
-      <form method="post" enctype="multipart/form-data">
+      <form method="post" enctype="multipart/form-data" novalidate id="manual-donation-form">
         {% csrf_token %}
         <input type="hidden" name="payment_type" value="manual">
+
         <div class="mb-3">
-          <label class="form-label">Amount (ETB)</label>
+          <label class="member-form-label" for="{{ manual_form.amount.id_for_label }}">Amount (ETB)</label>
           {{ manual_form.amount }}
+          {% if manual_form.amount.errors %}<div class="text-danger small">{{ manual_form.amount.errors }}</div>{% endif %}
         </div>
+
         <div class="mb-3">
-          <label class="form-label">Purpose (optional)</label>
-          {{ manual_form.purpose }}
+          <label class="member-form-label" for="{{ manual_form.bank.id_for_label }}">Select bank</label>
+          {{ manual_form.bank }}
+          {% if manual_form.bank.errors %}<div class="text-danger small">{{ manual_form.bank.errors }}</div>{% endif %}
         </div>
-        <div class="mb-3">
-          <label class="form-label">Bank reference</label>
-          {{ manual_form.manual_reference }}
+
+        <div id="bank-details" class="member-bank-details" aria-live="polite">
+          <div class="member-bank-details__title">Transfer to this account</div>
+          <dl>
+            <div>
+              <dt>Account name</dt>
+              <dd id="bank-account-name">—</dd>
+            </div>
+            <div>
+              <dt>Account number</dt>
+              <dd class="member-bank-copy-row">
+                <span id="bank-account-number" class="member-account-number" title="Click to copy" tabindex="0" role="button">—</span>
+                <button type="button" class="member-copy-btn" id="copy-account-btn" hidden aria-label="Copy account number">
+                  <i class="fa fa-copy"></i> Copy
+                </button>
+              </dd>
+            </div>
+          </dl>
+          <p class="member-bank-details__copy-hint">Tap Copy to copy the account number for your transfer.</p>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Proof of payment (optional)</label>
-          {{ manual_form.manual_proof }}
+
+        <div id="manual-after-bank" class="d-none">
+          <div class="mb-4">
+            <label class="member-form-label" for="{{ manual_form.manual_proof.id_for_label }}">Payment proof</label>
+            {{ manual_form.manual_proof }}
+            <div class="member-file-hint">Upload a screenshot or PDF of your transfer receipt (required).</div>
+            {% if manual_form.manual_proof.errors %}<div class="text-danger small">{{ manual_form.manual_proof.errors }}</div>{% endif %}
+          </div>
+          <button type="submit" class="btn member-btn member-btn--primary w-100">
+            <i class="fa fa-paper-plane me-2"></i>Submit donation
+          </button>
         </div>
-        <button type="submit" class="btn btn-success w-100">Submit manual donation</button>
       </form>
+      {% endif %}
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const banks = {{ banks_json|safe }};
+  const bankMap = Object.fromEntries(banks.map(b => [String(b.id), b]));
+
+  const tabs = document.querySelectorAll('.member-pay-tab');
+  const panels = {
+    chapa: document.getElementById('panel-chapa'),
+    manual: document.getElementById('panel-manual'),
+  };
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      if (tab.disabled) return;
+      const name = tab.dataset.tab;
+      tabs.forEach(t => {
+        t.classList.toggle('is-active', t === tab);
+        t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+      });
+      Object.entries(panels).forEach(([key, panel]) => {
+        if (panel) panel.classList.toggle('is-active', key === name);
+      });
+    });
+  });
+
+  const bankSelect = document.getElementById('id_bank');
+  const detailsEl = document.getElementById('bank-details');
+  const afterBankEl = document.getElementById('manual-after-bank');
+  const copyBtn = document.getElementById('copy-account-btn');
+  const accountNumEl = document.getElementById('bank-account-number');
+
+  function updateBankUI() {
+    if (!bankSelect || !detailsEl) return;
+    const bank = bankMap[bankSelect.value];
+    if (!bank) {
+      detailsEl.classList.remove('is-visible');
+      if (afterBankEl) afterBankEl.classList.add('d-none');
+      if (copyBtn) copyBtn.hidden = true;
+      return;
+    }
+    document.getElementById('bank-account-name').textContent = bank.account_name;
+    accountNumEl.textContent = bank.account_number;
+    if (copyBtn) copyBtn.hidden = false;
+    detailsEl.classList.add('is-visible');
+    if (afterBankEl) afterBankEl.classList.remove('d-none');
+  }
+
+  if (bankSelect) {
+    bankSelect.addEventListener('change', updateBankUI);
+    updateBankUI();
+  }
+
+  async function copyAccountNumber() {
+    const value = accountNumEl.textContent.trim();
+    if (!value || value === '—') return;
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch (e) {
+      const range = document.createRange();
+      range.selectNodeContents(accountNumEl);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      document.execCommand('copy');
+      sel.removeAllRanges();
+    }
+    if (copyBtn) {
+      const label = copyBtn.innerHTML;
+      copyBtn.innerHTML = '<i class="fa fa-check"></i> Copied';
+      copyBtn.classList.add('is-copied');
+      accountNumEl.classList.add('is-copied');
+      setTimeout(() => {
+        copyBtn.innerHTML = label;
+        copyBtn.classList.remove('is-copied');
+        accountNumEl.classList.remove('is-copied');
+      }, 2000);
+    }
+  }
+
+  if (copyBtn && accountNumEl) {
+    copyBtn.addEventListener('click', copyAccountNumber);
+    accountNumEl.addEventListener('click', copyAccountNumber);
+    accountNumEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        copyAccountNumber();
+      }
+    });
+  }
+})();
+</script>
 {% endblock %}

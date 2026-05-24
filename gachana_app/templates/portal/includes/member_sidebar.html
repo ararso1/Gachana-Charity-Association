@@ -1,0 +1,7 @@
+{% with url_name=request.resolver_match.url_name %}
+<a href="{% url 'member_dashboard' %}" class="{% if url_name == 'member_dashboard' %}active{% endif %}"><i class="fa fa-home me-2"></i>Dashboard</a>
+<a href="{% url 'member_donate' %}" class="{% if url_name == 'member_donate' %}active{% endif %}"><i class="fa fa-hand-holding-heart me-2"></i>Donate</a>
+<a href="{% url 'member_donations' %}" class="{% if url_name == 'member_donations' %}active{% endif %}"><i class="fa fa-history me-2"></i>Donation history</a>
+<a href="{% url 'member_card' %}" class="{% if url_name == 'member_card' %}active{% endif %}"><i class="fa fa-id-card me-2"></i>Membership card</a>
+<a href="{% url 'member_profile' %}" class="{% if url_name == 'member_profile' %}active{% endif %}"><i class="fa fa-user me-2"></i>Profile</a>
+{% endwith %}

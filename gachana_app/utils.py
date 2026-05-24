@@ -3,7 +3,27 @@ import uuid
 from django.db.models import Max
 from django.utils import timezone
 
-from .models import Donation, MemberProfile, User
+from .models import Donation, MemberProfile, PortalSettings, User
+
+
+def get_portal_settings():
+    return PortalSettings.load()
+
+
+def community_donation_total():
+    from django.db.models import Sum
+
+    return (
+        Donation.objects.filter(status=Donation.Status.CONFIRMED).aggregate(total=Sum('amount'))['total']
+        or 0
+    )
+
+
+def community_goal_progress_percent(goal):
+    if not goal:
+        return 0
+    total = community_donation_total()
+    return min(100, int((total / goal) * 100))
 
 
 def get_dashboard_url_name(user):

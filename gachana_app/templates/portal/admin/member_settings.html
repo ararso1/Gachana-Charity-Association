@@ -1,0 +1,65 @@
+{% extends 'portal/admin/base_admin.html' %}
+{% block title %}Member giving goal{% endblock %}
+{% block content %}
+<div class="portal-page-header d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+  <div>
+    <h2 class="mb-1">Annual giving goal</h2>
+    <p class="text-muted mb-0">Set the community goal and message every member sees on their dashboard.</p>
+  </div>
+  <a href="{% url 'portal_admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="fa fa-arrow-left me-1"></i>Back to dashboard
+  </a>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="portal-card">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="{{ form.annual_giving_goal.id_for_label }}">Annual giving goal (ETB)</label>
+          {{ form.annual_giving_goal }}
+          {% if form.annual_giving_goal.errors %}<div class="text-danger small">{{ form.annual_giving_goal.errors }}</div>{% endif %}
+          <div class="form-text">Shared target for the whole community—not a per-member requirement.</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="{{ form.giving_goal_headline.id_for_label }}">Headline</label>
+          {{ form.giving_goal_headline }}
+          {% if form.giving_goal_headline.errors %}<div class="text-danger small">{{ form.giving_goal_headline.errors }}</div>{% endif %}
+          <div class="form-text">Short encouragement shown to members, e.g. “Help us however you can”.</div>
+        </div>
+        <div class="mb-4">
+          <label class="form-label fw-semibold" for="{{ form.giving_goal_message.id_for_label }}">Message</label>
+          {{ form.giving_goal_message }}
+          {% if form.giving_goal_message.errors %}<div class="text-danger small">{{ form.giving_goal_message.errors }}</div>{% endif %}
+        </div>
+        <button type="submit" class="btn btn-success">
+          <i class="fa fa-save me-1"></i>Save settings
+        </button>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="portal-card">
+      <h5 class="mb-3"><i class="fa fa-chart-line text-success me-2"></i>Live preview</h5>
+      <p class="fw-semibold mb-1">{{ settings.giving_goal_headline }}</p>
+      <p class="text-muted small mb-3">{{ settings.giving_goal_message|linebreaksbr }}</p>
+      <div class="d-flex justify-content-between small mb-2">
+        <span>Community raised</span>
+        <span class="fw-semibold">{{ community_total|floatformat:0 }} / {{ settings.annual_giving_goal|floatformat:0 }} ETB</span>
+      </div>
+      <div class="progress-bar-wrap mb-2">
+        <div class="progress-bar-fill" style="width: {{ community_progress }}%"></div>
+      </div>
+      <small class="text-muted">{{ community_progress }}% of annual goal</small>
+    </div>
+    <div class="portal-card mt-3 mb-0">
+      <h6 class="text-muted text-uppercase small mb-2">Last updated</h6>
+      <p class="mb-0">{{ settings.updated_at|date:"M d, Y H:i" }}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -116,3 +116,483 @@
   object-fit: cover;
   border: 3px solid #06a84a;
 }
+
+/* Members list page */
+.members-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.members-page-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #06a84a;
+  margin-bottom: 0.35rem;
+}
+
+.members-page-header h1 {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: #0b3d2e;
+  margin: 0 0 0.35rem;
+}
+
+.members-page-sub {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+.members-stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.members-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.15rem 1.25rem;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(11, 61, 46, 0.06);
+}
+
+.members-stat-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.members-stat-card__icon--green {
+  background: rgba(6, 168, 74, 0.12);
+  color: #06a84a;
+}
+
+.members-stat-card__icon--teal {
+  background: rgba(13, 92, 56, 0.1);
+  color: #0b3d2e;
+}
+
+.members-stat-card__icon--gold {
+  background: rgba(240, 180, 41, 0.2);
+  color: #b8860b;
+}
+
+.members-stat-card__label {
+  display: block;
+  font-size: 0.75rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.15rem;
+}
+
+.members-stat-card__value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0b3d2e;
+  line-height: 1.2;
+}
+
+.members-stat-card__value small {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6c757d;
+}
+
+.members-table-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 1.15rem 1.35rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.members-table-card__head h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0b3d2e;
+  margin: 0;
+}
+
+.members-table thead th {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  background: #f8faf9;
+  border-bottom: 1px solid #e9ecef;
+  padding: 0.85rem 1rem;
+  white-space: nowrap;
+}
+
+.members-table tbody td {
+  padding: 0.9rem 1rem;
+  vertical-align: middle;
+}
+
+.members-table__person {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 160px;
+}
+
+.members-table__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid #e9ecef;
+}
+
+.members-table__avatar--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8f0ec;
+  color: #06a84a;
+  font-size: 0.95rem;
+}
+
+.members-table__name {
+  font-weight: 600;
+  color: #0b3d2e;
+}
+
+.members-table__email {
+  color: #0b3d2e;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.members-table__email:hover {
+  color: #06a84a;
+  text-decoration: underline;
+}
+
+.members-table__meta {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 0.15rem;
+}
+
+.members-table__address {
+  max-width: 200px;
+  font-size: 0.9rem;
+  color: #495057;
+  line-height: 1.4;
+}
+
+.members-table__id {
+  font-size: 0.8rem;
+  color: #0b3d2e;
+  background: #f0f7f3;
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+}
+
+.members-table__amount {
+  font-weight: 600;
+  color: #06a84a;
+  white-space: nowrap;
+}
+
+.members-table__date {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.members-badge {
+  font-weight: 600;
+  font-size: 0.7rem;
+  padding: 0.35em 0.65em;
+}
+
+.members-badge--success {
+  background: rgba(6, 168, 74, 0.15);
+  color: #058c3f;
+}
+
+.members-badge--muted {
+  background: #e9ecef;
+  color: #6c757d;
+}
+
+.members-table__empty {
+  text-align: center;
+  padding: 3rem 1.5rem !important;
+  color: #6c757d;
+}
+
+.members-table__empty i {
+  font-size: 2.5rem;
+  color: #cde8d6;
+  margin-bottom: 0.75rem;
+}
+
+.members-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  padding: 0 1.25rem 1.15rem;
+  border-bottom: 1px solid #e9ecef;
+  align-items: center;
+}
+
+.members-toolbar__search {
+  position: relative;
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+
+.members-toolbar__search-icon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.members-toolbar__search .form-control {
+  padding-left: 2.35rem;
+  border-radius: 10px;
+  border-color: #d8e5de;
+}
+
+.members-toolbar__filter {
+  flex: 0 1 auto;
+  min-width: 160px;
+  border-radius: 10px;
+  border-color: #d8e5de;
+}
+
+.members-toolbar__btn {
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+@media (min-width: 992px) {
+  .members-toolbar {
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+  }
+
+  .members-toolbar__search {
+    flex: 1 1 auto;
+    min-width: 240px;
+    max-width: none;
+  }
+
+  .members-toolbar__filter {
+    flex: 0 0 190px;
+    width: 190px;
+    min-width: 190px;
+  }
+
+  .members-toolbar__btn {
+    flex: 0 0 auto;
+  }
+}
+
+.members-table__row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.members-table__row:hover {
+  background: rgba(6, 168, 74, 0.06) !important;
+}
+
+.members-table__row:focus {
+  outline: 2px solid #06a84a;
+  outline-offset: -2px;
+}
+
+.members-pagination {
+  padding: 1rem 1.25rem 1.15rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.members-pagination .page-link {
+  border-radius: 8px;
+  margin: 0 2px;
+  color: #0b3d2e;
+}
+
+.members-pagination .page-item.active .page-link {
+  background: #06a84a;
+  border-color: #06a84a;
+}
+
+.members-detail-modal {
+  border: none;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.members-detail-modal .modal-header {
+  padding: 1.25rem 1.5rem 0;
+}
+
+.members-detail-modal .modal-body {
+  padding: 0 1.5rem 1.5rem;
+}
+
+.members-detail__hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  background: linear-gradient(135deg, rgba(11, 61, 46, 0.06), rgba(6, 168, 74, 0.08));
+  border-radius: 14px;
+}
+
+.members-detail__photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #06a84a;
+  box-shadow: 0 8px 24px rgba(11, 61, 46, 0.15);
+  flex-shrink: 0;
+}
+
+.members-detail__name {
+  font-weight: 700;
+  color: #0b3d2e;
+}
+
+.members-detail__grid {
+  margin-bottom: 1.25rem;
+}
+
+.members-detail__field,
+.members-detail__stat {
+  background: #f8faf9;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  height: 100%;
+}
+
+.members-detail__label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.members-detail__stat strong {
+  font-size: 1.1rem;
+  color: #0b3d2e;
+}
+
+.members-detail__section-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0b3d2e;
+  margin-bottom: 0.75rem;
+}
+
+.members-detail__donations thead th {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #6c757d;
+}
+
+/* Responsive portal admin pages */
+@media (max-width: 991.98px) {
+  .portal-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .portal-page-header .btn,
+  .portal-page-header .btn-group {
+    width: 100%;
+  }
+
+  .portal-page-header .btn {
+    justify-content: center;
+  }
+
+  .portal-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .portal-toolbar .form-control,
+  .portal-toolbar .form-select,
+  .portal-toolbar .btn {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .portal-form-card {
+    max-width: 100%;
+  }
+
+  .portal-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .members-stat-row {
+    grid-template-columns: 1fr;
+  }
+
+  .members-table__address {
+    max-width: 140px;
+  }
+
+  .members-toolbar__search,
+  .members-toolbar__filter,
+  .members-toolbar__btn {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .members-detail__photo {
+    width: 96px;
+    height: 96px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .portal-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-page-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+}

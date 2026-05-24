@@ -8,6 +8,12 @@
 <a href="{% url 'portal_manage_members' %}" class="{% if url_name == 'portal_manage_members' %}active{% endif %}">
   <i class="fa fa-users me-2"></i>Members
 </a>
+<a href="{% url 'portal_admin_member_settings' %}" class="{% if url_name == 'portal_admin_member_settings' %}active{% endif %}">
+  <i class="fa fa-bullseye me-2"></i>Giving goal
+</a>
+<a href="{% url 'portal_admin_banks' %}" class="{% if url_name == 'portal_admin_banks' %}active{% endif %}">
+  <i class="fa fa-university me-2"></i>Bank accounts
+</a>
 <a href="{% url 'portal_manage_staff' %}" class="{% if url_name == 'portal_manage_staff' %}active{% endif %}">
   <i class="fa fa-user-tie me-2"></i>Staff & designations
 </a>
@@ -21,6 +27,9 @@
 </a>
 <a href="{% url 'vacancy_list' %}" class="{% if url_name == 'vacancy_list' or url_name == 'create_vacancy' or url_name == 'edit_vacancy' %}active{% endif %}">
   <i class="fa fa-briefcase me-2"></i>Vacancies
+</a>
+<a href="{% url 'gallery_list' %}" class="{% if url_name == 'gallery_list' or url_name == 'create_gallery' or url_name == 'edit_gallery' %}active{% endif %}">
+  <i class="fa fa-images me-2"></i>Gallery
 </a>
 
 <small class="text-white-50 d-block mb-2 mt-3">ACCOUNT</small>

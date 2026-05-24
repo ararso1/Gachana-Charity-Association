@@ -68,10 +68,54 @@ class StaffProfile(models.Model):
         return f"{self.user.get_full_name() or self.user.username} ({self.employee_id})"
 
 
+class PortalSettings(models.Model):
+    """Singleton site-wide settings for the member portal."""
+
+    annual_giving_goal = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=100000,
+        help_text='Community fundraising target shown to all members (ETB).',
+    )
+    giving_goal_headline = models.CharField(
+        max_length=200,
+        default='Help us however you can',
+    )
+    giving_goal_message = models.TextField(
+        blank=True,
+        default=(
+            'Our annual giving goal supports programs across the community. '
+            'Every gift counts—give what feels right for you.'
+        ),
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Portal settings'
+        verbose_name_plural = 'Portal settings'
+
+    def __str__(self):
+        return 'Member portal settings'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
 class MemberProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='member_profile')
     membership_id = models.CharField(max_length=20, unique=True, blank=True)
-    membership_goal = models.DecimalField(max_digits=12, decimal_places=2, default=10000)
+    membership_goal = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=10000,
+        help_text='Deprecated: use PortalSettings.annual_giving_goal.',
+    )
     total_donated = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     card_issued_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -80,15 +124,38 @@ class MemberProfile(models.Model):
     def __str__(self):
         return self.membership_id or str(self.user)
 
+    def progress_toward_goal(self, goal):
+        if not goal:
+            return 0
+        return min(100, int((self.total_donated / goal) * 100))
+
     @property
     def progress_percent(self):
-        if not self.membership_goal:
-            return 0
-        return min(100, int((self.total_donated / self.membership_goal) * 100))
+        return self.progress_toward_goal(PortalSettings.load().annual_giving_goal)
 
     @property
     def has_membership_card(self):
         return bool(self.card_issued_at)
+
+
+class DonationBank(models.Model):
+    """Bank accounts members can transfer donations to."""
+
+    name = models.CharField(max_length=120, help_text='Bank name shown in the dropdown.')
+    account_name = models.CharField(max_length=200)
+    account_number = models.CharField(max_length=80)
+    branch = models.CharField(max_length=120, blank=True)
+    is_active = models.BooleanField(default=True)
+    sort_order = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['sort_order', 'name']
+        verbose_name = 'donation bank'
+        verbose_name_plural = 'donation banks'
+
+    def __str__(self):
+        return self.name
 
 
 class Donation(models.Model):
@@ -108,6 +175,13 @@ class Donation(models.Model):
     payment_method = models.CharField(max_length=10, choices=PaymentMethod.choices)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
     purpose = models.CharField(max_length=255, blank=True)
+    bank = models.ForeignKey(
+        DonationBank,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='donations',
+    )
     manual_reference = models.CharField(max_length=255, blank=True)
     manual_proof = models.FileField(upload_to='donation_proofs/', null=True, blank=True)
     chapa_tx_ref = models.CharField(max_length=100, unique=True, null=True, blank=True)
@@ -182,7 +256,10 @@ class Gallery(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     
     def __str__(self):
-        return self.category
+        label = self.get_category_display() if self.category else 'Gallery'
+        if self.description:
+            return f"{label} — {self.description[:40]}"
+        return f"{label} — Image #{self.pk}" if self.pk else label
 
 class Vacancy(models.Model):
     JOB_TYPE_CHOICES = [

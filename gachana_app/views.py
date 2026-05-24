@@ -445,6 +445,72 @@ def delete_blog(request, blog_id):
         return redirect('blog_list')  # Adjust to your blog list view name
     return redirect('blog_list')
 
+# gallery part
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def gallery_list(request):
+    query = request.GET.get('q')
+    category = request.GET.get('category')
+    items = Gallery.objects.all().order_by('-created_at')
+
+    if category:
+        items = items.filter(category=category)
+    if query:
+        items = items.filter(
+            Q(description__icontains=query) | Q(category__icontains=query)
+        )
+
+    return render(request, 'portal/admin/content/gallery_list.html', {
+        'items': items,
+        'query': query,
+        'category_filter': category,
+        'category_choices': Gallery.CATEGORY_CHOICES,
+    })
+
+
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def create_gallery(request):
+    if request.method == 'POST':
+        form = GalleryForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Gallery image added successfully.')
+            return redirect('gallery_list')
+    else:
+        form = GalleryForm()
+    return render(request, 'portal/admin/content/gallery_form.html', {'form': form, 'is_edit': False})
+
+
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def update_gallery(request, gallery_id):
+    item = get_object_or_404(Gallery, id=gallery_id)
+    if request.method == 'POST':
+        form = GalleryForm(request.POST, request.FILES, instance=item)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Gallery image updated successfully.')
+            return redirect('gallery_list')
+    else:
+        form = GalleryForm(instance=item)
+    return render(request, 'portal/admin/content/gallery_form.html', {
+        'form': form,
+        'item': item,
+        'is_edit': True,
+    })
+
+
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def delete_gallery(request, gallery_id):
+    item = get_object_or_404(Gallery, id=gallery_id)
+    if request.method == 'POST':
+        item.delete()
+        messages.success(request, 'Gallery image deleted.')
+    return redirect('gallery_list')
+
+
 @login_required(login_url='/login/')
 @role_required(User.Role.ADMIN)
 def profile(request):

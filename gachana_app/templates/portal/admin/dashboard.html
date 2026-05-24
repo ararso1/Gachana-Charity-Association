@@ -1,66 +1,375 @@
 {% extends 'portal/admin/base_admin.html' %}
+{% load static %}
 {% block title %}Admin Dashboard{% endblock %}
+
+{% block admin_extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Saira:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="{% static 'css/admin_dashboard.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-<div class="portal-page-header">
-  <h2>Admin Dashboard</h2>
-  <span class="text-muted">Welcome, {{ request.user.get_full_name|default:request.user.username }}</span>
+<div class="dash-hero">
+  <div class="dash-hero-text">
+    <p class="dash-hero-eyebrow">Gachana Charity Association</p>
+    <h1>Welcome back, {{ request.user.first_name|default:request.user.username }}</h1>
+    <p class="dash-hero-sub">Overview of members, donations, and website content at a glance.</p>
+  </div>
+  <div class="dash-hero-actions">
+    <a href="{% url 'portal_donation_list' %}?status=pending" class="btn btn-light btn-sm">
+      <i class="fa fa-clock me-1"></i>{{ stats.pending_donations }} pending
+    </a>
+    <a href="{% url 'home' %}" target="_blank" class="btn btn-outline-light btn-sm">
+      <i class="fa fa-external-link-alt me-1"></i>Public site
+    </a>
+  </div>
 </div>
 
-<div class="portal-section-title">Member management</div>
-<div class="portal-stat-grid">
-  <a href="{% url 'portal_manage_members' %}" class="portal-stat-card">
-    <h6>Members</h6>
-    <div class="value">{{ stats.members }}</div>
+<div class="dash-kpi-grid">
+  <a href="{% url 'portal_manage_members' %}" class="dash-kpi dash-kpi--green">
+    <div class="dash-kpi-icon"><i class="fa fa-users"></i></div>
+    <div>
+      <span class="dash-kpi-label">Members</span>
+      <span class="dash-kpi-value">{{ stats.members }}</span>
+    </div>
   </a>
-  <a href="{% url 'portal_manage_staff' %}" class="portal-stat-card">
-    <h6>Staff</h6>
-    <div class="value">{{ stats.staff }}</div>
+  <a href="{% url 'portal_donation_list' %}" class="dash-kpi dash-kpi--gold">
+    <div class="dash-kpi-icon"><i class="fa fa-hand-holding-heart"></i></div>
+    <div>
+      <span class="dash-kpi-label">Confirmed donations</span>
+      <span class="dash-kpi-value">{{ stats.donations_total|floatformat:0 }} <small>ETB</small></span>
+    </div>
   </a>
-  <a href="{% url 'portal_donation_list' %}" class="portal-stat-card">
-    <h6>Confirmed donations</h6>
-    <div class="value">{{ stats.donations_total }} ETB</div>
+  <a href="{% url 'portal_donation_list' %}?status=pending" class="dash-kpi dash-kpi--amber">
+    <div class="dash-kpi-icon"><i class="fa fa-hourglass-half"></i></div>
+    <div>
+      <span class="dash-kpi-label">Pending review</span>
+      <span class="dash-kpi-value">{{ stats.pending_donations }}</span>
+    </div>
   </a>
-  <a href="{% url 'portal_donation_list' %}?status=pending" class="portal-stat-card" style="border-left-color:#f0b429">
-    <h6>Pending donations</h6>
-    <div class="value">{{ stats.pending_donations }}</div>
-  </a>
-</div>
-
-<div class="portal-section-title">Website content</div>
-<div class="portal-stat-grid">
-  <a href="{% url 'blog_list' %}" class="portal-stat-card" style="border-left-color:#2563eb">
-    <h6>Blog posts</h6>
-    <div class="value">{{ stats.blogs }}</div>
-    <small class="text-muted d-block mt-1">Last update: {% if stats.last_blog %}{{ stats.last_blog|date:"M d, Y" }}{% else %}—{% endif %}</small>
-  </a>
-  <a href="{% url 'vacancy_list' %}" class="portal-stat-card" style="border-left-color:#7c3aed">
-    <h6>Vacancies</h6>
-    <div class="value">{{ stats.vacancies }}</div>
-    <small class="text-muted d-block mt-1">Last update: {% if stats.last_vacancy %}{{ stats.last_vacancy|date:"M d, Y" }}{% else %}—{% endif %}</small>
+  <a href="{% url 'portal_manage_staff' %}" class="dash-kpi dash-kpi--teal">
+    <div class="dash-kpi-icon"><i class="fa fa-user-tie"></i></div>
+    <div>
+      <span class="dash-kpi-label">Staff</span>
+      <span class="dash-kpi-value">{{ stats.staff }}</span>
+    </div>
   </a>
 </div>
 
-<div class="row g-3">
-  <div class="col-md-6">
-    <div class="portal-card">
-      <h5 class="mb-3"><i class="fa fa-bolt text-success me-2"></i>Quick actions</h5>
-      <div class="d-flex flex-wrap gap-2">
-        <a href="{% url 'create_blogs' %}" class="btn btn-success btn-sm"><i class="fa fa-plus me-1"></i>New blog</a>
-        <a href="{% url 'create_vacancy' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus me-1"></i>New vacancy</a>
-        <a href="{% url 'portal_manage_staff' %}" class="btn btn-outline-secondary btn-sm"><i class="fa fa-user-plus me-1"></i>Add staff</a>
-        <a href="{% url 'portal_donation_list' %}?status=pending" class="btn btn-outline-warning btn-sm"><i class="fa fa-check me-1"></i>Review donations</a>
+<div class="dash-giving-goal portal-card mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+    <div>
+      <p class="dash-giving-goal__eyebrow mb-1">Member portal</p>
+      <h3 class="h5 mb-1">{{ portal_settings.giving_goal_headline }}</h3>
+      <p class="text-muted small mb-2">{{ portal_settings.giving_goal_message|truncatewords:24 }}</p>
+      <div class="d-flex flex-wrap gap-3 small">
+        <span><strong>{{ community_total|floatformat:0 }}</strong> ETB raised community-wide</span>
+        <span class="text-muted">Goal: <strong>{{ portal_settings.annual_giving_goal|floatformat:0 }} ETB</strong></span>
+        <span class="text-success fw-semibold">{{ community_progress }}%</span>
+      </div>
+      <div class="progress-bar-wrap mt-2" style="max-width: 420px;">
+        <div class="progress-bar-fill" style="width: {{ community_progress }}%"></div>
+      </div>
+    </div>
+    <a href="{% url 'portal_admin_member_settings' %}" class="btn btn-success btn-sm">
+      <i class="fa fa-edit me-1"></i>Edit giving goal
+    </a>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-lg-8">
+    <div class="dash-chart-card">
+      <div class="dash-chart-card__head">
+        <h3><i class="fa fa-chart-line me-2 text-success"></i>Donations (last 6 months)</h3>
+        <span class="text-muted small">Confirmed amounts in ETB</span>
+      </div>
+      <div class="dash-chart-wrap dash-chart-wrap--tall">
+        <canvas id="chartMonthlyDonations"></canvas>
       </div>
     </div>
   </div>
-  <div class="col-md-6">
-    <div class="portal-card">
-      <h5 class="mb-3"><i class="fa fa-link text-success me-2"></i>Portal links</h5>
-      <ul class="list-unstyled mb-0">
-        <li class="mb-2"><a href="{% url 'home' %}" target="_blank"><i class="fa fa-external-link-alt me-2"></i>View public website</a></li>
-        <li class="mb-2"><a href="/admin/" target="_blank"><i class="fa fa-cog me-2"></i>Django admin (advanced)</a></li>
-        <li><a href="{% url 'profile' %}"><i class="fa fa-user me-2"></i>Edit admin profile</a></li>
+  <div class="col-lg-4">
+    <div class="dash-chart-card h-100">
+      <div class="dash-chart-card__head">
+        <h3><i class="fa fa-chart-pie me-2 text-success"></i>Donation status</h3>
+      </div>
+      <div class="dash-chart-wrap">
+        <canvas id="chartDonationStatus"></canvas>
+      </div>
+      <ul class="dash-legend-list">
+        <li><span class="dot" style="background:#06a84a"></span>Confirmed {{ stats.confirmed_donations }}</li>
+        <li><span class="dot" style="background:#f0b429"></span>Pending {{ stats.pending_donations }}</li>
       </ul>
     </div>
   </div>
 </div>
+
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="dash-chart-card">
+      <div class="dash-chart-card__head">
+        <h3><i class="fa fa-user-plus me-2 text-success"></i>Member signups</h3>
+        <span class="text-muted small">Last 6 months</span>
+      </div>
+      <div class="dash-chart-wrap">
+        <canvas id="chartMemberGrowth"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="dash-chart-card">
+      <div class="dash-chart-card__head">
+        <h3><i class="fa fa-layer-group me-2 text-success"></i>Website content</h3>
+      </div>
+      <div class="dash-chart-wrap">
+        <canvas id="chartContent"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-lg-5">
+    <div class="dash-chart-card">
+      <div class="dash-chart-card__head">
+        <h3><i class="fa fa-images me-2 text-success"></i>Gallery by category</h3>
+      </div>
+      <div class="dash-chart-wrap">
+        <canvas id="chartGallery"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="dash-chart-card">
+      <div class="dash-chart-card__head d-flex justify-content-between align-items-center">
+        <h3><i class="fa fa-history me-2 text-success"></i>Recent donations</h3>
+        <a href="{% url 'portal_donation_list' %}" class="small">View all</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover dash-table mb-0">
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Amount</th>
+              <th>Method</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in recent_donations %}
+            <tr>
+              <td>{{ d.member.get_full_name|default:d.member.email|truncatechars:24 }}</td>
+              <td><strong>{{ d.amount }}</strong> {{ d.currency }}</td>
+              <td>{{ d.get_payment_method_display }}</td>
+              <td>
+                <span class="badge rounded-pill bg-{% if d.status == 'confirmed' %}success{% elif d.status == 'pending' %}warning text-dark{% else %}secondary{% endif %}">
+                  {{ d.get_status_display }}
+                </span>
+              </td>
+              <td class="text-muted small">{{ d.created_at|date:"M d, H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center text-muted py-4">No donations yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="dash-chart-card">
+      <h3 class="mb-3"><i class="fa fa-bolt text-warning me-2"></i>Quick actions</h3>
+      <div class="dash-actions">
+        <a href="{% url 'create_blogs' %}" class="dash-action-btn dash-action-btn--blue">
+          <i class="fa fa-blog"></i><span>New blog</span>
+        </a>
+        <a href="{% url 'create_vacancy' %}" class="dash-action-btn dash-action-btn--purple">
+          <i class="fa fa-briefcase"></i><span>New vacancy</span>
+        </a>
+        <a href="{% url 'create_gallery' %}" class="dash-action-btn dash-action-btn--orange">
+          <i class="fa fa-image"></i><span>Gallery image</span>
+        </a>
+        <a href="{% url 'portal_manage_staff' %}" class="dash-action-btn dash-action-btn--gray">
+          <i class="fa fa-user-plus"></i><span>Add staff</span>
+        </a>
+        <a href="{% url 'portal_donation_list' %}?status=pending" class="dash-action-btn dash-action-btn--amber">
+          <i class="fa fa-check-circle"></i><span>Review donations</span>
+        </a>
+        <a href="{% url 'gallery_list' %}" class="dash-action-btn dash-action-btn--green">
+          <i class="fa fa-th"></i><span>Manage gallery</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="dash-chart-card">
+      <h3 class="mb-3"><i class="fa fa-file-alt text-success me-2"></i>Content snapshot</h3>
+      <ul class="dash-snapshot-list">
+        <li>
+          <a href="{% url 'blog_list' %}">
+            <span>Blog posts</span>
+            <strong>{{ stats.blogs }}</strong>
+            <small>{{ stats.published_blogs }} published</small>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'vacancy_list' %}">
+            <span>Vacancies</span>
+            <strong>{{ stats.vacancies }}</strong>
+            {% if stats.last_vacancy %}<small>Updated {{ stats.last_vacancy|date:"M d" }}</small>{% endif %}
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'gallery_list' %}">
+            <span>Gallery images</span>
+            <strong>{{ stats.gallery }}</strong>
+            {% if stats.last_gallery %}<small>Added {{ stats.last_gallery|date:"M d" }}</small>{% endif %}
+          </a>
+        </li>
+      </ul>
+      <hr>
+      <a href="{% url 'profile' %}" class="btn btn-outline-success btn-sm w-100"><i class="fa fa-user-cog me-1"></i>Edit profile</a>
+    </div>
+  </div>
+</div>
+
+{{ chart_data|json_script:"dashboard-chart-data" }}
+{% endblock %}
+
+{% block admin_extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  const payload = JSON.parse(document.getElementById('dashboard-chart-data').textContent);
+  const fontFamily = "'Inter', system-ui, sans-serif";
+  const gridColor = 'rgba(11, 61, 46, 0.08)';
+  const defaultOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0b3d2e',
+        titleFont: { family: fontFamily },
+        bodyFont: { family: fontFamily },
+        padding: 12,
+        cornerRadius: 8,
+      },
+    },
+  };
+
+  new Chart(document.getElementById('chartMonthlyDonations'), {
+    type: 'line',
+    data: {
+      labels: payload.monthly_donations.labels,
+      datasets: [{
+        label: 'ETB',
+        data: payload.monthly_donations.amounts,
+        borderColor: '#06a84a',
+        backgroundColor: 'rgba(6, 168, 74, 0.12)',
+        fill: true,
+        tension: 0.35,
+        pointBackgroundColor: '#06a84a',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      }],
+    },
+    options: {
+      ...defaultOptions,
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: fontFamily } } },
+        y: {
+          beginAtZero: true,
+          grid: { color: gridColor },
+          ticks: { font: { family: fontFamily } },
+        },
+      },
+    },
+  });
+
+  new Chart(document.getElementById('chartDonationStatus'), {
+    type: 'doughnut',
+    data: {
+      labels: payload.donation_status.labels,
+      datasets: [{
+        data: payload.donation_status.values,
+        backgroundColor: payload.donation_status.colors,
+        borderWidth: 0,
+        hoverOffset: 8,
+      }],
+    },
+    options: {
+      ...defaultOptions,
+      cutout: '62%',
+      plugins: { ...defaultOptions.plugins, legend: { display: true, position: 'bottom', labels: { usePointStyle: true, padding: 14 } } },
+    },
+  });
+
+  new Chart(document.getElementById('chartMemberGrowth'), {
+    type: 'bar',
+    data: {
+      labels: payload.member_growth.labels,
+      datasets: [{
+        label: 'New members',
+        data: payload.member_growth.values,
+        backgroundColor: 'rgba(6, 168, 74, 0.75)',
+        borderRadius: 8,
+        maxBarThickness: 48,
+      }],
+    },
+    options: {
+      ...defaultOptions,
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: fontFamily } } },
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: fontFamily } }, grid: { color: gridColor } },
+      },
+    },
+  });
+
+  new Chart(document.getElementById('chartContent'), {
+    type: 'bar',
+    data: {
+      labels: payload.content.labels,
+      datasets: [{
+        data: payload.content.values,
+        backgroundColor: payload.content.colors,
+        borderRadius: 8,
+        maxBarThickness: 56,
+      }],
+    },
+    options: {
+      indexAxis: 'y',
+      ...defaultOptions,
+      scales: {
+        x: { beginAtZero: true, ticks: { stepSize: 1, font: { family: fontFamily } }, grid: { color: gridColor } },
+        y: { grid: { display: false }, ticks: { font: { family: fontFamily, size: 11 } } },
+      },
+    },
+  });
+
+  const galleryLabels = payload.gallery_categories.labels;
+  new Chart(document.getElementById('chartGallery'), {
+    type: 'bar',
+    data: {
+      labels: galleryLabels.length ? galleryLabels : ['No images yet'],
+      datasets: [{
+        data: galleryLabels.length ? payload.gallery_categories.values : [0],
+        backgroundColor: '#e67e22',
+        borderRadius: 6,
+      }],
+    },
+    options: {
+      ...defaultOptions,
+      scales: {
+        x: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: gridColor } },
+        y: { grid: { display: false }, ticks: { font: { family: fontFamily, size: 10 } } },
+      },
+    },
+  });
+})();
+</script>
 {% endblock %}

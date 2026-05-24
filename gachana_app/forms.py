@@ -17,6 +17,22 @@ class BlogForm(forms.ModelForm):
         }
 
 
+class GalleryForm(forms.ModelForm):
+    class Meta:
+        model = Gallery
+        fields = ['category', 'img', 'description']
+        widgets = {
+            'category': forms.Select(attrs={'class': 'form-select'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'img': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields['img'].required = False
+
+
 class VacancyForm(forms.ModelForm):
     description = forms.CharField(widget=CKEditorWidget())
     class Meta:
@@ -87,14 +103,42 @@ class MemberSignupForm(forms.ModelForm):
 class DonationForm(forms.ModelForm):
     class Meta:
         model = Donation
-        fields = ['amount', 'purpose', 'manual_reference', 'manual_proof']
+        fields = ['amount', 'bank', 'manual_proof']
         widgets = {
-            'amount': forms.NumberInput(attrs={'min': '1', 'step': '0.01', 'class': 'form-control'}),
-            'purpose': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Optional purpose'}),
-            'manual_reference': forms.TextInput(
-                attrs={'class': 'form-control', 'placeholder': 'Bank transfer reference'}
+            'amount': forms.NumberInput(
+                attrs={'min': '1', 'step': '0.01', 'class': 'form-control member-input', 'placeholder': '0.00'}
             ),
-            'manual_proof': forms.FileInput(attrs={'class': 'form-control'}),
+            'bank': forms.Select(attrs={'class': 'form-select member-input', 'id': 'id_bank'}),
+            'manual_proof': forms.FileInput(
+                attrs={'class': 'form-control member-input', 'accept': 'image/*,.pdf'}
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['bank'].queryset = DonationBank.objects.filter(is_active=True)
+        self.fields['bank'].empty_label = 'Select a bank'
+        self.fields['bank'].required = True
+        self.fields['manual_proof'].required = True
+
+    def clean_bank(self):
+        bank = self.cleaned_data.get('bank')
+        if not bank or not bank.is_active:
+            raise forms.ValidationError('Please select a valid bank.')
+        return bank
+
+
+class DonationBankForm(forms.ModelForm):
+    class Meta:
+        model = DonationBank
+        fields = ['name', 'account_name', 'account_number', 'branch', 'is_active', 'sort_order']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'account_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'account_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'branch': forms.TextInput(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'sort_order': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
         }
 
 
@@ -103,12 +147,9 @@ class ChapaDonationForm(forms.Form):
         min_value=1,
         max_digits=12,
         decimal_places=2,
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'step': '0.01'}),
-    )
-    purpose = forms.CharField(
-        required=False,
-        max_length=255,
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.NumberInput(
+            attrs={'class': 'form-control member-input', 'min': '1', 'step': '0.01', 'placeholder': '0.00'}
+        ),
     )
 
 
@@ -117,7 +158,12 @@ class MemberProfileForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email', 'phone', 'address', 'photo']
         widgets = {
-            'photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control member-input'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control member-input'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control member-input'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control member-input'}),
+            'address': forms.TextInput(attrs={'class': 'form-control member-input'}),
+            'photo': forms.ClearableFileInput(attrs={'class': 'form-control member-input'}),
         }
 
 
@@ -171,3 +217,26 @@ class StaffDesignationForm(forms.ModelForm):
     class Meta:
         model = StaffDesignation
         fields = ['title', 'description']
+
+
+class PortalSettingsForm(forms.ModelForm):
+    class Meta:
+        model = PortalSettings
+        fields = ['annual_giving_goal', 'giving_goal_headline', 'giving_goal_message']
+        widgets = {
+            'annual_giving_goal': forms.NumberInput(
+                attrs={'class': 'form-control', 'min': '1', 'step': '0.01'}
+            ),
+            'giving_goal_headline': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Help us however you can'}
+            ),
+            'giving_goal_message': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': 4}
+            ),
+        }
+
+    def clean_annual_giving_goal(self):
+        goal = self.cleaned_data['annual_giving_goal']
+        if goal is not None and goal <= 0:
+            raise forms.ValidationError('Goal must be greater than zero.')
+        return goal
