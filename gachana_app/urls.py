@@ -12,7 +12,8 @@ urlpatterns = [
     path('gallery', views.gallery, name='gallery'),
     path('gallery/fetch/<str:category>/', views.fetch_gallery, name='fetch_gallery'),
     path('blogs', views.blogs, name='blogs'),
-    path('blog_details/<int:blog_id>/', views.blog_details, name='blog_details'),
+    path('blog/<slug:slug>/', views.blog_details, name='blog_details'),
+    path('blog_details/<int:blog_id>/', views.blog_details_legacy, name='blog_details_legacy'),
     path('blog_by_category_with_id', views.blog_by_category, name='blog_by_category'),
     path('blogs/category/<int:category_id>/', views.blog_by_category, name='blog_by_category_with_id'),
     path('contact', views.contact, name='contact'),
@@ -32,6 +33,7 @@ urlpatterns = [
     # path('categories',views.categories,name='category-page'),
     path('admin_dashboard',views.admin_dashboard, name='admin_panel'),
     path('blog_list', views.blog_list, name='blog_list'),
+    path('blog_categories/', views.blog_category_list, name='blog_category_list'),
     path('vacancy_list', views.vacancy_list, name='vacancy_list'),
     path('create_blogs', views.create_blogs, name='create_blogs'),
     path('create_vacancy', views.create_vacancy, name='create_vacancy'),
@@ -41,6 +43,7 @@ urlpatterns = [
     path('delete_vacancy/<int:vacancy_id>/', views.delete_vacancy, name='delete_vacancy'),
 
     path('gallery_list', views.gallery_list, name='gallery_list'),
+    path('gallery_categories/', views.gallery_category_list, name='gallery_category_list'),
     path('create_gallery', views.create_gallery, name='create_gallery'),
     path('edit_gallery/<int:gallery_id>/', views.update_gallery, name='edit_gallery'),
     path('delete_gallery/<int:gallery_id>/', views.delete_gallery, name='delete_gallery'),
@@ -71,9 +74,12 @@ urlpatterns = [
     path('portal/admin/member-settings/', portal_views.portal_admin_member_settings, name='portal_admin_member_settings'),
     path('portal/admin/banks/', portal_views.portal_admin_banks, name='portal_admin_banks'),
     path('portal/admin/staff/', portal_views.portal_manage_staff, name='portal_manage_staff'),
+    path('portal/admin/staff/<int:user_id>/detail/', portal_views.portal_staff_detail, name='portal_staff_detail'),
+    path('portal/admin/staff/<int:user_id>/id-card/', portal_views.portal_admin_staff_id_card, name='portal_admin_staff_id_card'),
 
     # Donations (staff + admin)
     path('portal/donations/', portal_views.portal_donation_list, name='portal_donation_list'),
+    path('portal/donations/<int:donation_id>/proof/', portal_views.portal_donation_proof, name='portal_donation_proof'),
     path('portal/donations/<int:donation_id>/confirm/', portal_views.portal_confirm_donation, name='portal_confirm_donation'),
     path('portal/donations/<int:donation_id>/reject/', portal_views.portal_reject_donation, name='portal_reject_donation'),
 

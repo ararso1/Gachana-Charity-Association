@@ -1,0 +1,246 @@
+{% extends 'portal/admin/content/base_content.html' %}
+{% block title %}Gallery Categories{% endblock %}
+{% block content %}
+<header class="content-page-header">
+  <div>
+    <p class="content-page-eyebrow">Website content</p>
+    <h1>Gallery categories</h1>
+    <p class="content-page-sub">Control filter tabs on the public gallery page. Slug is used in URLs and JavaScript filters.</p>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="{% url 'gallery_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="fa fa-arrow-left me-1"></i>Back to gallery
+    </a>
+    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addGalleryCategoryModal">
+      <i class="fa fa-plus me-1"></i>Add category
+    </button>
+  </div>
+</header>
+
+<div class="content-stat-row">
+  <div class="content-stat-card">
+    <div class="content-stat-card__icon content-stat-card__icon--purple"><i class="fa fa-folder"></i></div>
+    <div>
+      <span class="content-stat-card__label">Total categories</span>
+      <span class="content-stat-card__value">{{ stats.total }}</span>
+    </div>
+  </div>
+  <div class="content-stat-card">
+    <div class="content-stat-card__icon content-stat-card__icon--teal"><i class="fa fa-eye"></i></div>
+    <div>
+      <span class="content-stat-card__label">Active on site</span>
+      <span class="content-stat-card__value">{{ stats.active }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="portal-card content-table-card p-0">
+  <div class="content-table-card__head">
+    <h2><i class="fa fa-folder-open text-success me-2"></i>All categories</h2>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover content-table mb-0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Slug</th>
+          <th>Order</th>
+          <th>Status</th>
+          <th>Images</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cat in categories %}
+        <tr>
+          <td><span class="content-table__title">{{ cat.name }}</span></td>
+          <td><code class="small">{{ cat.slug }}</code></td>
+          <td>{{ cat.sort_order }}</td>
+          <td>
+            {% if cat.is_active %}
+            <span class="badge content-badge content-badge--published">Active</span>
+            {% else %}
+            <span class="badge content-badge content-badge--draft">Hidden</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge content-badge content-badge--category">{{ cat.image_count }} image{{ cat.image_count|pluralize }}</span>
+          </td>
+          <td class="text-end content-actions">
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary gallery-category-edit-trigger"
+              title="Edit"
+              data-id="{{ cat.pk }}"
+              data-name="{{ cat.name }}"
+              data-slug="{{ cat.slug }}"
+              data-sort="{{ cat.sort_order }}"
+              data-active="{% if cat.is_active %}1{% else %}0{% endif %}"
+            ><i class="fa fa-edit"></i></button>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-danger gallery-category-delete-trigger"
+              title="Delete"
+              data-category-id="{{ cat.pk }}"
+              data-category-name="{{ cat.name }}"
+              data-category-count="{{ cat.image_count }}"
+            ><i class="fa fa-trash"></i></button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="content-table__empty">
+            <i class="fa fa-folder d-block"></i>
+            <p class="mb-2">No gallery categories yet.</p>
+            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addGalleryCategoryModal">Add first category</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal fade portal-confirm-modal" id="addGalleryCategoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content portal-confirm-modal__content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold text-success"><i class="fa fa-plus me-2"></i>Add gallery category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create">
+        <div class="modal-body pt-2">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Name</label>
+            {{ category_form.name }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Slug</label>
+            {{ category_form.slug }}
+            <div class="form-text">Leave blank to auto-generate from the name.</div>
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label small fw-semibold">Sort order</label>
+              {{ category_form.sort_order }}
+            </div>
+            <div class="col-6 d-flex align-items-end">
+              <div class="form-check mb-2">
+                {{ category_form.is_active }}
+                <label class="form-check-label" for="id_is_active">Active on public site</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Add category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade portal-confirm-modal" id="editGalleryCategoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content portal-confirm-modal__content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold"><i class="fa fa-edit me-2 text-success"></i>Edit category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update">
+        <input type="hidden" name="category_id" id="edit-gallery-category-id">
+        <div class="modal-body pt-2">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Name</label>
+            <input type="text" name="name" id="edit-gallery-category-name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Slug</label>
+            <input type="text" name="slug" id="edit-gallery-category-slug" class="form-control">
+            <div class="form-text">Changing slug updates public gallery filter links.</div>
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label small fw-semibold">Sort order</label>
+              <input type="number" name="sort_order" id="edit-gallery-category-sort" class="form-control" min="0">
+            </div>
+            <div class="col-6 d-flex align-items-end">
+              <div class="form-check mb-2">
+                <input type="checkbox" name="is_active" id="edit-gallery-category-active" class="form-check-input" value="1">
+                <label class="form-check-label" for="edit-gallery-category-active">Active on public site</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<form method="post" id="gallery-category-delete-form" class="d-none">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="delete">
+  <input type="hidden" name="category_id" id="gallery-category-delete-id">
+</form>
+
+<div class="modal fade portal-confirm-modal" id="galleryCategoryDeleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content portal-confirm-modal__content">
+      <div class="modal-body text-center px-4 py-4">
+        <div class="portal-confirm-modal__icon portal-confirm-modal__icon--danger"><i class="fa fa-trash-alt"></i></div>
+        <h5 class="portal-confirm-modal__title">Delete category?</h5>
+        <p class="portal-confirm-modal__text mb-2" id="galleryCategoryDeleteText"></p>
+        <p class="portal-confirm-modal__meta small text-muted mb-0" id="galleryCategoryDeleteMeta"></p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center gap-2 pb-4">
+        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger px-4" id="galleryCategoryDeleteConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block admin_extra_js %}
+<script>
+(function () {
+  document.querySelectorAll('.gallery-category-edit-trigger').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.getElementById('edit-gallery-category-id').value = btn.dataset.id;
+      document.getElementById('edit-gallery-category-name').value = btn.dataset.name || '';
+      document.getElementById('edit-gallery-category-slug').value = btn.dataset.slug || '';
+      document.getElementById('edit-gallery-category-sort').value = btn.dataset.sort || '0';
+      document.getElementById('edit-gallery-category-active').checked = btn.dataset.active === '1';
+      new bootstrap.Modal(document.getElementById('editGalleryCategoryModal')).show();
+    });
+  });
+
+  const deleteModal = document.getElementById('galleryCategoryDeleteModal');
+  const deleteForm = document.getElementById('gallery-category-delete-form');
+  const deleteConfirm = document.getElementById('galleryCategoryDeleteConfirm');
+  document.querySelectorAll('.gallery-category-delete-trigger').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const count = parseInt(btn.dataset.categoryCount || '0', 10);
+      document.getElementById('gallery-category-delete-id').value = btn.dataset.categoryId;
+      document.getElementById('galleryCategoryDeleteText').textContent =
+        'Remove “' + (btn.dataset.categoryName || 'this category') + '”?';
+      document.getElementById('galleryCategoryDeleteMeta').textContent = count > 0
+        ? count + ' gallery image(s) still use this category — reassign or delete them first.'
+        : 'This cannot be undone.';
+      deleteConfirm.disabled = count > 0;
+      new bootstrap.Modal(deleteModal).show();
+    });
+  });
+  deleteConfirm?.addEventListener('click', () => deleteForm.submit());
+})();
+</script>
+{% endblock %}

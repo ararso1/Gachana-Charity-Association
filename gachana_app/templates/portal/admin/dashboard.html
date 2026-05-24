@@ -151,7 +151,7 @@
             <tr>
               <th>Member</th>
               <th>Amount</th>
-              <th>Method</th>
+              <th>Provider</th>
               <th>Status</th>
               <th>Date</th>
             </tr>
@@ -161,7 +161,7 @@
             <tr>
               <td>{{ d.member.get_full_name|default:d.member.email|truncatechars:24 }}</td>
               <td><strong>{{ d.amount }}</strong> {{ d.currency }}</td>
-              <td>{{ d.get_payment_method_display }}</td>
+              <td>{{ d.provider_display }}</td>
               <td>
                 <span class="badge rounded-pill bg-{% if d.status == 'confirmed' %}success{% elif d.status == 'pending' %}warning text-dark{% else %}secondary{% endif %}">
                   {{ d.get_status_display }}

@@ -1,0 +1,6 @@
+{% extends 'portal/admin/base_admin.html' %}
+{% load static %}
+{% block admin_extra_css %}
+<link href="{% static 'css/portal_content.css' %}" rel="stylesheet">
+{{ block.super }}
+{% endblock %}

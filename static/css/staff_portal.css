@@ -1,0 +1,329 @@
+/* Staff portal — blue accent, aligned with member portal patterns */
+
+.staff-dash-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.75rem 2rem;
+  margin: 0 0 1.75rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #1a3a5c 0%, #2563eb 55%, #3b82f6 100%);
+  color: #fff;
+  box-shadow: 0 12px 32px rgba(37, 99, 235, 0.22);
+}
+
+.staff-dash-hero__eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  margin-bottom: 0.35rem;
+}
+
+.staff-dash-hero h1 {
+  font-size: 1.65rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+}
+
+.staff-dash-hero__sub {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 0.95rem;
+}
+
+.staff-dash-hero__actions .btn-light {
+  color: #1a3a5c;
+  font-weight: 600;
+}
+
+.staff-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.staff-stat {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.35rem;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(37, 99, 235, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.staff-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.staff-stat__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.staff-stat__icon--id {
+  background: rgba(37, 99, 235, 0.12);
+  color: #2563eb;
+}
+
+.staff-stat__icon--role {
+  background: rgba(26, 58, 92, 0.1);
+  color: #1a3a5c;
+}
+
+.staff-stat__icon--members {
+  background: rgba(6, 168, 74, 0.12);
+  color: #06a84a;
+}
+
+.staff-stat__icon--donations {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+}
+
+.staff-stat__label {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-bottom: 0.2rem;
+}
+
+.staff-stat__value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.staff-stat__value--sm {
+  font-size: 1rem;
+  font-family: ui-monospace, monospace;
+}
+
+.staff-quick-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(37, 99, 235, 0.06);
+  margin-bottom: 1.5rem;
+}
+
+.staff-quick-card h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  color: #0f172a;
+}
+
+.staff-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.staff-quick-actions .btn {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 0.55rem 1.1rem;
+}
+
+.staff-quick-actions .btn-primary {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.staff-quick-actions .btn-outline-primary {
+  color: #2563eb;
+  border-color: #2563eb;
+}
+
+.staff-quick-actions .btn-outline-primary:hover {
+  background: #2563eb;
+  color: #fff;
+}
+
+.staff-info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  background: rgba(37, 99, 235, 0.06);
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  color: #334155;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.staff-info-banner i {
+  color: #2563eb;
+  margin-top: 0.15rem;
+}
+
+.staff-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.staff-page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+  color: #0f172a;
+}
+
+.staff-page-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.staff-panel {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(37, 99, 235, 0.06);
+}
+
+.staff-panel--narrow {
+  max-width: 640px;
+}
+
+.staff-panel--profile-meta {
+  margin-bottom: 1.25rem;
+}
+
+.staff-profile-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.staff-profile-meta dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+  margin-bottom: 0.2rem;
+}
+
+.staff-profile-meta dd {
+  margin: 0;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.staff-form-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.35rem;
+}
+
+.staff-btn {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 0.55rem 1.25rem;
+}
+
+.staff-btn--primary {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.staff-btn--primary:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #fff;
+}
+
+.staff-donations-page .portal-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.staff-donations-page .portal-toolbar .btn.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.staff-donations-page .portal-confirm-modal__content {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 24px 48px rgba(37, 99, 235, 0.15);
+}
+
+.staff-donations-page .portal-confirm-modal__icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+}
+
+.staff-donations-page .portal-confirm-modal__icon--success {
+  background: rgba(37, 99, 235, 0.12);
+  color: #2563eb;
+}
+
+.staff-donations-page .portal-confirm-modal__icon--danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc3545;
+}
+
+.staff-donations-page .portal-confirm-modal__title {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.staff-donations-page .donation-proof-viewer__img {
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 10px;
+}
+
+.staff-donations-page .donation-proof-viewer__frame {
+  width: 100%;
+  min-height: 420px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.staff-id-card-wrap .membership-card-print {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 576px) {
+  .staff-dash-hero {
+    padding: 1.35rem 1.25rem;
+  }
+
+  .staff-dash-hero h1 {
+    font-size: 1.35rem;
+  }
+
+  .staff-panel {
+    padding: 1.25rem 1.35rem;
+  }
+}

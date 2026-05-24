@@ -1,0 +1,19 @@
+<script>
+(function () {
+  const modalEl = document.getElementById('contentDeleteModal');
+  const form = document.getElementById('contentDeleteForm');
+  const titleEl = document.getElementById('contentDeleteModalTitle');
+  const textEl = document.getElementById('contentDeleteModalText');
+  const modal = modalEl ? new bootstrap.Modal(modalEl) : null;
+
+  document.querySelectorAll('[data-delete-url]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (!form || !modal) return;
+      form.action = btn.dataset.deleteUrl;
+      if (titleEl && btn.dataset.deleteTitle) titleEl.textContent = btn.dataset.deleteTitle;
+      if (textEl && btn.dataset.deleteText) textEl.textContent = btn.dataset.deleteText;
+      modal.show();
+    });
+  });
+})();
+</script>

@@ -1,6 +1,7 @@
 {% include 'components/navbar.html' %}
 {% load static %}
 <link href="{% static 'css/filter.css' %}" rel="stylesheet">
+<link href="{% static 'css/blog_public.css' %}" rel="stylesheet">
 
     <!-- Page Header Start -->
     <div class="container-fluid page-header mb-5 wow fadeIn" data-wow-delay="0.1s">
@@ -255,10 +256,12 @@
                         <div class="col-lg-4">
                             <div class="blog-item">
                                 <div class="blog-img">
-                                    <img src="{{blog.banner.url}}" alt="Image">
+                                    <a href="{% url 'blog_details' blog.slug %}">
+                                        {% include 'components/blog_card_media.html' with blog=blog css_class='w-100' %}
+                                    </a>
                                 </div>
                                 <div class="blog-text">
-                                    <h3><a href="{% url 'blog_details' blog.id %}">📌 {{blog.title}}</a></h3>
+                                    <h3><a href="{% url 'blog_details' blog.slug %}">{{ blog.title }}</a></h3>
                                     <p>
                                         {{blog.description|safe|truncatechars:150}}
                                     </p>

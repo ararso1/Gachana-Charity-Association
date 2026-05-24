@@ -2,9 +2,11 @@
 <a href="{% url 'staff_dashboard' %}" class="{% if url_name == 'staff_dashboard' %}active{% endif %}">
   <i class="fa fa-home me-2"></i>Dashboard
 </a>
+{% if staff_can_manage_donations %}
 <a href="{% url 'portal_donation_list' %}" class="{% if url_name == 'portal_donation_list' %}active{% endif %}">
   <i class="fa fa-hand-holding-heart me-2"></i>Donations
 </a>
+{% endif %}
 <a href="{% url 'staff_id_card' %}" class="{% if url_name == 'staff_id_card' %}active{% endif %}">
   <i class="fa fa-id-card me-2"></i>Staff ID card
 </a>

@@ -61,6 +61,10 @@ class StaffProfile(models.Model):
     department = models.CharField(max_length=120, blank=True)
     date_joined = models.DateField(default=timezone.now)
     is_active = models.BooleanField(default=True)
+    can_manage_donations = models.BooleanField(
+        default=False,
+        help_text='When enabled, this staff member can review and confirm donations in the portal.',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -203,7 +207,22 @@ class Donation(models.Model):
 
     def __str__(self):
         return f"{self.member} - {self.amount} {self.currency} ({self.status})"
-    
+
+    @property
+    def provider_display(self):
+        if self.payment_method == self.PaymentMethod.CHAPA:
+            return 'Chapa'
+        if self.bank_id:
+            return self.bank.name
+        return 'Bank transfer'
+
+    @property
+    def proof_is_image(self):
+        if not self.manual_proof:
+            return False
+        name = self.manual_proof.name.lower()
+        return name.endswith(('.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'))
+
 """ class Category(models.Model):
     name = models.CharField(max_length=250)
     description = models.TextField(blank=True, null=True)
@@ -216,9 +235,43 @@ class Donation(models.Model):
     
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    
+
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = 'blog categories'
+
     def __str__(self):
         return self.name
+
+
+class GalleryCategory(models.Model):
+    name = models.CharField(max_length=120, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
+    sort_order = models.PositiveSmallIntegerField(default=0)
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Inactive categories are hidden on the public gallery filters.',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['sort_order', 'name']
+        verbose_name_plural = 'gallery categories'
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            from django.utils.text import slugify
+            base = slugify(self.name) or 'category'
+            slug = base
+            counter = 1
+            while GalleryCategory.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f'{base}-{counter}'
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
 
 class Blog(models.Model):
     STATUS_CHOICES = [
@@ -226,12 +279,23 @@ class Blog(models.Model):
         (0, 'Unpublished'),
     ]
 
+    class MediaType(models.TextChoices):
+        IMAGE = 'image', 'Image'
+        VIDEO = 'video', 'Video'
+
     title = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=280, unique=True, blank=True)
     categories = models.ManyToManyField(Category, related_name='blogs')
     description = RichTextField()
     status = models.IntegerField(choices=STATUS_CHOICES)
-    banner = models.ImageField(upload_to='images/', null=True)
-    
+    media_type = models.CharField(
+        max_length=10,
+        choices=MediaType.choices,
+        default=MediaType.IMAGE,
+    )
+    banner = models.ImageField(upload_to='images/', null=True, blank=True)
+    banner_video = models.FileField(upload_to='blog_videos/', null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='blogs_added')
@@ -240,23 +304,50 @@ class Blog(models.Model):
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            from django.utils.text import slugify
+            base = slugify(self.title)[:250] or 'post'
+            slug = base
+            counter = 1
+            while Blog.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f'{base}-{counter}'
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('blog_details', kwargs={'slug': self.slug})
+
+    @property
+    def is_video_post(self):
+        return self.media_type == self.MediaType.VIDEO
+
+    @property
+    def has_banner_image(self):
+        return bool(self.banner)
+
+    @property
+    def has_banner_video(self):
+        return bool(self.banner_video)
+
 
 class Gallery(models.Model):
-    CATEGORY_CHOICES = [
-        ('certifications', 'Certifications'),
-        ('early_child_development', 'Early Child Development'),
-        ('basic_educations', 'Basic Education'),
-        ('youth_Development', 'Youth Development'),
-        ('community_empowerment', 'Community Empowerment'),
-    ]
-
-    category = models.CharField(max_length=100, choices=CATEGORY_CHOICES)
+    category = models.ForeignKey(
+        GalleryCategory,
+        on_delete=models.PROTECT,
+        related_name='images',
+    )
     img = models.ImageField(upload_to='gallery/')
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    
+
+    class Meta:
+        verbose_name_plural = 'gallery images'
+
     def __str__(self):
-        label = self.get_category_display() if self.category else 'Gallery'
+        label = self.category.name if self.category_id else 'Gallery'
         if self.description:
             return f"{label} — {self.description[:40]}"
         return f"{label} — Image #{self.pk}" if self.pk else label

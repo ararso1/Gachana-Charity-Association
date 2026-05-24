@@ -233,7 +233,7 @@
           <tr>
             <td>${d.date}</td>
             <td class="fw-semibold">${d.amount.toLocaleString()} ${d.currency}</td>
-            <td>${d.method}</td>
+            <td>${d.provider}</td>
             <td><span class="badge bg-${statusBadgeClass(d.status_key)}">${d.status}</span></td>
           </tr>`).join('')
       : '<tr><td colspan="4" class="text-muted text-center py-3">No donations yet.</td></tr>';
@@ -303,7 +303,7 @@
         <h6 class="members-detail__section-title"><i class="fa fa-history me-2 text-success"></i>Recent donations</h6>
         <div class="table-responsive">
           <table class="table table-sm members-detail__donations mb-0">
-            <thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead>
+            <thead><tr><th>Date</th><th>Amount</th><th>Provider</th><th>Status</th></tr></thead>
             <tbody>${donationsHtml}</tbody>
           </table>
         </div>

@@ -603,6 +603,7 @@ When we say a comprehensive  association, we mean that it works on the aspects o
     <!-- Testimonial End -->
 
          <!-- Blog Start -->
+         <link href="{% static 'css/blog_public.css' %}" rel="stylesheet">
          <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
             <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Our Blog</div>
             <h1 class="display-6 mb-5">Latest news & articles directly from our blog</h1>
@@ -610,10 +611,12 @@ When we say a comprehensive  association, we mean that it works on the aspects o
         <div class="blog-container1">
             {% for blog in blogs %}
             <div class="blog-card1">
-              <img src="{{blog.banner.url}}" alt="Blog Image" class="blog-image1">
+              <a href="{% url 'blog_details' blog.slug %}" class="d-block text-decoration-none">
+                {% include 'components/blog_card_media.html' with blog=blog css_class='blog-image1' %}
+              </a>
               <div class="blog-content1">
-                <h3 class="blog-title1"><a href="{% url 'blog_details' blog.id %}" style="color: #2e3a59;">{{blog.title}}</a></h3>
-                <p class="blog-description1">{{ blog.description|striptags|truncatechars:60 }} <span><a href="{% url 'blog_details' blog.id %}" style="color: rgb(7, 25, 156);">see more</a></span></p>
+                <h3 class="blog-title1"><a href="{% url 'blog_details' blog.slug %}" style="color: #2e3a59;">{{ blog.title }}</a></h3>
+                <p class="blog-description1">{{ blog.description|striptags|truncatechars:60 }} <span><a href="{% url 'blog_details' blog.slug %}" style="color: rgb(7, 25, 156);">see more</a></span></p>
               </div>
             </div>
             {% endfor %}

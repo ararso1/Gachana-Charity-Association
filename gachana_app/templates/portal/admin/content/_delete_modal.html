@@ -1,0 +1,20 @@
+<div class="modal fade portal-confirm-modal" id="contentDeleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content portal-confirm-modal__content">
+      <div class="modal-body text-center px-4 py-4">
+        <div class="portal-confirm-modal__icon portal-confirm-modal__icon--danger" aria-hidden="true">
+          <i class="fa fa-trash-alt"></i>
+        </div>
+        <h5 class="portal-confirm-modal__title" id="contentDeleteModalTitle">Delete item?</h5>
+        <p class="portal-confirm-modal__text mb-2" id="contentDeleteModalText">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center gap-2 pb-4">
+        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+        <form id="contentDeleteForm" method="post" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger px-4">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

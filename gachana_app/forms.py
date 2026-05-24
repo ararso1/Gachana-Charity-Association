@@ -6,15 +6,109 @@ class BlogForm(forms.ModelForm):
     categories = forms.ModelMultipleChoiceField(
         queryset=Category.objects.all(),
         widget=forms.CheckboxSelectMultiple,
-        required=True    
+        required=True,
     )
-    
+    media_type = forms.ChoiceField(
+        choices=Blog.MediaType.choices,
+        widget=forms.RadioSelect(attrs={'class': 'blog-media-type-input'}),
+        initial=Blog.MediaType.IMAGE,
+    )
+
     class Meta:
         model = Blog
-        fields = ['title', 'categories', 'description', 'status', 'banner']
+        fields = [
+            'title',
+            'categories',
+            'description',
+            'status',
+            'media_type',
+            'banner',
+            'banner_video',
+        ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4, 'class': 'rich-text-editor'}),
+            'banner': forms.FileInput(
+                attrs={'class': 'form-control blog-banner-input', 'accept': 'image/*'}
+            ),
+            'banner_video': forms.FileInput(
+                attrs={'class': 'form-control', 'accept': 'video/mp4,video/webm,video/quicktime,video/x-msvideo'}
+            ),
         }
+
+    def clean(self):
+        cleaned = super().clean()
+        media_type = cleaned.get('media_type')
+        banner = cleaned.get('banner')
+        banner_video = cleaned.get('banner_video')
+
+        if media_type == Blog.MediaType.IMAGE:
+            has_image = banner or (self.instance.pk and self.instance.banner)
+            if not has_image:
+                self.add_error('banner', 'Upload an image for image posts.')
+        elif media_type == Blog.MediaType.VIDEO:
+            has_video = banner_video or (self.instance.pk and self.instance.banner_video)
+            if not has_video:
+                self.add_error('banner_video', 'Upload a video for video posts.')
+        return cleaned
+
+    def save(self, commit=True):
+        blog = super().save(commit=False)
+        media_type = self.cleaned_data['media_type']
+        blog.media_type = media_type
+
+        if media_type == Blog.MediaType.IMAGE:
+            new_banner = self.cleaned_data.get('banner')
+            if new_banner:
+                blog.banner = new_banner
+            if blog.banner_video:
+                blog.banner_video.delete(save=False)
+                blog.banner_video = None
+        else:
+            new_video = self.cleaned_data.get('banner_video')
+            if new_video:
+                blog.banner_video = new_video
+            new_cover = self.cleaned_data.get('banner')
+            if new_cover:
+                blog.banner = new_cover
+
+        if commit:
+            blog.save()
+            self.save_m2m()
+        return blog
+
+
+class BlogCategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Community news'}),
+        }
+
+
+class GalleryCategoryForm(forms.ModelForm):
+    class Meta:
+        model = GalleryCategory
+        fields = ['name', 'slug', 'sort_order', 'is_active']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'slug': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'auto-generated if blank'}),
+            'sort_order': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['slug'].required = False
+        self.fields['slug'].help_text = 'Used in gallery URLs and filters. Leave blank to generate from name.'
+
+    def clean_slug(self):
+        slug = (self.cleaned_data.get('slug') or '').strip()
+        if slug:
+            return slug
+        if self.instance.pk:
+            return self.instance.slug
+        return ''
 
 
 class GalleryForm(forms.ModelForm):
@@ -29,6 +123,7 @@ class GalleryForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['category'].queryset = GalleryCategory.objects.order_by('sort_order', 'name')
         if self.instance and self.instance.pk:
             self.fields['img'].required = False
 
@@ -183,12 +278,23 @@ class StaffProfileAdminForm(forms.ModelForm):
 
 
 class StaffCreateForm(forms.ModelForm):
-    password1 = forms.CharField(widget=forms.PasswordInput)
-    password2 = forms.CharField(widget=forms.PasswordInput)
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}),
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm password'}),
+    )
 
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'phone', 'address']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
     def clean_email(self):
         email = self.cleaned_data['email'].lower()
@@ -213,10 +319,65 @@ class StaffCreateForm(forms.ModelForm):
         return user
 
 
+class StaffAdminUpdateForm(forms.ModelForm):
+    designation = forms.ModelChoiceField(
+        queryset=StaffDesignation.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+    )
+    department = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+    is_active = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    )
+    can_manage_donations = forms.BooleanField(
+        required=False,
+        label='Can manage donations',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        help_text='Allow this staff member to review and confirm member donations.',
+    )
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'phone', 'address']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        staff_profile = kwargs.pop('staff_profile', None)
+        super().__init__(*args, **kwargs)
+        if staff_profile:
+            self.fields['designation'].initial = staff_profile.designation_id
+            self.fields['department'].initial = staff_profile.department
+            self.fields['is_active'].initial = staff_profile.is_active
+            self.fields['can_manage_donations'].initial = staff_profile.can_manage_donations
+
+    def clean_email(self):
+        email = self.cleaned_data['email'].lower()
+        qs = User.objects.filter(email__iexact=email)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError('Email already registered.')
+        return email
+
+
 class StaffDesignationForm(forms.ModelForm):
     class Meta:
         model = StaffDesignation
         fields = ['title', 'description']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
 
 
 class PortalSettingsForm(forms.ModelForm):

@@ -1,42 +1,226 @@
-{% extends 'portal/admin/base_admin.html' %}
+{% extends base_template %}
 {% block title %}Donations{% endblock %}
 {% block content %}
-<div class="portal-page-header">
-  <h2>Donation management</h2>
-</div>
-<div class="portal-toolbar mb-3">
-  <a href="{% url 'portal_donation_list' %}" class="btn btn-sm btn-outline-secondary{% if not status_filter %} active{% endif %}">All</a>
-  <a href="?status=pending" class="btn btn-sm btn-outline-warning{% if status_filter == 'pending' %} active{% endif %}">Pending</a>
-  <a href="?status=confirmed" class="btn btn-sm btn-outline-success{% if status_filter == 'confirmed' %} active{% endif %}">Confirmed</a>
-</div>
-<div class="portal-card p-0 overflow-hidden">
-  <div class="table-responsive">
-    <table class="table table-hover mb-0">
-      <thead class="table-light">
-        <tr><th>Member</th><th>Amount</th><th>Method</th><th>Bank</th><th>Reference</th><th>Status</th><th>Date</th><th></th></tr>
-      </thead>
-      <tbody>
-        {% for d in donations %}
-        <tr>
-          <td>{{ d.member.get_full_name|default:d.member.email }}</td>
-          <td>{{ d.amount }} {{ d.currency }}</td>
-          <td>{{ d.get_payment_method_display }}</td>
-          <td>{{ d.bank.name|default:"—" }}</td>
-          <td>{{ d.manual_reference|default:d.chapa_tx_ref|default:"—" }}</td>
-          <td><span class="badge bg-{% if d.status == 'confirmed' %}success{% elif d.status == 'pending' %}warning text-dark{% else %}secondary{% endif %}">{{ d.get_status_display }}</span></td>
-          <td>{{ d.created_at|date:"M d, Y" }}</td>
-          <td class="text-end">
-            {% if d.status == 'pending' %}
-            <form method="post" action="{% url 'portal_confirm_donation' d.id %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-success">Confirm</button></form>
-            <form method="post" action="{% url 'portal_reject_donation' d.id %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Reject</button></form>
-            {% endif %}
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="8" class="text-center text-muted py-4">No donations found.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+<div class="staff-donations-page">
+  {% if base_template == 'portal/staff/base_staff.html' %}
+  <header class="staff-page-header">
+    <h1>Donation management</h1>
+    <p>Review, confirm, or reject member donation submissions.</p>
+  </header>
+  {% else %}
+  <div class="portal-page-header">
+    <h2>Donation management</h2>
+  </div>
+  {% endif %}
+  <div class="portal-toolbar mb-3">
+    <a href="{% url 'portal_donation_list' %}" class="btn btn-sm btn-outline-secondary{% if not status_filter %} active{% endif %}">All</a>
+    <a href="?status=pending" class="btn btn-sm btn-outline-warning{% if status_filter == 'pending' %} active{% endif %}">Pending</a>
+    <a href="?status=confirmed" class="btn btn-sm btn-outline-success{% if status_filter == 'confirmed' %} active{% endif %}">Confirmed</a>
+    <a href="?status=rejected" class="btn btn-sm btn-outline-secondary{% if status_filter == 'rejected' %} active{% endif %}">Rejected</a>
+  </div>
+  <div class="portal-card p-0 overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 donations-admin-table">
+        <thead class="table-light">
+          <tr>
+            <th>Member</th>
+            <th>Amount</th>
+            <th>Provider</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in donations %}
+          <tr>
+            <td>{{ d.member.get_full_name|default:d.member.email }}</td>
+            <td class="fw-semibold">{{ d.amount }} {{ d.currency }}</td>
+            <td>{{ d.provider_display }}</td>
+            <td>
+              <span class="badge bg-{% if d.status == 'confirmed' %}success{% elif d.status == 'pending' %}warning text-dark{% elif d.status == 'rejected' %}danger{% else %}secondary{% endif %}">
+                {{ d.get_status_display }}
+              </span>
+            </td>
+            <td class="text-nowrap">{{ d.created_at|date:"M d, Y" }}</td>
+            <td class="text-end text-nowrap">
+              {% if d.payment_method == 'manual' and d.manual_proof %}
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary donation-proof-trigger"
+                title="View payment proof"
+                data-proof-url="{% url 'portal_donation_proof' d.id %}"
+                data-proof-image="{% if d.proof_is_image %}1{% else %}0{% endif %}"
+                data-member="{{ d.member.get_full_name|default:d.member.email }}"
+                data-amount="{{ d.amount }} {{ d.currency }}"
+              >
+                <i class="fa fa-file-image me-1"></i>Proof
+              </button>
+              {% elif d.payment_method == 'manual' %}
+              <span class="text-muted small" title="No proof uploaded">No proof</span>
+              {% endif %}
+              {% if d.status == 'pending' %}
+              <button
+                type="button"
+                class="btn btn-sm btn-success donation-confirm-trigger"
+                data-action="{% url 'portal_confirm_donation' d.id %}"
+                data-member="{{ d.member.get_full_name|default:d.member.email }}"
+                data-amount="{{ d.amount }} {{ d.currency }}"
+                data-provider="{{ d.provider_display }}"
+              >Confirm</button>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-danger donation-reject-trigger"
+                data-action="{% url 'portal_reject_donation' d.id %}"
+                data-member="{{ d.member.get_full_name|default:d.member.email }}"
+                data-amount="{{ d.amount }} {{ d.currency }}"
+                data-provider="{{ d.provider_display }}"
+              >Reject</button>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">No donations found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
+
+<form method="post" id="donation-action-form" class="d-none" aria-hidden="true">
+  {% csrf_token %}
+</form>
+
+<div class="modal fade" id="donationProofModal" tabindex="-1" aria-labelledby="donationProofModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="donationProofModalLabel">Payment proof</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body pt-2">
+        <p class="text-muted small mb-3" id="donationProofMeta"></p>
+        <div id="donationProofBody" class="donation-proof-viewer text-center"></div>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <a href="#" id="donationProofDownload" class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener">
+          <i class="fa fa-download me-1"></i>Open / download
+        </a>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade portal-confirm-modal" id="donationConfirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content portal-confirm-modal__content">
+      <div class="modal-body text-center px-4 py-4">
+        <div class="portal-confirm-modal__icon portal-confirm-modal__icon--success" aria-hidden="true">
+          <i class="fa fa-check"></i>
+        </div>
+        <h5 class="portal-confirm-modal__title">Confirm this donation?</h5>
+        <p class="portal-confirm-modal__text mb-2" id="donationConfirmText"></p>
+        <p class="portal-confirm-modal__meta small text-muted mb-0">
+          The member’s total giving will be updated and a membership card may be issued if eligible.
+        </p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center gap-2 pb-4">
+        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success px-4" id="donationConfirmSubmit">Confirm donation</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade portal-confirm-modal" id="donationRejectModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content portal-confirm-modal__content">
+      <div class="modal-body text-center px-4 py-4">
+        <div class="portal-confirm-modal__icon portal-confirm-modal__icon--danger" aria-hidden="true">
+          <i class="fa fa-times"></i>
+        </div>
+        <h5 class="portal-confirm-modal__title">Reject this donation?</h5>
+        <p class="portal-confirm-modal__text mb-2" id="donationRejectText"></p>
+        <p class="portal-confirm-modal__meta small text-muted mb-0">
+          This cannot be undone. The member will see the donation as rejected.
+        </p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center gap-2 pb-4">
+        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger px-4" id="donationRejectSubmit">Reject donation</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+(function () {
+  const actionForm = document.getElementById('donation-action-form');
+  const proofModalEl = document.getElementById('donationProofModal');
+  const confirmModalEl = document.getElementById('donationConfirmModal');
+  const rejectModalEl = document.getElementById('donationRejectModal');
+  const proofModal = proofModalEl ? new bootstrap.Modal(proofModalEl) : null;
+  const confirmModal = confirmModalEl ? new bootstrap.Modal(confirmModalEl) : null;
+  const rejectModal = rejectModalEl ? new bootstrap.Modal(rejectModalEl) : null;
+  let pendingAction = '';
+
+  function submitDonationAction() {
+    if (!actionForm || !pendingAction) return;
+    actionForm.action = pendingAction;
+    actionForm.submit();
+  }
+
+  document.querySelectorAll('.donation-proof-trigger').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const url = btn.dataset.proofUrl;
+      const isImage = btn.dataset.proofImage === '1';
+      const body = document.getElementById('donationProofBody');
+      const meta = document.getElementById('donationProofMeta');
+      const download = document.getElementById('donationProofDownload');
+      document.getElementById('donationProofModalLabel').textContent =
+        'Payment proof — ' + (btn.dataset.member || 'Member');
+      meta.textContent = (btn.dataset.amount || '') + ' · review before confirming';
+      download.href = url;
+      if (isImage) {
+        body.innerHTML = '<img src="' + url + '" alt="Payment proof" class="donation-proof-viewer__img">';
+      } else {
+        body.innerHTML =
+          '<iframe src="' + url + '" class="donation-proof-viewer__frame" title="Payment proof"></iframe>' +
+          '<p class="small text-muted mt-2 mb-0">If the document does not display, use Open / download.</p>';
+      }
+      proofModal.show();
+    });
+  });
+
+  document.querySelectorAll('.donation-confirm-trigger').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      pendingAction = btn.dataset.action;
+      document.getElementById('donationConfirmText').textContent =
+        'Confirm ' + btn.dataset.amount + ' from ' + btn.dataset.member +
+        ' via ' + btn.dataset.provider + '?';
+      confirmModal.show();
+    });
+  });
+
+  document.querySelectorAll('.donation-reject-trigger').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      pendingAction = btn.dataset.action;
+      document.getElementById('donationRejectText').textContent =
+        'Reject ' + btn.dataset.amount + ' from ' + btn.dataset.member +
+        ' via ' + btn.dataset.provider + '?';
+      rejectModal.show();
+    });
+  });
+
+  document.getElementById('donationConfirmSubmit')?.addEventListener('click', submitDonationAction);
+  document.getElementById('donationRejectSubmit')?.addEventListener('click', submitDonationAction);
+})();
+</script>
 {% endblock %}

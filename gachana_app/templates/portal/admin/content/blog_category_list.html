@@ -1,0 +1,189 @@
+{% extends 'portal/admin/content/base_content.html' %}
+{% block title %}Blog Categories{% endblock %}
+{% block content %}
+<header class="content-page-header">
+  <div>
+    <p class="content-page-eyebrow">Website content</p>
+    <h1>Blog categories</h1>
+    <p class="content-page-sub">Organize blog posts for filtering on the public site.</p>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="{% url 'blog_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="fa fa-arrow-left me-1"></i>Back to blogs
+    </a>
+    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addBlogCategoryModal">
+      <i class="fa fa-plus me-1"></i>Add category
+    </button>
+  </div>
+</header>
+
+<div class="content-stat-row">
+  <div class="content-stat-card">
+    <div class="content-stat-card__icon content-stat-card__icon--green"><i class="fa fa-tags"></i></div>
+    <div>
+      <span class="content-stat-card__label">Total categories</span>
+      <span class="content-stat-card__value">{{ stats.total }}</span>
+    </div>
+  </div>
+  <div class="content-stat-card">
+    <div class="content-stat-card__icon content-stat-card__icon--teal"><i class="fa fa-blog"></i></div>
+    <div>
+      <span class="content-stat-card__label">In use</span>
+      <span class="content-stat-card__value">{{ stats.in_use }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="portal-card content-table-card p-0">
+  <div class="content-table-card__head">
+    <h2><i class="fa fa-tags text-success me-2"></i>All categories</h2>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover content-table mb-0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Blog posts</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cat in categories %}
+        <tr>
+          <td><span class="content-table__title">{{ cat.name }}</span></td>
+          <td>
+            <span class="badge content-badge content-badge--category">{{ cat.blog_count }} post{{ cat.blog_count|pluralize }}</span>
+          </td>
+          <td class="text-end content-actions">
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary category-edit-trigger"
+              title="Edit"
+              data-id="{{ cat.pk }}"
+              data-name="{{ cat.name }}"
+            ><i class="fa fa-edit"></i></button>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-danger category-delete-trigger"
+              title="Delete"
+              data-delete-text="Remove “{{ cat.name }}”?"
+              data-category-id="{{ cat.pk }}"
+              data-category-count="{{ cat.blog_count }}"
+            ><i class="fa fa-trash"></i></button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3" class="content-table__empty">
+            <i class="fa fa-tags d-block"></i>
+            <p class="mb-2">No categories yet.</p>
+            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addBlogCategoryModal">Add first category</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal fade portal-confirm-modal" id="addBlogCategoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content portal-confirm-modal__content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold text-success"><i class="fa fa-plus me-2"></i>Add blog category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create">
+        <div class="modal-body pt-2">
+          <label class="form-label small fw-semibold">Category name</label>
+          {{ category_form.name }}
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Add category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade portal-confirm-modal" id="editBlogCategoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content portal-confirm-modal__content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold"><i class="fa fa-edit me-2 text-success"></i>Edit category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" id="edit-blog-category-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update">
+        <input type="hidden" name="category_id" id="edit-blog-category-id">
+        <div class="modal-body pt-2">
+          <label class="form-label small fw-semibold">Category name</label>
+          <input type="text" name="name" id="edit-blog-category-name" class="form-control" required>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<form method="post" id="blog-category-delete-form" class="d-none">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="delete">
+  <input type="hidden" name="category_id" id="blog-category-delete-id">
+</form>
+
+<div class="modal fade portal-confirm-modal" id="blogCategoryDeleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content portal-confirm-modal__content">
+      <div class="modal-body text-center px-4 py-4">
+        <div class="portal-confirm-modal__icon portal-confirm-modal__icon--danger"><i class="fa fa-trash-alt"></i></div>
+        <h5 class="portal-confirm-modal__title">Delete category?</h5>
+        <p class="portal-confirm-modal__text mb-2" id="blogCategoryDeleteText"></p>
+        <p class="portal-confirm-modal__meta small text-muted mb-0" id="blogCategoryDeleteMeta"></p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center gap-2 pb-4">
+        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger px-4" id="blogCategoryDeleteConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block admin_extra_js %}
+<script>
+(function () {
+  document.querySelectorAll('.category-edit-trigger').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.getElementById('edit-blog-category-id').value = btn.dataset.id;
+      document.getElementById('edit-blog-category-name').value = btn.dataset.name || '';
+      new bootstrap.Modal(document.getElementById('editBlogCategoryModal')).show();
+    });
+  });
+
+  const deleteModal = document.getElementById('blogCategoryDeleteModal');
+  const deleteForm = document.getElementById('blog-category-delete-form');
+  const deleteConfirm = document.getElementById('blogCategoryDeleteConfirm');
+  document.querySelectorAll('.category-delete-trigger').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const count = parseInt(btn.dataset.categoryCount || '0', 10);
+      document.getElementById('blog-category-delete-id').value = btn.dataset.categoryId;
+      document.getElementById('blogCategoryDeleteText').textContent = btn.dataset.deleteText;
+      document.getElementById('blogCategoryDeleteMeta').textContent = count > 0
+        ? count + ' blog post(s) still use this category — reassign them before deleting.'
+        : 'This cannot be undone.';
+      deleteConfirm.disabled = count > 0;
+      new bootstrap.Modal(deleteModal).show();
+    });
+  });
+  deleteConfirm?.addEventListener('click', () => deleteForm.submit());
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% if post.is_video_post %}
+  {% if post.has_banner_image %}
+  <div class="blog-thumb-cover">
+    <img src="{{ post.banner.url }}" alt="{{ post.title }} cover" />
+    <span class="blog-thumb-cover__play" aria-hidden="true"><i class="fa fa-play-circle"></i></span>
+  </div>
+  {% else %}
+  <div class="blog-img-video-placeholder">
+    <i class="fa fa-play-circle" aria-hidden="true"></i>
+  </div>
+  {% endif %}
+{% elif post.has_banner_image %}
+<img src="{{ post.banner.url }}" alt="{{ post.title }}" />
+{% else %}
+<div class="blog-img-video-placeholder blog-img-video-placeholder--empty">
+  <i class="fa fa-newspaper-o" aria-hidden="true"></i>
+</div>
+{% endif %}

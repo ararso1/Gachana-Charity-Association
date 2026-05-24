@@ -83,14 +83,14 @@
   <div class="table-responsive">
     <table class="table table-sm member-donations-table">
       <thead>
-        <tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th></tr>
+        <tr><th>Date</th><th>Amount</th><th>Provider</th><th>Status</th></tr>
       </thead>
       <tbody>
         {% for d in donations %}
         <tr>
           <td>{{ d.created_at|date:"M d, Y" }}</td>
           <td class="fw-semibold">{{ d.amount }} {{ d.currency }}</td>
-          <td>{{ d.get_payment_method_display }}</td>
+          <td>{{ d.provider_display }}</td>
           <td>
             <span class="badge bg-{% if d.status == 'confirmed' %}success{% elif d.status == 'pending' %}warning text-dark{% else %}secondary{% endif %}">
               {{ d.get_status_display }}

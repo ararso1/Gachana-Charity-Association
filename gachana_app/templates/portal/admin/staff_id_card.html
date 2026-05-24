@@ -1,0 +1,32 @@
+{% extends 'portal/admin/base_admin.html' %}
+{% load static %}
+{% block title %}Staff ID — {{ user.get_full_name }}{% endblock %}
+{% block content %}
+<div class="no-print mb-3 d-flex flex-wrap align-items-center gap-2">
+  <a href="{% url 'portal_manage_staff' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="fa fa-arrow-left me-1"></i>Back to staff
+  </a>
+  <button type="button" onclick="window.print()" class="btn btn-primary btn-sm">
+    <i class="fa fa-print me-2"></i>Print card
+  </button>
+</div>
+<div class="membership-card-print staff-id-card-print">
+  <div class="membership-card-header staff-id-card-header">
+    <img src="{% static 'img/gachana.png' %}" alt="" style="width:56px">
+    <h4 class="mt-2 mb-0">Gachana Charity Association</h4>
+    <small>Staff Member</small>
+  </div>
+  <div class="membership-card-body">
+    {% if user.photo %}
+    <img src="{{ user.photo.url }}" alt="{{ user.get_full_name }}">
+    {% else %}
+    <img src="{% static 'img/gachana.png' %}" alt="">
+    {% endif %}
+    <h4 class="mt-3 mb-1">{{ user.get_full_name|default:user.username }}</h4>
+    <p class="text-muted mb-1">{{ staff_profile.designation|default:"Staff" }}</p>
+    <p class="mb-1"><strong>ID:</strong> {{ staff_profile.employee_id }}</p>
+    {% if staff_profile.department %}<p class="small text-muted">{{ staff_profile.department }}</p>{% endif %}
+    <p class="small mt-3">Dire Dawa, Ethiopia · www.gachanacharity.com</p>
+  </div>
+</div>
+{% endblock %}

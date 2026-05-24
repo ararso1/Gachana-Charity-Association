@@ -1,87 +1,121 @@
-{% extends 'portal/admin/base_admin.html' %}
+{% extends 'portal/admin/content/base_content.html' %}
 {% block title %}Gallery{% endblock %}
 {% block content %}
-<div class="portal-page-header">
-  <h2>Gallery</h2>
-  <div class="d-flex gap-2 flex-wrap">
-    <a href="{% url 'gallery' %}" class="btn btn-outline-secondary btn-sm" target="_blank"><i class="fa fa-external-link-alt me-1"></i>View public gallery</a>
-    <a href="{% url 'create_gallery' %}" class="btn btn-success"><i class="fa fa-plus me-2"></i>Add image</a>
+<header class="content-page-header">
+  <div>
+    <p class="content-page-eyebrow">Website content</p>
+    <h1>Gallery</h1>
+    <p class="content-page-sub">Photos and media shown on the public gallery page, grouped by program area.</p>
   </div>
-</div>
-
-<div class="portal-toolbar">
-  <form method="get" action="{% url 'gallery_list' %}" class="d-flex flex-wrap gap-2 align-items-center flex-grow-1">
-    <input class="form-control" type="search" name="q" placeholder="Search description..." value="{{ query|default:'' }}" style="max-width:220px">
-    <select name="category" class="form-select" style="max-width:240px">
-      <option value="">All categories</option>
-      {% for value, label in category_choices %}
-      <option value="{{ value }}" {% if category_filter == value %}selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
-    <button type="submit" class="btn btn-outline-primary">Filter</button>
-    {% if query or category_filter %}
-    <a href="{% url 'gallery_list' %}" class="btn btn-outline-secondary">Clear</a>
-    {% endif %}
-  </form>
-</div>
-
-<div class="portal-card p-0 overflow-hidden">
-  <div class="table-responsive">
-    <table class="table table-hover mb-0">
-      <thead class="table-light">
-        <tr>
-          <th>Image</th>
-          <th>Category</th>
-          <th>Description</th>
-          <th>Added</th>
-          <th class="text-end">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in items %}
-        <tr>
-          <td>
-            {% if item.img %}
-            <img src="{{ item.img.url }}" alt="" class="thumb" style="width:72px;height:56px;object-fit:cover;border-radius:8px">
-            {% else %}—{% endif %}
-          </td>
-          <td><span class="badge bg-light text-dark">{{ item.get_category_display }}</span></td>
-          <td>{{ item.description|truncatechars:60|default:"—" }}</td>
-          <td>{{ item.created_at|date:"M d, Y"|default:"—" }}</td>
-          <td class="text-end">
-            <a href="{% url 'edit_gallery' item.id %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fa fa-edit"></i></a>
-            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete" data-delete-url="{% url 'delete_gallery' item.id %}"><i class="fa fa-trash"></i></button>
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="5" class="text-center text-muted py-4">No gallery images yet. <a href="{% url 'create_gallery' %}">Add the first image</a>.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="{% url 'gallery' %}" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener">
+      <i class="fa fa-external-link-alt me-1"></i>View public gallery
+    </a>
+    <a href="{% url 'gallery_category_list' %}" class="btn btn-outline-success btn-sm">
+      <i class="fa fa-folder me-1"></i>Categories
+    </a>
+    <a href="{% url 'create_gallery' %}" class="btn btn-success btn-sm">
+      <i class="fa fa-plus me-2"></i>Add image
+    </a>
   </div>
-</div>
+</header>
 
-<div class="modal fade" id="deleteModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">Delete gallery image?</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">This will remove the image from the public gallery. This action cannot be undone.</div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <form id="deleteForm" method="post">{% csrf_token %}<button type="submit" class="btn btn-danger">Delete</button></form>
-      </div>
+<div class="content-stat-row">
+  <div class="content-stat-card">
+    <div class="content-stat-card__icon content-stat-card__icon--purple"><i class="fa fa-images"></i></div>
+    <div>
+      <span class="content-stat-card__label">Total images</span>
+      <span class="content-stat-card__value">{{ stats.total }}</span>
+    </div>
+  </div>
+  <div class="content-stat-card">
+    <div class="content-stat-card__icon content-stat-card__icon--green"><i class="fa fa-folder-open"></i></div>
+    <div>
+      <span class="content-stat-card__label">Categories</span>
+      <span class="content-stat-card__value">{{ stats.categories }}</span>
+    </div>
+  </div>
+  <div class="content-stat-card">
+    <div class="content-stat-card__icon content-stat-card__icon--teal"><i class="fa fa-filter"></i></div>
+    <div>
+      <span class="content-stat-card__label">Showing</span>
+      <span class="content-stat-card__value">{{ stats.filtered }}</span>
     </div>
   </div>
 </div>
+
+<div class="portal-card content-table-card p-0">
+  <div class="content-table-card__head">
+    <h2><i class="fa fa-th text-success me-2"></i>Gallery images</h2>
+    <span class="text-muted small">{{ stats.filtered }} of {{ stats.total }}</span>
+  </div>
+
+  <form method="get" action="{% url 'gallery_list' %}" class="content-toolbar">
+    <div class="content-toolbar__search">
+      <i class="fa fa-search content-toolbar__search-icon" aria-hidden="true"></i>
+      <input class="form-control" type="search" name="q" placeholder="Search description…" value="{{ query|default:'' }}" autocomplete="off">
+    </div>
+    <select name="category" class="form-select content-toolbar__filter" aria-label="Filter by category">
+      <option value="">All categories</option>
+      {% for cat in gallery_categories %}
+      <option value="{{ cat.slug }}" {% if category_filter == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-success content-toolbar__btn"><i class="fa fa-filter me-1"></i>Filter</button>
+    {% if query or category_filter %}
+    <a href="{% url 'gallery_list' %}" class="btn btn-outline-secondary content-toolbar__btn">Clear</a>
+    {% endif %}
+  </form>
+
+  <div class="content-gallery-grid">
+    {% for item in items %}
+    <article class="content-gallery-card">
+      <div class="content-gallery-card__img-wrap">
+        {% if item.img %}
+        <img src="{{ item.img.url }}" alt="" class="content-gallery-card__img" loading="lazy">
+        {% else %}
+        <div class="content-gallery-card__img d-flex align-items-center justify-content-center text-muted">
+          <i class="fa fa-image fa-2x opacity-25"></i>
+        </div>
+        {% endif %}
+        <span class="content-gallery-card__badge">{{ item.category.name }}</span>
+      </div>
+      <div class="content-gallery-card__body">
+        <p class="content-gallery-card__desc">{{ item.description|truncatechars:80|default:"No caption" }}</p>
+        <p class="content-gallery-card__date mb-0">
+          {% if item.created_at %}Added {{ item.created_at|date:"M d, Y" }}{% else %}—{% endif %}
+        </p>
+        <div class="content-gallery-card__actions mt-2">
+          <a href="{% url 'edit_gallery' item.id %}" class="btn btn-sm btn-outline-primary flex-grow-1">
+            <i class="fa fa-edit me-1"></i>Edit
+          </a>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-danger"
+            title="Delete"
+            data-delete-url="{% url 'delete_gallery' item.id %}"
+            data-delete-title="Delete gallery image?"
+            data-delete-text="This image will be removed from the public gallery."
+          ><i class="fa fa-trash"></i></button>
+        </div>
+      </div>
+    </article>
+    {% empty %}
+    <div class="content-gallery-empty">
+      <i class="fa fa-images fa-2x d-block mb-2 opacity-25"></i>
+      <p class="mb-2">No gallery images yet.</p>
+      {% if query or category_filter %}
+      <a href="{% url 'gallery_list' %}" class="btn btn-outline-secondary btn-sm me-2">Clear filters</a>
+      {% endif %}
+      <a href="{% url 'create_gallery' %}" class="btn btn-success btn-sm">Add the first image</a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% include 'portal/admin/content/_delete_modal.html' %}
 {% endblock %}
 
 {% block admin_extra_js %}
-<script>
-document.querySelectorAll('[data-delete-url]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.getElementById('deleteForm').action = btn.dataset.deleteUrl;
-    new bootstrap.Modal(document.getElementById('deleteModal')).show();
-  });
-});
-</script>
+{% include 'portal/admin/content/_delete_script.html' %}
 {% endblock %}

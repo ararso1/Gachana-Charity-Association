@@ -8,7 +8,9 @@ from decimal import Decimal
 
 from django.db.models import Count, DecimalField, Q, Sum, Value
 from django.db.models.functions import Coalesce
-from django.http import HttpResponse, JsonResponse
+import mimetypes
+
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -16,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from .chapa import ChapaError, initialize_payment, parse_webhook_payload, verify_payment, verify_webhook_signature
-from .decorators import role_required
+from .decorators import donation_manager_required, role_required, user_can_manage_donations
 from .forms import (
     ChapaDonationForm,
     DonationBankForm,
@@ -24,6 +26,7 @@ from .forms import (
     MemberProfileForm,
     MemberSignupForm,
     PortalSettingsForm,
+    StaffAdminUpdateForm,
     StaffCreateForm,
     StaffDesignationForm,
     StaffProfileAdminForm,
@@ -68,7 +71,7 @@ def member_signup(request):
 def member_dashboard(request):
     profile = get_or_create_member_profile(request.user)
     portal_settings = get_portal_settings()
-    donations = request.user.donations.all()[:5]
+    donations = request.user.donations.select_related('bank').all()[:5]
     confirmed_total = (
         request.user.donations.filter(status=Donation.Status.CONFIRMED).aggregate(t=Sum('amount'))['t'] or 0
     )
@@ -283,7 +286,9 @@ def staff_dashboard(request):
         user=request.user,
         defaults={'employee_id': generate_employee_id()},
     )
-    pending_donations = Donation.objects.filter(status=Donation.Status.PENDING).count()
+    pending_donations = 0
+    if user_can_manage_donations(request.user):
+        pending_donations = Donation.objects.filter(status=Donation.Status.PENDING).count()
     member_count = MemberProfile.objects.count()
     return render(
         request,
@@ -329,17 +334,51 @@ def staff_id_card(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.STAFF, User.Role.ADMIN)
+@donation_manager_required
 def portal_donation_list(request):
-    donations = Donation.objects.select_related('member', 'bank').all()
+    donations = Donation.objects.select_related('member', 'bank').order_by('-created_at')
     status_filter = request.GET.get('status')
     if status_filter:
         donations = donations.filter(status=status_filter)
-    return render(request, 'portal/donations/list.html', {'donations': donations, 'status_filter': status_filter})
+    is_staff_only = (
+        request.user.role == User.Role.STAFF
+        and not request.user.is_superuser
+    )
+    base_template = (
+        'portal/staff/base_staff.html'
+        if is_staff_only
+        else 'portal/admin/base_admin.html'
+    )
+    return render(
+        request,
+        'portal/donations/list.html',
+        {
+            'donations': donations,
+            'status_filter': status_filter,
+            'base_template': base_template,
+        },
+    )
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.STAFF, User.Role.ADMIN)
+@donation_manager_required
+def portal_donation_proof(request, donation_id):
+    donation = get_object_or_404(Donation, pk=donation_id)
+    if not donation.manual_proof:
+        raise Http404('No payment proof uploaded.')
+    content_type, _ = mimetypes.guess_type(donation.manual_proof.name)
+    if not content_type:
+        content_type = 'application/octet-stream'
+    return FileResponse(
+        donation.manual_proof.open('rb'),
+        content_type=content_type,
+        as_attachment=False,
+        filename=donation.manual_proof.name.split('/')[-1],
+    )
+
+
+@login_required(login_url='/login/')
+@donation_manager_required
 @require_POST
 def portal_confirm_donation(request, donation_id):
     donation = get_object_or_404(Donation, pk=donation_id)
@@ -352,7 +391,7 @@ def portal_confirm_donation(request, donation_id):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.STAFF, User.Role.ADMIN)
+@donation_manager_required
 @require_POST
 def portal_reject_donation(request, donation_id):
     donation = get_object_or_404(Donation, pk=donation_id)
@@ -460,7 +499,7 @@ def portal_member_detail(request, user_id):
         role=User.Role.MEMBER,
     )
     profile = getattr(user, 'member_profile', None)
-    donations = Donation.objects.filter(member=user).order_by('-created_at')[:8]
+    donations = Donation.objects.filter(member=user).select_related('bank').order_by('-created_at')[:8]
     donation_stats = Donation.objects.filter(member=user).aggregate(
         confirmed=Count('id', filter=Q(status=Donation.Status.CONFIRMED)),
         pending=Count('id', filter=Q(status=Donation.Status.PENDING)),
@@ -487,7 +526,7 @@ def portal_member_detail(request, user_id):
                     'currency': d.currency,
                     'status': d.get_status_display(),
                     'status_key': d.status,
-                    'method': d.get_payment_method_display(),
+                    'provider': d.provider_display,
                     'date': d.created_at.strftime('%b %d, %Y'),
                 }
                 for d in donations
@@ -499,10 +538,20 @@ def portal_member_detail(request, user_id):
 @login_required(login_url='/login/')
 @role_required(User.Role.ADMIN)
 def portal_manage_staff(request):
-    staff_users = User.objects.filter(role=User.Role.STAFF).select_related('staff_profile', 'staff_profile__designation')
+    staff_users = User.objects.filter(role=User.Role.STAFF).select_related(
+        'staff_profile',
+        'staff_profile__designation',
+    ).order_by('-date_joined')
     designations = StaffDesignation.objects.annotate(staff_count=Count('staff_members'))
     staff_form = StaffCreateForm()
     designation_form = StaffDesignationForm()
+
+    active_count = StaffProfile.objects.filter(user__role=User.Role.STAFF, is_active=True).count()
+    stats = {
+        'total': staff_users.count(),
+        'active': active_count,
+        'designations': designations.count(),
+    }
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -515,15 +564,70 @@ def portal_manage_staff(request):
                     employee_id=generate_employee_id(),
                     designation_id=request.POST.get('designation') or None,
                     department=request.POST.get('department', ''),
+                    can_manage_donations=bool(request.POST.get('can_manage_donations')),
                 )
                 messages.success(request, 'Staff account created.')
                 return redirect('portal_manage_staff')
+        elif action == 'update_staff':
+            user = get_object_or_404(User, pk=request.POST.get('user_id'), role=User.Role.STAFF)
+            profile = get_object_or_404(StaffProfile, user=user)
+            form = StaffAdminUpdateForm(request.POST, instance=user, staff_profile=profile)
+            if form.is_valid():
+                user = form.save()
+                user.username = form.cleaned_data['email'].lower()
+                user.email = form.cleaned_data['email'].lower()
+                user.save(update_fields=['username', 'email'])
+                profile.designation = form.cleaned_data.get('designation')
+                profile.department = form.cleaned_data.get('department', '')
+                profile.is_active = form.cleaned_data.get('is_active', False)
+                profile.can_manage_donations = form.cleaned_data.get('can_manage_donations', False)
+                profile.save()
+                messages.success(request, 'Staff account updated.')
+                return redirect('portal_manage_staff')
+        elif action == 'toggle_staff':
+            profile = get_object_or_404(
+                StaffProfile,
+                user_id=request.POST.get('user_id'),
+                user__role=User.Role.STAFF,
+            )
+            profile.is_active = not profile.is_active
+            profile.save(update_fields=['is_active', 'updated_at'])
+            state = 'activated' if profile.is_active else 'deactivated'
+            messages.success(request, f'Staff account {state}.')
+            return redirect('portal_manage_staff')
+        elif action == 'delete_staff':
+            user = get_object_or_404(User, pk=request.POST.get('user_id'), role=User.Role.STAFF)
+            if user.pk == request.user.pk:
+                messages.error(request, 'You cannot delete your own account.')
+                return redirect('portal_manage_staff')
+            name = user.get_full_name() or user.email
+            user.delete()
+            messages.success(request, f'Staff account "{name}" removed.')
+            return redirect('portal_manage_staff')
         elif action == 'create_designation':
             designation_form = StaffDesignationForm(request.POST)
             if designation_form.is_valid():
                 designation_form.save()
                 messages.success(request, 'Designation added.')
                 return redirect('portal_manage_staff')
+        elif action == 'update_designation':
+            designation = get_object_or_404(StaffDesignation, pk=request.POST.get('designation_id'))
+            designation_form = StaffDesignationForm(request.POST, instance=designation)
+            if designation_form.is_valid():
+                designation_form.save()
+                messages.success(request, 'Designation updated.')
+                return redirect('portal_manage_staff')
+        elif action == 'delete_designation':
+            designation = get_object_or_404(StaffDesignation, pk=request.POST.get('designation_id'))
+            if designation.staff_members.exists():
+                messages.error(
+                    request,
+                    f'Cannot delete "{designation.title}" while staff are assigned. Reassign them first.',
+                )
+            else:
+                designation.delete()
+                messages.success(request, 'Designation removed.')
+            return redirect('portal_manage_staff')
 
     return render(
         request,
@@ -533,7 +637,59 @@ def portal_manage_staff(request):
             'designations': designations,
             'staff_form': staff_form,
             'designation_form': designation_form,
+            'stats': stats,
+            'staff_detail_url_template': reverse('portal_staff_detail', kwargs={'user_id': 0}),
+            'staff_id_card_url_template': reverse('portal_admin_staff_id_card', kwargs={'user_id': 0}),
         },
+    )
+
+
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def portal_staff_detail(request, user_id):
+    user = get_object_or_404(
+        User.objects.select_related('staff_profile', 'staff_profile__designation'),
+        pk=user_id,
+        role=User.Role.STAFF,
+    )
+    profile = getattr(user, 'staff_profile', None)
+    if not profile:
+        profile = StaffProfile.objects.create(
+            user=user,
+            employee_id=generate_employee_id(),
+        )
+
+    return JsonResponse(
+        {
+            'id': user.pk,
+            'full_name': user.get_full_name() or user.username,
+            'email': user.email,
+            'phone': user.phone or '',
+            'address': user.address or '',
+            'photo_url': user.photo.url if user.photo else '',
+            'employee_id': profile.employee_id,
+            'designation': str(profile.designation) if profile.designation else '',
+            'department': profile.department or '',
+            'is_active': profile.is_active,
+            'can_manage_donations': profile.can_manage_donations,
+            'date_joined': user.date_joined.strftime('%B %d, %Y'),
+            'id_card_url': reverse('portal_admin_staff_id_card', kwargs={'user_id': user.pk}),
+        }
+    )
+
+
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def portal_admin_staff_id_card(request, user_id):
+    user = get_object_or_404(User, pk=user_id, role=User.Role.STAFF)
+    staff_profile = get_object_or_404(
+        StaffProfile.objects.select_related('designation'),
+        user=user,
+    )
+    return render(
+        request,
+        'portal/admin/staff_id_card.html',
+        {'staff_profile': staff_profile, 'user': user},
     )
 
 
@@ -609,18 +765,17 @@ def portal_admin_dashboard(request):
     }
 
     gallery_by_category = (
-        Gallery.objects.values('category')
+        Gallery.objects.values('category__name')
         .annotate(count=Count('id'))
         .order_by('-count')
     )
-    category_labels = dict(Gallery.CATEGORY_CHOICES)
     gallery_category_chart = {
-        'labels': [category_labels.get(row['category'], row['category']) for row in gallery_by_category],
+        'labels': [row['category__name'] or 'Uncategorized' for row in gallery_by_category],
         'values': [row['count'] for row in gallery_by_category],
     }
 
     recent_donations = (
-        Donation.objects.select_related('member')
+        Donation.objects.select_related('member', 'bank')
         .order_by('-created_at')[:5]
     )
 

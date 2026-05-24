@@ -33,28 +33,29 @@ def home(request):
     return render(request, 'index.html', {'blogs':blogs})
 
 def about(request, category=None):
+    gal = Gallery.objects.select_related('category').all()
     if category:
-        gal = Gallery.objects.filter(category=category)
-    else:
-        gal = Gallery.objects.all()
+        gal = gal.filter(category__slug=category)
     return render(request, 'about.html', {'gal': gal, 'selected_category': category})
 
 def gallery(request):
-    return render(request, 'gallery.html')
+    categories = GalleryCategory.objects.filter(is_active=True).order_by('sort_order', 'name')
+    return render(request, 'gallery.html', {'gallery_categories': categories})
 
 def fetch_gallery(request, category):
-    """ Return gallery items as JSON based on category """
+    """Return gallery items as JSON based on category slug or 'all'."""
     if category == 'all':
-        gal = Gallery.objects.all()
+        gal = Gallery.objects.select_related('category').all()
     else:
-        gal = Gallery.objects.filter(category=category)
-    
+        gal = Gallery.objects.filter(category__slug=category).select_related('category')
+
     gallery_data = [
         {
-            'description': image.description,
-            'category': image.category,
-            'image_url': image.img.url
-        } for image in gal
+            'description': image.description or '',
+            'category': image.category.slug,
+            'image_url': image.img.url,
+        }
+        for image in gal
     ]
     return JsonResponse({'gallery': gallery_data})
 
@@ -62,32 +63,40 @@ def blogs(request):
     blogs = Blog.objects.filter(status=1).order_by('-created_at')
     return render(request, 'blogs.html', {'blogs':blogs})
 
-def blog_details(request, blog_id):
-    blog = get_object_or_404(Blog, id=blog_id)
+def blog_details(request, slug):
+    blog = get_object_or_404(Blog, slug=slug)
     top5 = Blog.objects.filter(status=1).order_by('-created_at')[:5]
     all_blogs = Blog.objects.filter(status=1).order_by('-created_at')
     categories = Category.objects.annotate(count=Count('blogs')).order_by('-count')
-    comments = blog.comments.all().order_by('-created_at')[:3] 
+    comments = blog.comments.all().order_by('-created_at')[:3]
 
-    if request.method == "POST":
+    if request.method == 'POST':
         form = CommentForm(request.POST)
         if form.is_valid():
             comment = form.save(commit=False)
-            comment.blog = blog  # Associate the comment with the blog
+            comment.blog = blog
             comment.save()
-            return redirect("blog_details", blog_id=blog.id)  # Refresh the page
-
+            return redirect('blog_details', slug=blog.slug)
     else:
         form = CommentForm()
 
-    return render(request, 'blog_details.html', {
-        'blog': blog,
-        'all_blogs': all_blogs,
-        'top5': top5,
-        'categories': categories,
-        'comments': comments,
-        'form': form
-    })
+    return render(
+        request,
+        'blog_details.html',
+        {
+            'blog': blog,
+            'all_blogs': all_blogs,
+            'top5': top5,
+            'categories': categories,
+            'comments': comments,
+            'form': form,
+        },
+    )
+
+
+def blog_details_legacy(request, blog_id):
+    blog = get_object_or_404(Blog, pk=blog_id)
+    return redirect('blog_details', slug=blog.slug, permanent=True)
 
 def blog_by_category(request, category_id=None):
     categories = Category.objects.annotate(count=Count('blogs')).order_by('-count')  # Get all categories with post counts
@@ -96,10 +105,13 @@ def blog_by_category(request, category_id=None):
 
     if category_id:
         selected_category = get_object_or_404(Category, id=category_id)  # Get the selected category
-        blogs = Blog.objects.filter(categories=selected_category).order_by('-created_at')  # Filter blogs
+        blogs = Blog.objects.filter(
+            categories=selected_category,
+            status=1,
+        ).order_by('-created_at')
     else:
         selected_category = None
-        blogs = Blog.objects.all().order_by('-created_at')  # Show all blogs if no category selected
+        blogs = Blog.objects.filter(status=1).order_by('-created_at')
 
     return render(request, 'blogby_category.html', {
         'blogs': blogs,
@@ -316,14 +328,25 @@ def admin_dashboard(request):
 @role_required(User.Role.ADMIN)
 def vacancy_list(request):
     query = request.GET.get('q')
-    vacancies = Vacancy.objects.all().order_by('-created_at') 
+    vacancies = Vacancy.objects.all().order_by('-created_at')
 
     if query:
         vacancies = vacancies.filter(
             Q(title__icontains=query) |
             Q(description__icontains=query)
         ).distinct()
-    return render(request, 'portal/admin/content/vacancy_list.html', {'vacancies': vacancies, 'query': query})
+
+    total = Vacancy.objects.count()
+    return render(request, 'portal/admin/content/vacancy_list.html', {
+        'vacancies': vacancies,
+        'query': query,
+        'stats': {
+            'total': total,
+            'published': Vacancy.objects.filter(status=1).count(),
+            'unpublished': Vacancy.objects.filter(status=0).count(),
+            'filtered': vacancies.count(),
+        },
+    })
 
 
 @login_required(login_url='/login/')
@@ -381,7 +404,7 @@ def delete_vacancy(request, vacancy_id):
 @role_required(User.Role.ADMIN)
 def blog_list(request):
     query = request.GET.get('q')
-    blogs = Blog.objects.all().order_by('-created_at')
+    blogs = Blog.objects.prefetch_related('categories').order_by('-created_at')
 
     if query:
         blogs = blogs.filter(
@@ -389,9 +412,16 @@ def blog_list(request):
             Q(description__icontains=query)
         ).distinct()
 
+    total = Blog.objects.count()
     return render(request, 'portal/admin/content/blog_list.html', {
         'blogs': blogs,
         'query': query,
+        'stats': {
+            'total': total,
+            'published': Blog.objects.filter(status=1).count(),
+            'unpublished': Blog.objects.filter(status=0).count(),
+            'filtered': blogs.count(),
+        },
     })
 
 
@@ -426,11 +456,20 @@ def update_blog(request, blog_id):
         form = BlogForm(request.POST, request.FILES, instance=blog)
         if form.is_valid():
             blog = form.save(commit=False)
-            blog.updated_by = request.user  # Set the user who last updated the blog
+            blog.updated_by = request.user
             blog.save()
-            form.save_m2m() 
+            form.save_m2m()
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True})
             messages.success(request, 'Blog updated successfully.')
             return redirect('blog_list')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return render(
+                request,
+                'portal/admin/content/blog_form.html',
+                {'form': form, 'blog': blog, 'is_edit': True},
+                status=400,
+            )
     else:
         form = BlogForm(instance=blog)
 
@@ -450,21 +489,27 @@ def delete_blog(request, blog_id):
 @role_required(User.Role.ADMIN)
 def gallery_list(request):
     query = request.GET.get('q')
-    category = request.GET.get('category')
-    items = Gallery.objects.all().order_by('-created_at')
+    category_slug = request.GET.get('category')
+    items = Gallery.objects.select_related('category').order_by('-created_at')
 
-    if category:
-        items = items.filter(category=category)
+    if category_slug:
+        items = items.filter(category__slug=category_slug)
     if query:
         items = items.filter(
-            Q(description__icontains=query) | Q(category__icontains=query)
+            Q(description__icontains=query) | Q(category__name__icontains=query)
         )
 
+    total = Gallery.objects.count()
     return render(request, 'portal/admin/content/gallery_list.html', {
         'items': items,
         'query': query,
-        'category_filter': category,
-        'category_choices': Gallery.CATEGORY_CHOICES,
+        'category_filter': category_slug,
+        'gallery_categories': GalleryCategory.objects.order_by('sort_order', 'name'),
+        'stats': {
+            'total': total,
+            'categories': GalleryCategory.objects.count(),
+            'filtered': items.count(),
+        },
     })
 
 
@@ -509,6 +554,100 @@ def delete_gallery(request, gallery_id):
         item.delete()
         messages.success(request, 'Gallery image deleted.')
     return redirect('gallery_list')
+
+
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def blog_category_list(request):
+    categories = Category.objects.annotate(blog_count=Count('blogs')).order_by('name')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'create':
+            form = BlogCategoryForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Blog category added.')
+                return redirect('blog_category_list')
+        elif action == 'update':
+            category = get_object_or_404(Category, pk=request.POST.get('category_id'))
+            form = BlogCategoryForm(request.POST, instance=category)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Blog category updated.')
+                return redirect('blog_category_list')
+        elif action == 'delete':
+            category = get_object_or_404(Category, pk=request.POST.get('category_id'))
+            if category.blogs.exists():
+                messages.error(
+                    request,
+                    f'Cannot delete "{category.name}" while blog posts use it. Reassign posts first.',
+                )
+            else:
+                category.delete()
+                messages.success(request, 'Blog category removed.')
+            return redirect('blog_category_list')
+
+    return render(
+        request,
+        'portal/admin/content/blog_category_list.html',
+        {
+            'categories': categories,
+            'category_form': BlogCategoryForm(),
+            'stats': {
+                'total': Category.objects.count(),
+                'in_use': Category.objects.filter(blogs__isnull=False).distinct().count(),
+            },
+        },
+    )
+
+
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def gallery_category_list(request):
+    categories = GalleryCategory.objects.annotate(image_count=Count('images')).order_by(
+        'sort_order', 'name'
+    )
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'create':
+            form = GalleryCategoryForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Gallery category added.')
+                return redirect('gallery_category_list')
+        elif action == 'update':
+            category = get_object_or_404(GalleryCategory, pk=request.POST.get('category_id'))
+            form = GalleryCategoryForm(request.POST, instance=category)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Gallery category updated.')
+                return redirect('gallery_category_list')
+        elif action == 'delete':
+            category = get_object_or_404(GalleryCategory, pk=request.POST.get('category_id'))
+            if category.images.exists():
+                messages.error(
+                    request,
+                    f'Cannot delete "{category.name}" while images use it. Reassign or delete images first.',
+                )
+            else:
+                category.delete()
+                messages.success(request, 'Gallery category removed.')
+            return redirect('gallery_category_list')
+
+    return render(
+        request,
+        'portal/admin/content/gallery_category_list.html',
+        {
+            'categories': categories,
+            'category_form': GalleryCategoryForm(),
+            'stats': {
+                'total': categories.count(),
+                'active': categories.filter(is_active=True).count(),
+            },
+        },
+    )
 
 
 @login_required(login_url='/login/')

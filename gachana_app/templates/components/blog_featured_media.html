@@ -1,0 +1,13 @@
+{% if blog.is_video_post and blog.has_banner_video %}
+<video
+  controls
+  class="blog-detail-featured-video w-100 rounded mb-3"
+  src="{{ blog.banner_video.url }}"
+  preload="metadata"
+  {% if blog.has_banner_image %}poster="{{ blog.banner.url }}"{% endif %}
+>
+  Your browser does not support the video tag.
+</video>
+{% elif blog.has_banner_image %}
+<img src="{{ blog.banner.url }}" alt="{{ blog.title }}" class="w-100 rounded mb-3" />
+{% endif %}

@@ -2,6 +2,7 @@
 {% load static %}
 
     <link rel="stylesheet" href="{% static 'css/blog_detail.css' %}">
+    <link href="{% static 'css/blog_public.css' %}" rel="stylesheet">
     <!-- Page Header Start -->
     <div class="container-fluid page-header mb-5 wow fadeIn" data-wow-delay="0.1s">
         <div class="container text-center">
@@ -23,7 +24,7 @@
                 <div class="row">
                     <div class="col-lg-8" style="padding-right: 20px;">
                         <div class="single-content">
-                            <img src="{{blog.banner.url}}" />
+                            {% include 'components/blog_featured_media.html' with blog=blog %}
                             <!-- <h2>{{blog.title}}</h2> -->
                             <p>
                                 {{blog.description|safe}}
@@ -52,10 +53,10 @@
                                 {% for top in top5 %}
                                 <div class="post-item">
                                     <div class="post-img">
-                                        <img src="{{top.banner.url}}" />
+                                        {% include 'components/blog_thumb_media.html' with post=top %}
                                     </div>
                                     <div class="post-text">
-                                        <a href="{% url 'blog_details' top.id %}">{{top.title}}</a>
+                                        <a href="{% url 'blog_details' top.slug %}">{{ top.title }}</a>
                                         <div class="post-meta">
                                             <p>By<a href="">Gachana Charity Association</a></p>
                                             <p>In
@@ -152,10 +153,10 @@
                                     {% for top in top5 %}
                                     <div class="post-item">
                                         <div class="post-img">
-                                            <img src="{{top.banner.url}}" />
+                                            {% include 'components/blog_thumb_media.html' with post=top %}
                                         </div>
                                         <div class="post-text">
-                                            <a href="{% url 'blog_details' top.id %}">{{top.title}}</a>
+                                            <a href="{% url 'blog_details' top.slug %}">{{ top.title }}</a>
                                             <div class="post-meta">
                                                 <p>By<a href="">Gachana Charity Association</a></p>
                                                 <p>In

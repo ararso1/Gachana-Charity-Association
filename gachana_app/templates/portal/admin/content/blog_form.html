@@ -1,79 +1,319 @@
-{% extends 'portal/admin/base_admin.html' %}
+{% extends 'portal/admin/content/base_content.html' %}
 {% block title %}{% if is_edit %}Edit{% else %}Create{% endif %} Blog{% endblock %}
-{% block admin_extra_css %}{{ form.media.css }}{% endblock %}
+{% block admin_extra_css %}{{ block.super }}{{ form.media.css }}{% endblock %}
 {% block content %}
-<div class="portal-page-header">
-  <h2>{% if is_edit %}Edit blog{% else %}Create blog{% endif %}</h2>
-  <a href="{% url 'blog_list' %}" class="btn btn-outline-secondary"><i class="fa fa-arrow-left me-2"></i>Back to list</a>
-</div>
+<header class="content-page-header content-form-header">
+  <div>
+    <p class="content-page-eyebrow">Website content</p>
+    <h1>{% if is_edit %}Edit blog post{% else %}Create blog post{% endif %}</h1>
+    <p class="content-page-sub">Choose a featured image or video, then add your article content.</p>
+  </div>
+  <a href="{% url 'blog_list' %}" class="btn btn-outline-secondary btn-back">
+    <i class="fa fa-arrow-left me-2"></i>Back to blogs
+  </a>
+</header>
 
-<div class="portal-card portal-form-card">
+<div class="portal-card content-form-card">
   <form method="post" id="blogForm" enctype="multipart/form-data" action="">
     {% csrf_token %}
     {{ form.media.js }}
 
-    <div class="mb-3">
-      <label class="form-label" for="id_title">Title</label>
-      {{ form.title }}
-      {% for error in form.title.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+    <div class="content-form-card__section">
+      <h3 class="content-form-card__section-title"><i class="fa fa-heading"></i>Basic details</h3>
+      <div class="mb-3">
+        <label class="form-label" for="id_title">Title</label>
+        {{ form.title }}
+        {% for error in form.title.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Categories</label>
+        {{ form.categories }}
+        <div class="form-text">Select one or more categories for filtering on the public site.</div>
+      </div>
+      <div class="mb-0">
+        <label class="form-label" for="id_status">Status</label>
+        {{ form.status }}
+      </div>
     </div>
 
-    <div class="mb-3">
-      <label class="form-label">Categories</label>
-      {{ form.categories }}
+    <div class="content-form-card__section">
+      <h3 class="content-form-card__section-title"><i class="fa fa-photo-video"></i>Featured media</h3>
+      <p class="form-text mb-3">Choose whether this post is highlighted with an image or a video on the public site.</p>
+
+      <div class="blog-media-type-picker mb-4" role="radiogroup" aria-label="Media type">
+        {% for radio in form.media_type %}
+        <label class="blog-media-type-option{% if radio.data.selected %} is-selected{% endif %}">
+          {{ radio.tag }}
+          <span class="blog-media-type-option__icon">
+            {% if radio.choice_label == 'Image' or radio.data.value == 'image' %}
+            <i class="fa fa-image"></i>
+            {% else %}
+            <i class="fa fa-video"></i>
+            {% endif %}
+          </span>
+          <span class="blog-media-type-option__label">{{ radio.choice_label }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      {% for error in form.media_type.errors %}<div class="text-danger small mb-2">{{ error }}</div>{% endfor %}
+
+      <div id="blog-media-image-panel" class="blog-media-panel">
+        <label class="form-label" for="id_banner">Banner image</label>
+        <input
+          type="file"
+          name="banner"
+          id="id_banner"
+          class="form-control blog-banner-input"
+          accept="image/*"
+        >
+        {% for error in form.banner.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        {% if is_edit and blog.banner and not blog.is_video_post %}
+        <div class="mt-3 content-form-preview" style="max-width:320px">
+          <img src="{{ blog.banner.url }}" alt="" class="content-form-preview__img">
+          <p class="content-form-preview__caption mb-0">Current image</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div id="blog-media-video-panel" class="blog-media-panel d-none">
+        <div class="mb-3">
+          <label class="form-label" for="id_banner_video_cover">Cover image</label>
+          <input
+            type="file"
+            name="banner"
+            id="id_banner_video_cover"
+            class="form-control blog-banner-input"
+            accept="image/*"
+          >
+          <div class="form-text">Thumbnail shown on blog listings before the video is played. Recommended 16:9 image.</div>
+          {% for error in form.banner.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          {% if is_edit and blog.has_banner_image and blog.is_video_post %}
+          <div class="mt-3 content-form-preview" style="max-width:320px">
+            <img src="{{ blog.banner.url }}" alt="" class="content-form-preview__img">
+            <p class="content-form-preview__caption mb-0">Current cover image</p>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="mb-0">
+          <label class="form-label" for="id_banner_video">Video file</label>
+          {{ form.banner_video }}
+          <div class="form-text">MP4, WebM, MOV, or AVI. Large files may take a few minutes to upload.</div>
+          {% for error in form.banner_video.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+
+        <div id="blog-video-upload-progress" class="blog-upload-progress d-none" aria-live="polite">
+          <div class="d-flex justify-content-between small mb-1">
+            <span id="blog-upload-progress-label">Uploading video…</span>
+            <strong id="blog-upload-progress-pct">0%</strong>
+          </div>
+          <div class="progress" style="height: 10px;">
+            <div
+              id="blog-upload-progress-bar"
+              class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+              role="progressbar"
+              style="width: 0%"
+              aria-valuenow="0"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            ></div>
+          </div>
+        </div>
+
+        {% if is_edit and blog.banner_video and blog.is_video_post %}
+        <div class="mt-3 content-form-preview">
+          <video controls class="w-100 rounded" style="max-height:280px" src="{{ blog.banner_video.url }}"></video>
+          <p class="content-form-preview__caption mb-0">Current video (upload a new file to replace)</p>
+        </div>
+        {% endif %}
+      </div>
     </div>
 
-    <div class="mb-3">
-      <label class="form-label" for="id_description">Description</label>
-      {{ form.description }}
+    <div class="content-form-card__section">
+      <h3 class="content-form-card__section-title"><i class="fa fa-align-left"></i>Content</h3>
+      <div class="mb-0">
+        <label class="form-label" for="id_description">Description</label>
+        {{ form.description }}
+      </div>
     </div>
 
-    <div class="mb-3">
-      <label class="form-label" for="id_status">Status</label>
-      {{ form.status }}
+    <div class="content-form-footer">
+      <button type="submit" class="btn btn-success" id="blogFormSubmit">
+        <i class="fa fa-check me-2"></i>{% if is_edit %}Save changes{% else %}Publish blog{% endif %}
+      </button>
+      <a href="{% url 'blog_list' %}" class="btn btn-outline-secondary">Cancel</a>
     </div>
-
-    <div class="mb-3">
-      <label class="form-label" for="id_banner">Banner image</label>
-      {{ form.banner }}
-      {% if is_edit and blog.banner %}
-      <div class="mt-2"><img src="{{ blog.banner.url }}" alt="" class="rounded" style="max-height:120px"></div>
-      {% endif %}
-    </div>
-
-    <button type="submit" class="btn btn-success">
-      {% if is_edit %}Update blog{% else %}Create blog{% endif %}
-    </button>
   </form>
 </div>
 {% endblock %}
 
 {% block admin_extra_js %}
-{% if not is_edit %}
+{{ block.super }}
 <script>
-document.getElementById('blogForm').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  if (typeof CKEDITOR !== 'undefined') {
-    for (const instance in CKEDITOR.instances) {
-      CKEDITOR.instances[instance].updateElement();
+(function () {
+  const form = document.getElementById('blogForm');
+  const imagePanel = document.getElementById('blog-media-image-panel');
+  const videoPanel = document.getElementById('blog-media-video-panel');
+  const videoInput = document.getElementById('id_banner_video');
+  const progressWrap = document.getElementById('blog-video-upload-progress');
+  const progressBar = document.getElementById('blog-upload-progress-bar');
+  const progressPct = document.getElementById('blog-upload-progress-pct');
+  const progressLabel = document.getElementById('blog-upload-progress-label');
+  const submitBtn = document.getElementById('blogFormSubmit');
+  const listUrl = "{% url 'blog_list' %}";
+  const isEdit = {{ is_edit|yesno:"true,false" }};
+
+  function getMediaType() {
+    const checked = form.querySelector('input[name="media_type"]:checked');
+    return checked ? checked.value : 'image';
+  }
+
+  function syncBannerInputs() {
+    const isVideo = getMediaType() === 'video';
+    const imageBanner = document.getElementById('id_banner');
+    const videoCover = document.getElementById('id_banner_video_cover');
+    if (imageBanner) imageBanner.disabled = isVideo;
+    if (videoCover) videoCover.disabled = !isVideo;
+  }
+
+  function syncMediaPanels() {
+    const isVideo = getMediaType() === 'video';
+    imagePanel.classList.toggle('d-none', isVideo);
+    videoPanel.classList.toggle('d-none', !isVideo);
+    syncBannerInputs();
+    document.querySelectorAll('.blog-media-type-option').forEach((label) => {
+      const input = label.querySelector('input[type="radio"]');
+      label.classList.toggle('is-selected', input && input.checked);
+    });
+  }
+
+  form.querySelectorAll('input[name="media_type"]').forEach((radio) => {
+    radio.addEventListener('change', syncMediaPanels);
+  });
+  syncMediaPanels();
+  syncBannerInputs();
+
+  function syncCkeditor() {
+    if (typeof CKEDITOR !== 'undefined') {
+      for (const instance in CKEDITOR.instances) {
+        CKEDITOR.instances[instance].updateElement();
+      }
     }
   }
-  const response = await fetch(this.action || window.location.href, {
-    method: 'POST',
-    body: new FormData(this),
-    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-  });
-  if (response.ok) {
-    const data = await response.json();
-    if (data.success) {
-      window.location.href = "{% url 'blog_list' %}";
+
+  function showProgress(pct, label) {
+    progressWrap.classList.remove('d-none');
+    const value = Math.min(100, Math.max(0, Math.round(pct)));
+    progressBar.style.width = value + '%';
+    progressBar.setAttribute('aria-valuenow', value);
+    progressPct.textContent = value + '%';
+    if (label) progressLabel.textContent = label;
+  }
+
+  function hideProgress() {
+    progressWrap.classList.add('d-none');
+    progressBar.style.width = '0%';
+    progressPct.textContent = '0%';
+  }
+
+  function uploadWithProgress() {
+    syncCkeditor();
+    const formData = new FormData(form);
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', form.action || window.location.href);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+    submitBtn.disabled = true;
+    showProgress(0, 'Uploading video…');
+
+    xhr.upload.addEventListener('progress', (e) => {
+      if (e.lengthComputable) {
+        showProgress((e.loaded / e.total) * 100, 'Uploading video…');
+      } else {
+        showProgress(50, 'Uploading video…');
+      }
+    });
+
+    xhr.addEventListener('load', () => {
+      submitBtn.disabled = false;
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data.success) {
+            showProgress(100, 'Upload complete');
+            window.location.href = listUrl;
+            return;
+          }
+        } catch (err) {
+          if (isEdit) {
+            showProgress(100, 'Saved');
+            window.location.href = listUrl;
+            return;
+          }
+        }
+      }
+      hideProgress();
+      if (xhr.responseText) {
+        const card = document.querySelector('.content-form-card');
+        const parsed = new DOMParser().parseFromString(xhr.responseText, 'text/html')
+          .querySelector('.content-form-card');
+        if (card && parsed) card.innerHTML = parsed.innerHTML;
+        syncMediaPanels();
+        syncBannerInputs();
+      } else {
+        alert('Upload failed. Please try again.');
+      }
+    });
+
+    xhr.addEventListener('error', () => {
+      submitBtn.disabled = false;
+      hideProgress();
+      alert('Upload failed. Check your connection and try again.');
+    });
+
+    xhr.send(formData);
+  }
+
+  form.addEventListener('submit', function (e) {
+    const isVideo = getMediaType() === 'video';
+    const hasNewVideo = videoInput && videoInput.files && videoInput.files.length > 0;
+
+    if (isVideo && hasNewVideo) {
+      e.preventDefault();
+      uploadWithProgress();
       return;
     }
-  }
-  const html = await response.text();
-  document.querySelector('.portal-form-card').innerHTML =
-    new DOMParser().parseFromString(html, 'text/html').querySelector('.portal-form-card').innerHTML;
-});
+
+    if (!isEdit && isVideo) {
+      e.preventDefault();
+      uploadWithProgress();
+      return;
+    }
+
+    if (!isEdit) {
+      e.preventDefault();
+      syncCkeditor();
+      fetch(form.action || window.location.href, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      }).then(async (response) => {
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            window.location.href = listUrl;
+            return;
+          }
+        }
+        const html = await response.text();
+        const card = document.querySelector('.content-form-card');
+        const parsed = new DOMParser().parseFromString(html, 'text/html').querySelector('.content-form-card');
+        if (card && parsed) card.innerHTML = parsed.innerHTML;
+        syncMediaPanels();
+        syncBannerInputs();
+      });
+    }
+  });
+})();
 </script>
-{% endif %}
 {% endblock %}

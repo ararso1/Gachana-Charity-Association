@@ -1,29 +1,86 @@
-{% extends 'portal/admin/base_admin.html' %}
+{% extends 'portal/staff/base_staff.html' %}
 {% block title %}Staff Dashboard{% endblock %}
 {% block content %}
-<h2 class="mb-4">Staff Dashboard</h2>
-<div class="row g-3">
-  <div class="col-md-4">
-    <div class="portal-card">
-      <div class="text-muted">Employee ID</div>
-      <div class="portal-stat" style="font-size:1.1rem">{{ staff_profile.employee_id }}</div>
+<section class="staff-dash-hero">
+  <div>
+    <p class="staff-dash-hero__eyebrow">Staff portal</p>
+    <h1>Welcome, {{ request.user.first_name|default:request.user.username }}</h1>
+    <p class="staff-dash-hero__sub">Gachana Charity Association — staff workspace</p>
+  </div>
+  <div class="staff-dash-hero__actions">
+    <a href="{% url 'staff_id_card' %}" class="btn btn-light">
+      <i class="fa fa-id-card me-2"></i>View ID card
+    </a>
+  </div>
+</section>
+
+<div class="staff-stat-grid">
+  <div class="staff-stat">
+    <div class="staff-stat__icon staff-stat__icon--id"><i class="fa fa-fingerprint"></i></div>
+    <div>
+      <div class="staff-stat__label">Employee ID</div>
+      <div class="staff-stat__value staff-stat__value--sm">{{ staff_profile.employee_id }}</div>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="portal-card">
-      <div class="text-muted">Designation</div>
-      <div class="portal-stat" style="font-size:1.1rem">{{ staff_profile.designation|default:"—" }}</div>
+  <div class="staff-stat">
+    <div class="staff-stat__icon staff-stat__icon--role"><i class="fa fa-briefcase"></i></div>
+    <div>
+      <div class="staff-stat__label">Designation</div>
+      <div class="staff-stat__value staff-stat__value--sm">{{ staff_profile.designation|default:"Not assigned" }}</div>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="portal-card">
-      <div class="text-muted">Pending donations</div>
-      <div class="portal-stat">{{ pending_donations }}</div>
-      <a href="{% url 'portal_donation_list' %}?status=pending" class="btn btn-sm btn-outline-primary mt-2">Review</a>
+  <div class="staff-stat">
+    <div class="staff-stat__icon staff-stat__icon--members"><i class="fa fa-users"></i></div>
+    <div>
+      <div class="staff-stat__label">Registered members</div>
+      <div class="staff-stat__value">{{ member_count }}</div>
     </div>
+  </div>
+  {% if staff_can_manage_donations %}
+  <div class="staff-stat">
+    <div class="staff-stat__icon staff-stat__icon--donations"><i class="fa fa-hand-holding-heart"></i></div>
+    <div>
+      <div class="staff-stat__label">Pending donations</div>
+      <div class="staff-stat__value">{{ pending_donations }}</div>
+      {% if pending_donations %}
+      <a href="{% url 'portal_donation_list' %}?status=pending" class="btn btn-sm btn-outline-primary mt-2">Review now</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% if not staff_can_manage_donations %}
+<div class="staff-info-banner" role="status">
+  <i class="fa fa-info-circle fa-lg"></i>
+  <div>
+    <strong>Donation management</strong> is not enabled for your account.
+    Contact an administrator if you need access to review member donations.
   </div>
 </div>
-<div class="portal-card mt-3">
-  <p class="mb-0">Registered members: <strong>{{ member_count }}</strong></p>
-</div>
+{% endif %}
+
+<section class="staff-quick-card">
+  <h2><i class="fa fa-bolt me-2 text-primary"></i>Quick actions</h2>
+  <div class="staff-quick-actions">
+    <a href="{% url 'staff_profile' %}" class="btn btn-outline-primary">
+      <i class="fa fa-user me-2"></i>Update profile
+    </a>
+    <a href="{% url 'staff_id_card' %}" class="btn btn-outline-primary">
+      <i class="fa fa-id-card me-2"></i>Staff ID card
+    </a>
+    {% if staff_can_manage_donations %}
+    <a href="{% url 'portal_donation_list' %}" class="btn btn-primary">
+      <i class="fa fa-hand-holding-heart me-2"></i>Manage donations
+    </a>
+    {% endif %}
+  </div>
+</section>
+
+{% if staff_profile.department %}
+<section class="staff-quick-card">
+  <h2>Your department</h2>
+  <p class="mb-0 text-muted">{{ staff_profile.department }}</p>
+</section>
+{% endif %}
 {% endblock %}

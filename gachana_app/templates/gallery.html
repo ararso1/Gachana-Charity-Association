@@ -26,11 +26,9 @@
             </div>
             <div class="items-links">
                 <div class="item-link menu-active" data-filter="all">All</div>
-                <div class="item-link" data-filter="early_child_development">Early Childhood Dev't</div>
-                <div class="item-link" data-filter="basic_educations">Basic Education</div>
-                <div class="item-link" data-filter="youth_Development">Yout Dev't</div>
-                <div class="item-link" data-filter="community_empowerment">Community Empowerment</div>
-                <div class="item-link" data-filter="certifications">Certifications</div>
+                {% for cat in gallery_categories %}
+                <div class="item-link" data-filter="{{ cat.slug }}">{{ cat.name }}</div>
+                {% endfor %}
             </div>
             
             <div class="gallery" id="gallery-container">

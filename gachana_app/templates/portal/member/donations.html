@@ -18,8 +18,7 @@
         <tr>
           <th>Date</th>
           <th>Amount</th>
-          <th>Method</th>
-          <th>Bank / reference</th>
+          <th>Provider</th>
           <th>Status</th>
         </tr>
       </thead>
@@ -28,11 +27,7 @@
         <tr>
           <td>{{ d.created_at|date:"M d, Y H:i" }}</td>
           <td class="fw-semibold">{{ d.amount }} {{ d.currency }}</td>
-          <td>{{ d.get_payment_method_display }}</td>
-          <td>
-            {% if d.bank %}{{ d.bank.name }} — {% endif %}
-            {{ d.manual_reference|default:d.chapa_tx_ref|default:"—" }}
-          </td>
+          <td>{{ d.provider_display }}</td>
           <td>
             <span class="badge bg-{% if d.status == 'confirmed' %}success{% elif d.status == 'pending' %}warning text-dark{% elif d.status == 'rejected' %}danger{% else %}secondary{% endif %}">
               {{ d.get_status_display }}
@@ -41,7 +36,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5" class="text-center py-5 text-muted">
+          <td colspan="4" class="text-center py-5 text-muted">
             <i class="fa fa-hand-holding-heart fa-2x d-block mb-2 opacity-25"></i>
             No donations recorded yet.
             <br><a href="{% url 'member_donate' %}" class="btn btn-success btn-sm mt-3">Make a donation</a>

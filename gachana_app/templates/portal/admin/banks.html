@@ -69,12 +69,15 @@
               </td>
               <td class="text-end text-nowrap">
                 <a href="?edit={{ b.pk }}" class="btn btn-outline-primary btn-sm">Edit</a>
-                <form method="post" class="d-inline" onsubmit="return confirm('Remove this bank account?');">
-                  {% csrf_token %}
-                  <input type="hidden" name="action" value="delete">
-                  <input type="hidden" name="bank_id" value="{{ b.pk }}">
-                  <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
-                </form>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger btn-sm bank-delete-trigger"
+                  data-bank-id="{{ b.pk }}"
+                  data-bank-name="{{ b.name }}"
+                  data-bank-account="{{ b.account_number }}"
+                >
+                  Delete
+                </button>
               </td>
             </tr>
             {% empty %}
@@ -86,4 +89,72 @@
     </div>
   </div>
 </div>
+
+<form method="post" id="bank-delete-form" class="d-none" aria-hidden="true">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="delete">
+  <input type="hidden" name="bank_id" id="bank-delete-id" value="">
+</form>
+
+<div class="modal fade portal-confirm-modal" id="bankDeleteModal" tabindex="-1" aria-labelledby="bankDeleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content portal-confirm-modal__content">
+      <div class="modal-body text-center pt-4 pb-2 px-4">
+        <div class="portal-confirm-modal__icon portal-confirm-modal__icon--danger" aria-hidden="true">
+          <i class="fa fa-trash-alt"></i>
+        </div>
+        <h5 class="portal-confirm-modal__title" id="bankDeleteModalLabel">Delete bank account?</h5>
+        <p class="portal-confirm-modal__text mb-2">
+          You are about to remove <strong id="bankDeleteName"></strong>. Members will no longer see this account on the donate page.
+        </p>
+        <p class="portal-confirm-modal__meta small text-muted mb-0" id="bankDeleteMeta"></p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center gap-2 pb-4 pt-2 px-4">
+        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger px-4" id="bankDeleteConfirm">
+          <i class="fa fa-trash-alt me-1"></i>Yes, delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block admin_extra_js %}
+<script>
+(function () {
+  const modalEl = document.getElementById('bankDeleteModal');
+  const deleteForm = document.getElementById('bank-delete-form');
+  const deleteIdInput = document.getElementById('bank-delete-id');
+  const nameEl = document.getElementById('bankDeleteName');
+  const metaEl = document.getElementById('bankDeleteMeta');
+  const confirmBtn = document.getElementById('bankDeleteConfirm');
+
+  if (!modalEl || !deleteForm) return;
+
+  const modal = new bootstrap.Modal(modalEl);
+
+  document.querySelectorAll('.bank-delete-trigger').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      deleteIdInput.value = btn.dataset.bankId;
+      nameEl.textContent = btn.dataset.bankName || 'this bank';
+      metaEl.textContent = btn.dataset.bankAccount
+        ? 'Account number: ' + btn.dataset.bankAccount
+        : '';
+      modal.show();
+    });
+  });
+
+  confirmBtn.addEventListener('click', () => {
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i>Deleting…';
+    deleteForm.submit();
+  });
+
+  modalEl.addEventListener('hidden.bs.modal', () => {
+    confirmBtn.disabled = false;
+    confirmBtn.innerHTML = '<i class="fa fa-trash-alt me-1"></i>Yes, delete';
+  });
+})();
+</script>
 {% endblock %}
