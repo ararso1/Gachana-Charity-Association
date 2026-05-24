@@ -1,0 +1,32 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Donation History{% endblock %}
+{% block sidebar %}
+<a href="{% url 'member_dashboard' %}"><i class="fa fa-home me-2"></i>Dashboard</a>
+<a href="{% url 'member_donate' %}"><i class="fa fa-hand-holding-heart me-2"></i>Donate</a>
+<a href="{% url 'member_donations' %}" class="active"><i class="fa fa-history me-2"></i>Donation history</a>
+<a href="{% url 'member_card' %}"><i class="fa fa-id-card me-2"></i>Membership card</a>
+<a href="{% url 'member_profile' %}"><i class="fa fa-user me-2"></i>Profile</a>
+{% endblock %}
+{% block content %}
+<h2 class="mb-4">Donation History</h2>
+<div class="portal-card">
+  <table class="table">
+    <thead>
+      <tr><th>Date</th><th>Amount</th><th>Method</th><th>Reference</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for d in donations %}
+      <tr>
+        <td>{{ d.created_at|date:"M d, Y H:i" }}</td>
+        <td>{{ d.amount }} {{ d.currency }}</td>
+        <td>{{ d.get_payment_method_display }}</td>
+        <td>{{ d.manual_reference|default:d.chapa_tx_ref|default:"—" }}</td>
+        <td><span class="badge bg-{% if d.status == 'confirmed' %}success{% elif d.status == 'pending' %}warning text-dark{% elif d.status == 'rejected' %}danger{% else %}secondary{% endif %}">{{ d.get_status_display }}</span></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="text-muted">No donations recorded yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

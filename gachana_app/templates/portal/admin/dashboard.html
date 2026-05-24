@@ -1,0 +1,66 @@
+{% extends 'portal/admin/base_admin.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="portal-page-header">
+  <h2>Admin Dashboard</h2>
+  <span class="text-muted">Welcome, {{ request.user.get_full_name|default:request.user.username }}</span>
+</div>
+
+<div class="portal-section-title">Member management</div>
+<div class="portal-stat-grid">
+  <a href="{% url 'portal_manage_members' %}" class="portal-stat-card">
+    <h6>Members</h6>
+    <div class="value">{{ stats.members }}</div>
+  </a>
+  <a href="{% url 'portal_manage_staff' %}" class="portal-stat-card">
+    <h6>Staff</h6>
+    <div class="value">{{ stats.staff }}</div>
+  </a>
+  <a href="{% url 'portal_donation_list' %}" class="portal-stat-card">
+    <h6>Confirmed donations</h6>
+    <div class="value">{{ stats.donations_total }} ETB</div>
+  </a>
+  <a href="{% url 'portal_donation_list' %}?status=pending" class="portal-stat-card" style="border-left-color:#f0b429">
+    <h6>Pending donations</h6>
+    <div class="value">{{ stats.pending_donations }}</div>
+  </a>
+</div>
+
+<div class="portal-section-title">Website content</div>
+<div class="portal-stat-grid">
+  <a href="{% url 'blog_list' %}" class="portal-stat-card" style="border-left-color:#2563eb">
+    <h6>Blog posts</h6>
+    <div class="value">{{ stats.blogs }}</div>
+    <small class="text-muted d-block mt-1">Last update: {% if stats.last_blog %}{{ stats.last_blog|date:"M d, Y" }}{% else %}—{% endif %}</small>
+  </a>
+  <a href="{% url 'vacancy_list' %}" class="portal-stat-card" style="border-left-color:#7c3aed">
+    <h6>Vacancies</h6>
+    <div class="value">{{ stats.vacancies }}</div>
+    <small class="text-muted d-block mt-1">Last update: {% if stats.last_vacancy %}{{ stats.last_vacancy|date:"M d, Y" }}{% else %}—{% endif %}</small>
+  </a>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="portal-card">
+      <h5 class="mb-3"><i class="fa fa-bolt text-success me-2"></i>Quick actions</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'create_blogs' %}" class="btn btn-success btn-sm"><i class="fa fa-plus me-1"></i>New blog</a>
+        <a href="{% url 'create_vacancy' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus me-1"></i>New vacancy</a>
+        <a href="{% url 'portal_manage_staff' %}" class="btn btn-outline-secondary btn-sm"><i class="fa fa-user-plus me-1"></i>Add staff</a>
+        <a href="{% url 'portal_donation_list' %}?status=pending" class="btn btn-outline-warning btn-sm"><i class="fa fa-check me-1"></i>Review donations</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="portal-card">
+      <h5 class="mb-3"><i class="fa fa-link text-success me-2"></i>Portal links</h5>
+      <ul class="list-unstyled mb-0">
+        <li class="mb-2"><a href="{% url 'home' %}" target="_blank"><i class="fa fa-external-link-alt me-2"></i>View public website</a></li>
+        <li class="mb-2"><a href="/admin/" target="_blank"><i class="fa fa-cog me-2"></i>Django admin (advanced)</a></li>
+        <li><a href="{% url 'profile' %}"><i class="fa fa-user me-2"></i>Edit admin profile</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,91 +1,226 @@
-
 {% load static %}
 <!DOCTYPE html>
-<!-- Coding by CodingNepal | www.codingnepalweb.com-->
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="UTF-8">
-    <title> Login and Registration Form in HTML & CSS | CodingLab </title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Fontawesome CDN Link -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="{% static 'css/login.css' %}" rel="stylesheet">
-  </head>
-<body>
-  <div class="container">
-    <input type="checkbox" id="flip">
-    <div class="cover">
-      <div class="front">
-        <img src="{% static 'img/frontImg.jpg' %}" alt="">
-        <div class="text">
-          <span class="text-1">Welcome to Gachana <br> Charity Association</span>
-          <span class="text-2">Let's Save a Lives Together</span>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if show_signup %}Join{% else %}Sign In{% endif %} | Gachana Charity Association</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  <link href="{% static 'css/login.css' %}" rel="stylesheet">
+</head>
+<body class="auth-body">
+
+  <header class="auth-topbar">
+    <a href="{% url 'home' %}" class="auth-brand">
+      <img src="{% static 'img/gachana.png' %}" alt="Gachana">
+      <span>Gachana Charity</span>
+    </a>
+    <a href="{% url 'home' %}" class="auth-home-btn">
+      <i class="fas fa-arrow-left"></i> Back to website
+    </a>
+  </header>
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+
+      <aside class="auth-visual">
+        <div class="auth-visual-content">
+          <div class="auth-visual-badge">
+            <i class="fas fa-heart"></i> Member Portal
+          </div>
+          <h1>Together we build stronger communities</h1>
+          <p>Join Gachana Charity Association to support our mission in Dire Dawa and across Ethiopia.</p>
         </div>
-      </div>
-      <div class="back">
-        <!--<img class="backImg" src="images/backImg.jpg" alt="">-->
-        <div class="text">
-          <span class="text-1">Complete miles of journey <br> with one step</span>
-          <span class="text-2">Let's get started</span>
+        <ul class="auth-features">
+          <li><i class="fas fa-check-circle"></i> Track donations and membership progress</li>
+          <li><i class="fas fa-check-circle"></i> Pay securely online or via bank transfer</li>
+          <li><i class="fas fa-check-circle"></i> Receive your official membership card</li>
+        </ul>
+      </aside>
+
+      <div class="auth-panels">
+        <div class="auth-tabs" role="tablist">
+          <button type="button" class="auth-tab {% if not show_signup %}active{% endif %}" data-tab="login" role="tab">
+            <i class="fas fa-sign-in-alt me-1"></i> Sign in
+          </button>
+          <button type="button" class="auth-tab {% if show_signup %}active{% endif %}" data-tab="register" role="tab">
+            <i class="fas fa-user-plus me-1"></i> Register
+          </button>
         </div>
-      </div>
-    </div>
-    <div class="forms">
-        <div class="form-content">
-          <div class="login-form">
-            <div class="title">Login</div>
-            <form method="POST" action="{% url 'login' %}">
-                {% csrf_token %}
-                <div class="input-boxes">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <p class="error-message" style="color: rgb(246, 34, 34);">{{ message }}</p>
-                        {% endfor %}
-                    {% endif %}
-                    <div class="input-box">
-                        <i class="fas fa-envelope"></i>
-                        <input type="text" name="email" placeholder="Enter your email" required>
-                    </div>
-                    <div class="input-box">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" name="password" placeholder="Enter your password" required>
-                    </div>
-                    <div class="text"><a href="{% url 'password_reset_request' %}">Forgot password?</a></div>
-                    <div class="button input-box">
-                        <input type="submit" value="Submit">
-                    </div>
-                    <div class="text sign-up-text">Don't have an account? <label for="flip">Signup now</label></div>
+
+        {% if messages %}
+          {% for message in messages %}
+            <div class="auth-alert auth-alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+              <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %}"></i>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Login panel -->
+        <div class="auth-panel {% if not show_signup %}active{% endif %}" id="panel-login">
+          <h2 class="auth-panel-title">Welcome back</h2>
+          <p class="auth-panel-subtitle">Sign in to your member, staff, or admin account.</p>
+
+          <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="login">
+
+            <div class="auth-field">
+              <label for="login-email">Email address</label>
+              <div class="auth-input-wrap">
+                <i class="fas fa-envelope"></i>
+                <input class="auth-input" type="email" id="login-email" name="email" placeholder="you@example.com" required autocomplete="email">
+              </div>
+            </div>
+
+            <div class="auth-field">
+              <label for="login-password">Password</label>
+              <div class="auth-input-wrap">
+                <i class="fas fa-lock"></i>
+                <input class="auth-input" type="password" id="login-password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+              </div>
+            </div>
+
+            <div class="auth-forgot">
+              <a href="{% url 'password_reset_request' %}">Forgot your password?</a>
+            </div>
+
+            <button type="submit" class="auth-btn">
+              Sign in <i class="fas fa-arrow-right"></i>
+            </button>
+          </form>
+
+          <p class="auth-footer-note">
+            New to Gachana?
+            <button type="button" data-switch="register">Create a member account</button>
+          </p>
+        </div>
+
+        <!-- Register panel -->
+        <div class="auth-panel {% if show_signup %}active{% endif %}" id="panel-register">
+          <h2 class="auth-panel-title">Become a member</h2>
+          <p class="auth-panel-subtitle">Register to donate, track your impact, and get your membership card.</p>
+
+          <div class="register-scroll">
+            <form method="post" action="{% url 'login' %}">
+              {% csrf_token %}
+              <input type="hidden" name="form_type" value="signup">
+
+              {% if signup_form.non_field_errors %}
+                {% for error in signup_form.non_field_errors %}
+                  <div class="auth-alert auth-alert-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                {% endfor %}
+              {% endif %}
+
+              <div class="auth-row">
+                <div class="auth-field">
+                  <label for="id_first_name">First name</label>
+                  <div class="auth-input-wrap">
+                    <i class="fas fa-user"></i>
+                    {{ signup_form.first_name }}
+                  </div>
+                  {% for e in signup_form.first_name.errors %}<p class="auth-field-error">{{ e }}</p>{% endfor %}
                 </div>
-            </form> 
-        </div>
-        <div class="signup-form">
-          <div class="title">Signup</div>
-          <form action="#">
-               <div class="input-boxes">
-                <!--<div class="input-box">
-                  <i class="fas fa-user"></i>
-                  <input type="text" placeholder="Enter your name" required>
+                <div class="auth-field">
+                  <label for="id_last_name">Last name</label>
+                  <div class="auth-input-wrap">
+                    <i class="fas fa-user"></i>
+                    {{ signup_form.last_name }}
+                  </div>
+                  {% for e in signup_form.last_name.errors %}<p class="auth-field-error">{{ e }}</p>{% endfor %}
                 </div>
-                <div class="input-box">
+              </div>
+
+              <div class="auth-field">
+                <label for="id_email">Email</label>
+                <div class="auth-input-wrap">
                   <i class="fas fa-envelope"></i>
-                  <input type="text" placeholder="Enter your email" required>
+                  {{ signup_form.email }}
                 </div>
-                <div class="input-box">
-                  <i class="fas fa-lock"></i>
-                  <input type="password" placeholder="Enter your password" required>
+                {% for e in signup_form.email.errors %}<p class="auth-field-error">{{ e }}</p>{% endfor %}
+              </div>
+
+              <div class="auth-field">
+                <label for="id_phone">Phone <span style="font-weight:400;color:var(--gca-muted)">(optional)</span></label>
+                <div class="auth-input-wrap">
+                  <i class="fas fa-phone"></i>
+                  {{ signup_form.phone }}
                 </div>
-                <div class="button input-box">
-                  <input type="submit" value="Sumbit">
-                </div>-->
-                <h4>Welcome to ACFDO, Signup is currently not available</h4>
-                <div class="text sign-up-text">Already have an account? <label for="flip">Login now</label></div>
-              </div> 
-              
+              </div>
+
+              <div class="auth-field">
+                <label for="id_address">Address <span style="font-weight:400;color:var(--gca-muted)">(optional)</span></label>
+                <div class="auth-input-wrap">
+                  <i class="fas fa-map-marker-alt"></i>
+                  {{ signup_form.address }}
+                </div>
+              </div>
+
+              <div class="auth-row">
+                <div class="auth-field">
+                  <label for="id_password1">Password</label>
+                  <div class="auth-input-wrap">
+                    <i class="fas fa-lock"></i>
+                    {{ signup_form.password1 }}
+                  </div>
+                  {% for e in signup_form.password1.errors %}<p class="auth-field-error">{{ e }}</p>{% endfor %}
+                </div>
+                <div class="auth-field">
+                  <label for="id_password2">Confirm</label>
+                  <div class="auth-input-wrap">
+                    <i class="fas fa-lock"></i>
+                    {{ signup_form.password2 }}
+                  </div>
+                  {% for e in signup_form.password2.errors %}<p class="auth-field-error">{{ e }}</p>{% endfor %}
+                </div>
+              </div>
+
+              <button type="submit" class="auth-btn">
+                Create my account <i class="fas fa-user-check"></i>
+              </button>
             </form>
+          </div>
+
+          <p class="auth-footer-note">
+            Already registered?
+            <button type="button" data-switch="login">Sign in instead</button>
+          </p>
         </div>
       </div>
     </div>
   </div>
+
+  <script>
+    (function () {
+      const tabs = document.querySelectorAll('.auth-tab');
+      const panels = {
+        login: document.getElementById('panel-login'),
+        register: document.getElementById('panel-register'),
+      };
+
+      function switchTab(name) {
+        tabs.forEach((t) => t.classList.toggle('active', t.dataset.tab === name));
+        Object.keys(panels).forEach((key) => {
+          panels[key].classList.toggle('active', key === name);
+        });
+        history.replaceState(null, '', name === 'register' ? '?register=1' : window.location.pathname);
+      }
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+      });
+
+      document.querySelectorAll('[data-switch]').forEach((el) => {
+        el.addEventListener('click', () => switchTab(el.dataset.switch));
+      });
+
+      {% if show_signup %}
+      switchTab('register');
+      {% endif %}
+    })();
+  </script>
 </body>
 </html>

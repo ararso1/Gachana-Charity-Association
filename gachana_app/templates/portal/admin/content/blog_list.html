@@ -1,0 +1,90 @@
+{% extends 'portal/admin/base_admin.html' %}
+{% block title %}Blogs{% endblock %}
+{% block content %}
+<div class="portal-page-header">
+  <h2>Blog posts</h2>
+  <a href="{% url 'create_blogs' %}" class="btn btn-success"><i class="fa fa-plus me-2"></i>New blog</a>
+</div>
+
+<div class="portal-toolbar">
+  <form method="get" action="{% url 'blog_list' %}" class="d-flex gap-2 flex-grow-1">
+    <input class="form-control" type="search" name="q" placeholder="Search blogs..." value="{{ query|default:'' }}">
+    <button type="submit" class="btn btn-outline-primary">Search</button>
+    {% if query %}<a href="{% url 'blog_list' %}" class="btn btn-outline-secondary">Clear</a>{% endif %}
+  </form>
+</div>
+
+<div class="portal-card p-0 overflow-hidden">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 portal-table">
+      <thead class="table-light">
+        <tr>
+          <th>Title</th>
+          <th>Categories</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for blog in blogs %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              {% if blog.banner %}<img src="{{ blog.banner.url }}" alt="" class="thumb">{% endif %}
+              <span>{{ blog.title|truncatechars:40 }}</span>
+            </div>
+          </td>
+          <td>
+            {% for category in blog.categories.all %}
+              <span class="badge bg-light text-dark">{{ category.name }}</span>
+            {% empty %}—{% endfor %}
+          </td>
+          <td>
+            {% if blog.status %}
+            <span class="badge bg-success">Published</span>
+            {% else %}
+            <span class="badge bg-secondary">Unpublished</span>
+            {% endif %}
+          </td>
+          <td>{{ blog.created_at|date:"M d, Y" }}</td>
+          <td class="text-end">
+            <a href="{% url 'edit_blog' blog.id %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fa fa-edit"></i></a>
+            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete" data-delete-url="{% url 'delete_blog' blog.id %}"><i class="fa fa-trash"></i></button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center text-muted py-4">No blog posts found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete blog?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">This action cannot be undone.</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form id="deleteForm" method="post">{% csrf_token %}<button type="submit" class="btn btn-danger">Delete</button></form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block admin_extra_js %}
+<script>
+document.querySelectorAll('[data-delete-url]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('deleteForm').action = btn.dataset.deleteUrl;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'portal/admin/base_admin.html' %}
+{% block title %}{% if is_edit %}Edit{% else %}Create{% endif %} Blog{% endblock %}
+{% block admin_extra_css %}{{ form.media.css }}{% endblock %}
+{% block content %}
+<div class="portal-page-header">
+  <h2>{% if is_edit %}Edit blog{% else %}Create blog{% endif %}</h2>
+  <a href="{% url 'blog_list' %}" class="btn btn-outline-secondary"><i class="fa fa-arrow-left me-2"></i>Back to list</a>
+</div>
+
+<div class="portal-card portal-form-card">
+  <form method="post" id="blogForm" enctype="multipart/form-data" action="">
+    {% csrf_token %}
+    {{ form.media.js }}
+
+    <div class="mb-3">
+      <label class="form-label" for="id_title">Title</label>
+      {{ form.title }}
+      {% for error in form.title.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Categories</label>
+      {{ form.categories }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="id_description">Description</label>
+      {{ form.description }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="id_status">Status</label>
+      {{ form.status }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="id_banner">Banner image</label>
+      {{ form.banner }}
+      {% if is_edit and blog.banner %}
+      <div class="mt-2"><img src="{{ blog.banner.url }}" alt="" class="rounded" style="max-height:120px"></div>
+      {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-success">
+      {% if is_edit %}Update blog{% else %}Create blog{% endif %}
+    </button>
+  </form>
+</div>
+{% endblock %}
+
+{% block admin_extra_js %}
+{% if not is_edit %}
+<script>
+document.getElementById('blogForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  if (typeof CKEDITOR !== 'undefined') {
+    for (const instance in CKEDITOR.instances) {
+      CKEDITOR.instances[instance].updateElement();
+    }
+  }
+  const response = await fetch(this.action || window.location.href, {
+    method: 'POST',
+    body: new FormData(this),
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+  });
+  if (response.ok) {
+    const data = await response.json();
+    if (data.success) {
+      window.location.href = "{% url 'blog_list' %}";
+      return;
+    }
+  }
+  const html = await response.text();
+  document.querySelector('.portal-form-card').innerHTML =
+    new DOMParser().parseFromString(html, 'text/html').querySelector('.portal-form-card').innerHTML;
+});
+</script>
+{% endif %}
+{% endblock %}

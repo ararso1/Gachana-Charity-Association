@@ -1,0 +1,16 @@
+{% extends 'portal/base_portal.html' %}
+{% load static %}
+{% block sidebar %}
+  {% if request.user.is_portal_admin %}
+    {% include 'portal/includes/admin_sidebar.html' %}
+  {% else %}
+    {% include 'portal/includes/staff_sidebar.html' %}
+  {% endif %}
+{% endblock %}
+{% block extra_css %}
+<link href="{% static 'css/portal_admin.css' %}" rel="stylesheet">
+{% block admin_extra_css %}{% endblock %}
+{% endblock %}
+{% block extra_js %}
+{% block admin_extra_js %}{% endblock %}
+{% endblock %}

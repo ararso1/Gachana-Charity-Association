@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Member Sign Up | Gachana Charity Association</title>
+  <link href="{% static 'css/login.css' %}" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+  <div class="forms">
+    <div class="form-content">
+      <div class="login-form" style="max-width:420px;margin:2rem auto;">
+        <div class="title">Member Sign Up</div>
+        <form method="post">
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}<p class="error-message">{{ error }}</p>{% endfor %}
+          {% endif %}
+          {% for field in form %}
+          <div class="input-box" style="margin-bottom:12px;">
+            <label style="display:block;margin-bottom:4px;">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}<p class="error-message">{{ error }}</p>{% endfor %}
+          </div>
+          {% endfor %}
+          <div class="button input-box">
+            <input type="submit" value="Create account">
+          </div>
+          <div class="text sign-up-text">Already have an account? <a href="{% url 'login' %}">Login</a></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

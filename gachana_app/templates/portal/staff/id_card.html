@@ -1,0 +1,28 @@
+{% extends 'portal/admin/base_admin.html' %}
+{% load static %}
+{% block title %}Staff ID Card{% endblock %}
+{% block content %}
+<div class="no-print mb-3">
+  <h2 class="d-inline-block me-3">Staff ID Card</h2>
+  <button onclick="window.print()" class="btn btn-primary"><i class="fa fa-print me-2"></i>Print</button>
+</div>
+<div class="membership-card-print">
+  <div class="membership-card-header" style="background:linear-gradient(135deg,#1a3a5c,#2563eb)">
+    <img src="{% static 'img/gachana.png' %}" alt="" style="width:56px">
+    <h4 class="mt-2 mb-0">Gachana Charity Association</h4>
+    <small>Staff Member</small>
+  </div>
+  <div class="membership-card-body">
+    {% if user.photo %}
+    <img src="{{ user.photo.url }}" alt="">
+    {% else %}
+    <img src="{% static 'img/gachana.png' %}" alt="">
+    {% endif %}
+    <h4 class="mt-3 mb-1">{{ user.get_full_name|default:user.username }}</h4>
+    <p class="text-muted mb-1">{{ staff_profile.designation|default:"Staff" }}</p>
+    <p class="mb-1"><strong>ID:</strong> {{ staff_profile.employee_id }}</p>
+    <p class="small text-muted">{{ staff_profile.department }}</p>
+    <p class="small mt-3">Dire Dawa, Ethiopia</p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Portal{% endblock %} | Gachana Charity Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  <link href="{% static 'css/portal.css' %}" rel="stylesheet">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="portal-layout">
+  <aside class="portal-sidebar">
+    <div class="brand">
+      <img src="{% static 'img/gachana.png' %}" alt="Gachana" style="width:48px;margin-bottom:8px;">
+      <div>Gachana Charity Association</div>
+      <small class="text-white-50">{{ request.user.get_full_name|default:request.user.username }}</small>
+    </div>
+    {% block sidebar %}{% endblock %}
+    <hr style="border-color:rgba(255,255,255,.2)">
+    <a href="{% url 'home' %}"><i class="fa fa-globe me-2"></i>Public site</a>
+    <a href="{% url 'logout' %}"><i class="fa fa-sign-out-alt me-2"></i>Logout</a>
+  </aside>
+  <main class="portal-main">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

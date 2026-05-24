@@ -1,0 +1,30 @@
+{% with url_name=request.resolver_match.url_name %}
+<small class="text-white-50 d-block mb-2 mt-1">OVERVIEW</small>
+<a href="{% url 'portal_admin_dashboard' %}" class="{% if url_name == 'portal_admin_dashboard' or url_name == 'admin_panel' %}active{% endif %}">
+  <i class="fa fa-tachometer-alt me-2"></i>Dashboard
+</a>
+
+<small class="text-white-50 d-block mb-2 mt-3">MEMBER MANAGEMENT</small>
+<a href="{% url 'portal_manage_members' %}" class="{% if url_name == 'portal_manage_members' %}active{% endif %}">
+  <i class="fa fa-users me-2"></i>Members
+</a>
+<a href="{% url 'portal_manage_staff' %}" class="{% if url_name == 'portal_manage_staff' %}active{% endif %}">
+  <i class="fa fa-user-tie me-2"></i>Staff & designations
+</a>
+<a href="{% url 'portal_donation_list' %}" class="{% if url_name == 'portal_donation_list' or url_name == 'portal_confirm_donation' or url_name == 'portal_reject_donation' %}active{% endif %}">
+  <i class="fa fa-hand-holding-heart me-2"></i>Donations
+</a>
+
+<small class="text-white-50 d-block mb-2 mt-3">WEBSITE CONTENT</small>
+<a href="{% url 'blog_list' %}" class="{% if url_name == 'blog_list' or url_name == 'create_blogs' or url_name == 'edit_blog' %}active{% endif %}">
+  <i class="fa fa-blog me-2"></i>Blogs
+</a>
+<a href="{% url 'vacancy_list' %}" class="{% if url_name == 'vacancy_list' or url_name == 'create_vacancy' or url_name == 'edit_vacancy' %}active{% endif %}">
+  <i class="fa fa-briefcase me-2"></i>Vacancies
+</a>
+
+<small class="text-white-50 d-block mb-2 mt-3">ACCOUNT</small>
+<a href="{% url 'profile' %}" class="{% if url_name == 'profile' %}active{% endif %}">
+  <i class="fa fa-user me-2"></i>My profile
+</a>
+{% endwith %}

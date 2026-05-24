@@ -1,0 +1,82 @@
+{% extends 'portal/admin/base_admin.html' %}
+{% block title %}Vacancies{% endblock %}
+{% block content %}
+<div class="portal-page-header">
+  <h2>Vacancies</h2>
+  <a href="{% url 'create_vacancy' %}" class="btn btn-success"><i class="fa fa-plus me-2"></i>New vacancy</a>
+</div>
+
+<div class="portal-toolbar">
+  <form method="get" action="{% url 'vacancy_list' %}" class="d-flex gap-2 flex-grow-1">
+    <input class="form-control" type="search" name="q" placeholder="Search vacancies..." value="{{ query|default:'' }}">
+    <button type="submit" class="btn btn-outline-primary">Search</button>
+    {% if query %}<a href="{% url 'vacancy_list' %}" class="btn btn-outline-secondary">Clear</a>{% endif %}
+  </form>
+</div>
+
+<div class="portal-card p-0 overflow-hidden">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Title</th>
+          <th>Department</th>
+          <th>Location</th>
+          <th>Status</th>
+          <th>Deadline</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for vacancy in vacancies %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              {% if vacancy.banner %}<img src="{{ vacancy.banner.url }}" alt="" class="thumb">{% endif %}
+              {{ vacancy.title|truncatechars:40 }}
+            </div>
+          </td>
+          <td>{{ vacancy.department }}</td>
+          <td>{{ vacancy.location }}</td>
+          <td>
+            {% if vacancy.status %}<span class="badge bg-success">Published</span>
+            {% else %}<span class="badge bg-secondary">Unpublished</span>{% endif %}
+          </td>
+          <td>{{ vacancy.deadline|date:"M d, Y" }}</td>
+          <td class="text-end">
+            <a href="{% url 'edit_vacancy' vacancy.id %}" class="btn btn-sm btn-outline-primary"><i class="fa fa-edit"></i></a>
+            <button type="button" class="btn btn-sm btn-outline-danger" data-delete-url="{% url 'delete_vacancy' vacancy.id %}"><i class="fa fa-trash"></i></button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted py-4">No vacancies found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Delete vacancy?</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">This action cannot be undone.</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form id="deleteForm" method="post">{% csrf_token %}<button type="submit" class="btn btn-danger">Delete</button></form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block admin_extra_js %}
+<script>
+document.querySelectorAll('[data-delete-url]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('deleteForm').action = btn.dataset.deleteUrl;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+  });
+});
+</script>
+{% endblock %}

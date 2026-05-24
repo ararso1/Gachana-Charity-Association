@@ -1,0 +1,29 @@
+{% extends 'portal/admin/base_admin.html' %}
+{% block title %}Staff Dashboard{% endblock %}
+{% block content %}
+<h2 class="mb-4">Staff Dashboard</h2>
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="portal-card">
+      <div class="text-muted">Employee ID</div>
+      <div class="portal-stat" style="font-size:1.1rem">{{ staff_profile.employee_id }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="portal-card">
+      <div class="text-muted">Designation</div>
+      <div class="portal-stat" style="font-size:1.1rem">{{ staff_profile.designation|default:"—" }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="portal-card">
+      <div class="text-muted">Pending donations</div>
+      <div class="portal-stat">{{ pending_donations }}</div>
+      <a href="{% url 'portal_donation_list' %}?status=pending" class="btn btn-sm btn-outline-primary mt-2">Review</a>
+    </div>
+  </div>
+</div>
+<div class="portal-card mt-3">
+  <p class="mb-0">Registered members: <strong>{{ member_count }}</strong></p>
+</div>
+{% endblock %}

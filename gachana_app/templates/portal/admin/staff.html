@@ -1,0 +1,85 @@
+{% extends 'portal/admin/base_admin.html' %}
+{% block title %}Staff{% endblock %}
+{% block content %}
+<div class="portal-page-header">
+  <h2>Staff & designations</h2>
+</div>
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="portal-card">
+      <h5 class="mb-3">Staff accounts</h5>
+      <div class="table-responsive">
+        <table class="table table-sm">
+          <thead><tr><th>Name</th><th>ID</th><th>Designation</th><th>Department</th></tr></thead>
+          <tbody>
+            {% for s in staff_users %}
+            <tr>
+              <td>{{ s.get_full_name|default:s.username }}</td>
+              <td>{{ s.staff_profile.employee_id|default:"—" }}</td>
+              <td>{{ s.staff_profile.designation|default:"—" }}</td>
+              <td>{{ s.staff_profile.department|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-muted">No staff accounts.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="portal-card">
+      <h5 class="mb-3">Designations</h5>
+      <ul class="list-group list-group-flush">
+        {% for d in designations %}
+        <li class="list-group-item d-flex justify-content-between px-0">
+          <span>{{ d.title }}</span>
+          <span class="badge bg-primary">{{ d.staff_count }} staff</span>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted px-0">No designations yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="portal-card mb-3">
+      <h5 class="mb-3">Add staff account</h5>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create_staff">
+        {% for field in staff_form %}
+        <div class="mb-2">
+          <label class="form-label small">{{ field.label }}</label>
+          {{ field }}
+        </div>
+        {% endfor %}
+        <div class="mb-2">
+          <label class="form-label small">Designation</label>
+          <select name="designation" class="form-select form-select-sm">
+            <option value="">—</option>
+            {% for d in designations %}<option value="{{ d.id }}">{{ d.title }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="mb-2">
+          <label class="form-label small">Department</label>
+          <input type="text" name="department" class="form-control form-control-sm">
+        </div>
+        <button type="submit" class="btn btn-success btn-sm w-100">Create staff</button>
+      </form>
+    </div>
+    <div class="portal-card">
+      <h5 class="mb-3">Add designation</h5>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create_designation">
+        {% for field in designation_form %}
+        <div class="mb-2">
+          <label class="form-label small">{{ field.label }}</label>
+          {{ field }}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-outline-primary btn-sm w-100">Add designation</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

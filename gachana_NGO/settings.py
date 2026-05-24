@@ -154,7 +154,16 @@ LOGGING = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 
-SITE_URL = 'https://www.gachanacharity.com'
+SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
+
+LOGIN_URL = '/login/'
+
+# Chapa payment (https://developer.chapa.co)
+CHAPA_SECRET_KEY = os.environ.get('CHAPA_SECRET_KEY', '')
+CHAPA_PUBLIC_KEY = os.environ.get('CHAPA_PUBLIC_KEY', '')
+CHAPA_WEBHOOK_SECRET = os.environ.get('CHAPA_WEBHOOK_SECRET', '')
+CHAPA_BASE_URL = 'https://api.chapa.co/v1'
+CHAPA_CURRENCY = 'ETB'
 # Email config
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # e.g., 'smtp.gmail.com'

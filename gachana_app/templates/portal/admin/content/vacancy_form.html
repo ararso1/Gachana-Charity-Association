@@ -1,0 +1,83 @@
+{% extends 'portal/admin/base_admin.html' %}
+{% block title %}{% if is_edit %}Edit{% else %}Create{% endif %} Vacancy{% endblock %}
+{% block admin_extra_css %}{{ form.media.css }}{% endblock %}
+{% block content %}
+<div class="portal-page-header">
+  <h2>{% if is_edit %}Edit vacancy{% else %}Create vacancy{% endif %}</h2>
+  <a href="{% url 'vacancy_list' %}" class="btn btn-outline-secondary"><i class="fa fa-arrow-left me-2"></i>Back to list</a>
+</div>
+
+<div class="portal-card portal-form-card">
+  <form method="post" id="vacancyForm" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.media.js }}
+
+    <div class="row">
+      <div class="col-md-8 mb-3">
+        <label class="form-label">Title</label>
+        {{ form.title }}
+        {% for error in form.title.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Status</label>
+        {{ form.status }}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4 mb-3"><label class="form-label">Department</label>{{ form.department }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">Position</label>{{ form.position }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">Job type</label>{{ form.job_type }}</div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4 mb-3"><label class="form-label">Location</label>{{ form.location }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">Experience</label>{{ form.experience }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">Salary</label>{{ form.salary }}</div>
+    </div>
+
+    <div class="mb-3"><label class="form-label">Description</label>{{ form.description }}</div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3"><label class="form-label">Application link</label>{{ form.link }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Deadline</label>{{ form.deadline }}</div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Banner image</label>
+      {{ form.banner }}
+      {% if is_edit and vacancy.banner %}
+      <div class="mt-2"><img src="{{ vacancy.banner.url }}" alt="" class="rounded" style="max-height:120px"></div>
+      {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-success">{% if is_edit %}Update vacancy{% else %}Create vacancy{% endif %}</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block admin_extra_js %}
+{% if not is_edit %}
+<script>
+document.getElementById('vacancyForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  if (typeof CKEDITOR !== 'undefined') {
+    for (const instance in CKEDITOR.instances) {
+      CKEDITOR.instances[instance].updateElement();
+    }
+  }
+  const response = await fetch(window.location.href, {
+    method: 'POST',
+    body: new FormData(this),
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+  });
+  if (response.ok) {
+    const data = await response.json();
+    if (data.success) {
+      window.location.href = "{% url 'vacancy_list' %}";
+    }
+  }
+});
+</script>
+{% endif %}
+{% endblock %}

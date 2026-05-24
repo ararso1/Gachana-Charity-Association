@@ -3,7 +3,12 @@ from .models import *
 from django.http import JsonResponse
 from django.utils import timezone
 from .forms import *
+from .models import MemberProfile
+from .utils import generate_membership_id
 from django.contrib.auth.decorators import login_required
+from .decorators import role_required
+from .models import User
+from .utils import get_dashboard_url_name
 from django.db.models import Max, F
 from django.core.mail import send_mail
 from django.conf import settings
@@ -11,7 +16,7 @@ from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
 from django.db.models import Count
 from django.contrib.auth.views import PasswordResetView
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -192,7 +197,7 @@ def vacancy_details(request, vac_id):
     return render(request, 'vacancy details.html', {'vacancy':vacancy})
 
 def signin(request):
-    return render(request, 'login.html')
+    return redirect('login')
 
 def donate(request):
     return render(request, 'donate.html')
@@ -203,24 +208,44 @@ def custom_404(request, exception=None):
 
 def user_login(request):
     if request.user.is_authenticated:
-        return redirect("admin_panel")  
+        return redirect(get_dashboard_url_name(request.user))
 
-    if request.method == "POST":
-        email = request.POST.get("email")
-        password = request.POST.get("password")
+    signup_form = MemberSignupForm()
+    show_signup = request.GET.get('register') == '1'
 
-        try:
-            user = authenticate(request, username=email, password=password)
-        except User.DoesNotExist:
-            user = None
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type', 'login')
 
-        if user is not None:
-            login(request, user)
-            return redirect("admin_panel")  
+        if form_type == 'signup':
+            show_signup = True
+            signup_form = MemberSignupForm(request.POST)
+            if signup_form.is_valid():
+                user = signup_form.save()
+                MemberProfile.objects.create(
+                    user=user,
+                    membership_id=generate_membership_id(),
+                )
+                login(request, user)
+                messages.success(
+                    request,
+                    f'Welcome to Gachana Charity Association! Your membership ID is {user.member_profile.membership_id}.',
+                )
+                return redirect('member_dashboard')
         else:
-            messages.error(request, "Invalid email or password.")
+            email = request.POST.get('email', '').strip().lower()
+            password = request.POST.get('password')
 
-    return render(request, "login.html")
+            account = User.objects.filter(email__iexact=email).first()
+            user = None
+            if account:
+                user = authenticate(request, username=account.username, password=password)
+
+            if user is not None:
+                login(request, user)
+                return redirect(get_dashboard_url_name(user))
+            messages.error(request, 'Invalid email or password.')
+
+    return render(request, 'login.html', {'signup_form': signup_form, 'show_signup': show_signup})
 
 
 def password_reset_request(request):
@@ -281,36 +306,14 @@ def logout_user(request):
 
 # Admin pages start here
 @login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
 def admin_dashboard(request):
-    blog_count = Blog.objects.count()
-    vacancy_count = Vacancy.objects.count()
-
-    # Initialize variables for last updates
-    last_blog_update = "No updates yet"
-    last_vacancy_update = "No updates yet"
-
-    # Check if there are any blog entries before aggregating
-    if blog_count > 0:
-        last_blog_update = Blog.objects.aggregate(last_updated=Max('updated_at'))['last_updated']
-        if last_blog_update is None:
-            last_blog_update = "No updates yet"
-
-    # Check if there are any vacancy entries before aggregating
-    if vacancy_count > 0:
-        last_vacancy_update = Vacancy.objects.aggregate(last_updated=Max('updated_at'))['last_updated']
-        if last_vacancy_update is None:
-            last_vacancy_update = "No updates yet"
-
-    return render(request, 'admin_page/dashboard.html', {
-        'blog': blog_count,
-        'vacancy': vacancy_count,
-        'last_blog': last_blog_update,
-        'last_vacancy': last_vacancy_update
-    })
+    return redirect('portal_admin_dashboard')
 
 
 # vacancy part
 @login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
 def vacancy_list(request):
     query = request.GET.get('q')
     vacancies = Vacancy.objects.all().order_by('-created_at') 
@@ -320,10 +323,11 @@ def vacancy_list(request):
             Q(title__icontains=query) |
             Q(description__icontains=query)
         ).distinct()
-    return render(request, 'admin_page/vacancy_list.html', {'vacancies':vacancies, 'query': query,})
+    return render(request, 'portal/admin/content/vacancy_list.html', {'vacancies': vacancies, 'query': query})
 
 
 @login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
 def create_vacancy(request):
     if request.method == "POST":
         form = VacancyForm(request.POST, request.FILES)
@@ -336,14 +340,15 @@ def create_vacancy(request):
                 return JsonResponse({'success': True})
             except IntegrityError:
                 form.add_error('title', 'A vacancy with this title already exists.')
-        return render(request, 'admin_page/create_vacancy.html', {'form': form}, status=400)
+        return render(request, 'portal/admin/content/vacancy_form.html', {'form': form, 'is_edit': False}, status=400)
     else:
         form = VacancyForm()
-    
-    return render(request, 'admin_page/create_vacancy.html', {'form': form})
+
+    return render(request, 'portal/admin/content/vacancy_form.html', {'form': form, 'is_edit': False})
 
 
 @login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
 def update_vacancy(request, vacancy_id):
     vacancy = get_object_or_404(Vacancy, id=vacancy_id)
     
@@ -352,14 +357,17 @@ def update_vacancy(request, vacancy_id):
         if form.is_valid():
             vacancy = form.save(commit=False)
             # blog.updated_by = request.user  # Set the user who last updated the blog
+            vacancy.updated_by = request.user
             vacancy.save()
-            return redirect('blog_list')
+            messages.success(request, 'Vacancy updated successfully.')
+            return redirect('vacancy_list')
     else:
-        form = BlogForm(instance=vacancy)
-    
-    return render(request, 'admin_page/edit_vacancy.html', {'form': form, 'vacancy': vacancy})
+        form = VacancyForm(instance=vacancy)
+
+    return render(request, 'portal/admin/content/vacancy_form.html', {'form': form, 'vacancy': vacancy, 'is_edit': True})
 
 @login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
 def delete_vacancy(request, vacancy_id):
     vacancy = get_object_or_404(Vacancy, id=vacancy_id)
     if request.method == "POST":
@@ -370,6 +378,7 @@ def delete_vacancy(request, vacancy_id):
 
 # blog part
 @login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
 def blog_list(request):
     query = request.GET.get('q')
     blogs = Blog.objects.all().order_by('-created_at')
@@ -380,13 +389,14 @@ def blog_list(request):
             Q(description__icontains=query)
         ).distinct()
 
-    return render(request, 'admin_page/blog_list.html', {
+    return render(request, 'portal/admin/content/blog_list.html', {
         'blogs': blogs,
         'query': query,
     })
 
 
 @login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
 def create_blogs(request):
     if request.method == 'POST':
         form = BlogForm(request.POST, request.FILES)
@@ -401,13 +411,14 @@ def create_blogs(request):
                 form.add_error('title', 'A blog with this title already exists.')
         else:
             print(form.errors)
-        return render(request, 'admin_page/create_blog.html', {'form': form}, status=400)
+        return render(request, 'portal/admin/content/blog_form.html', {'form': form, 'is_edit': False}, status=400)
     else:
         form = BlogForm()
-    return render(request, 'admin_page/create_blog.html', {'form': form})
+    return render(request, 'portal/admin/content/blog_form.html', {'form': form, 'is_edit': False})
 
 
 @login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
 def update_blog(request, blog_id):
     blog = get_object_or_404(Blog, id=blog_id)
     
@@ -418,13 +429,15 @@ def update_blog(request, blog_id):
             blog.updated_by = request.user  # Set the user who last updated the blog
             blog.save()
             form.save_m2m() 
+            messages.success(request, 'Blog updated successfully.')
             return redirect('blog_list')
     else:
         form = BlogForm(instance=blog)
-    
-    return render(request, 'admin_page/edit_blog.html', {'form': form, 'blog': blog})
+
+    return render(request, 'portal/admin/content/blog_form.html', {'form': form, 'blog': blog, 'is_edit': True})
 
 @login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
 def delete_blog(request, blog_id):
     blog = get_object_or_404(Blog, id=blog_id)
     if request.method == "POST":
@@ -433,17 +446,20 @@ def delete_blog(request, blog_id):
     return redirect('blog_list')
 
 @login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
 def profile(request):
-    return render(request, 'admin_page/profile.html')
+    return render(request, 'portal/admin/profile.html')
 
 @login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
 def profile_edit(request):
     if request.method == 'POST':
         form = ProfileEditForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
-            return redirect('profile')  # Redirect to the same page after saving
+            messages.success(request, 'Profile updated successfully.')
+            return redirect('profile')
     else:
         form = ProfileEditForm(instance=request.user)
-    
-    return render(request, 'admin_page/profile_edit.html', {'form': form})
+
+    return render(request, 'portal/admin/profile_edit.html', {'form': form})

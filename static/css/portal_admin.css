@@ -1,0 +1,118 @@
+.portal-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.portal-page-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0b3d2e;
+}
+
+.portal-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.portal-toolbar .form-control,
+.portal-toolbar .form-select {
+  max-width: 280px;
+}
+
+.portal-table img.thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.portal-form-card {
+  max-width: 820px;
+}
+
+.portal-form-card .form-label {
+  font-weight: 600;
+  color: #1a2e24;
+}
+
+.portal-form-card .django-ckeditor-widget,
+.portal-form-card textarea,
+.portal-form-card input[type="text"],
+.portal-form-card input[type="email"],
+.portal-form-card input[type="file"],
+.portal-form-card select {
+  width: 100% !important;
+  max-width: 100%;
+}
+
+.portal-form-card ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.portal-form-card ul li {
+  margin-bottom: 0.35rem;
+}
+
+.portal-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.portal-stat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid #06a84a;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.portal-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(6, 168, 74, 0.12);
+  color: inherit;
+}
+
+.portal-stat-card h6 {
+  color: #5c6f65;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.35rem;
+}
+
+.portal-stat-card .value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #06a84a;
+}
+
+.portal-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #5c6f65;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #06a84a;
+}

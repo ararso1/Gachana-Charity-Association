@@ -1,0 +1,63 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Donate{% endblock %}
+{% block sidebar %}
+<a href="{% url 'member_dashboard' %}"><i class="fa fa-home me-2"></i>Dashboard</a>
+<a href="{% url 'member_donate' %}" class="active"><i class="fa fa-hand-holding-heart me-2"></i>Donate</a>
+<a href="{% url 'member_donations' %}"><i class="fa fa-history me-2"></i>Donation history</a>
+<a href="{% url 'member_card' %}"><i class="fa fa-id-card me-2"></i>Membership card</a>
+<a href="{% url 'member_profile' %}"><i class="fa fa-user me-2"></i>Profile</a>
+{% endblock %}
+{% block content %}
+<h2 class="mb-4">Make a Donation</h2>
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="portal-card">
+      <h5><i class="fa fa-credit-card text-primary me-2"></i>Pay with Chapa (Online)</h5>
+      <p class="text-muted small">Instant confirmation when payment succeeds.</p>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="payment_type" value="chapa">
+        <div class="mb-3">
+          <label class="form-label">Amount (ETB)</label>
+          {{ chapa_form.amount }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Purpose (optional)</label>
+          {{ chapa_form.purpose }}
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Pay with Chapa</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="portal-card">
+      <h5><i class="fa fa-university text-success me-2"></i>Manual bank transfer</h5>
+      <p class="small text-muted mb-3">
+        <strong>Account:</strong> Gachana Charity Association<br>
+        Submit your transfer reference after payment. Staff will confirm your donation.
+      </p>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="payment_type" value="manual">
+        <div class="mb-3">
+          <label class="form-label">Amount (ETB)</label>
+          {{ manual_form.amount }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Purpose (optional)</label>
+          {{ manual_form.purpose }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Bank reference</label>
+          {{ manual_form.manual_reference }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Proof of payment (optional)</label>
+          {{ manual_form.manual_proof }}
+        </div>
+        <button type="submit" class="btn btn-success w-100">Submit manual donation</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

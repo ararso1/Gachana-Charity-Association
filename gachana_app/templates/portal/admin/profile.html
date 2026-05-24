@@ -1,0 +1,33 @@
+{% extends 'portal/admin/base_admin.html' %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+<div class="portal-page-header">
+  <h2>My profile</h2>
+  <a href="{% url 'profile_edit' %}" class="btn btn-success"><i class="fa fa-edit me-2"></i>Edit profile</a>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="portal-card text-center">
+      {% if user.photo %}
+      <img src="{{ user.photo.url }}" alt="" class="profile-avatar mb-3">
+      {% else %}
+      <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|urlencode }}&background=06a84a&color=fff&size=120" alt="" class="profile-avatar mb-3">
+      {% endif %}
+      <h4 class="mb-1">{{ user.get_full_name|default:user.username }}</h4>
+      <p class="text-muted mb-0">{{ user.get_role_display|default:"Admin" }}</p>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="portal-card">
+      <table class="table table-borderless mb-0">
+        <tr><th class="text-muted" style="width:140px">Email</th><td>{{ user.email }}</td></tr>
+        <tr><th class="text-muted">Phone</th><td>{{ user.phone|default:"—" }}</td></tr>
+        <tr><th class="text-muted">Address</th><td>{{ user.address|default:"—" }}</td></tr>
+        <tr><th class="text-muted">Role</th><td><span class="badge bg-success">{{ user.get_role_display }}</span></td></tr>
+        <tr><th class="text-muted">Joined</th><td>{{ user.date_joined|date:"F d, Y" }}</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

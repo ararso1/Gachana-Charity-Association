@@ -1,0 +1,25 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}My Profile{% endblock %}
+{% block sidebar %}
+<a href="{% url 'member_dashboard' %}"><i class="fa fa-home me-2"></i>Dashboard</a>
+<a href="{% url 'member_donate' %}"><i class="fa fa-hand-holding-heart me-2"></i>Donate</a>
+<a href="{% url 'member_donations' %}"><i class="fa fa-history me-2"></i>Donation history</a>
+<a href="{% url 'member_card' %}"><i class="fa fa-id-card me-2"></i>Membership card</a>
+<a href="{% url 'member_profile' %}" class="active"><i class="fa fa-user me-2"></i>Profile</a>
+{% endblock %}
+{% block content %}
+<h2 class="mb-4">My Profile</h2>
+<div class="portal-card" style="max-width:600px">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="mb-3">
+      <label class="form-label">{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Save changes</button>
+  </form>
+</div>
+{% endblock %}
