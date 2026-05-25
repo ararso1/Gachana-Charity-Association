@@ -1,9 +1,16 @@
+import logging
 import uuid
 
+from django.conf import settings
+from django.core.mail import send_mail
 from django.db.models import Max
 from django.utils import timezone
 
-from .models import Donation, MemberProfile, PortalSettings, User
+from .models import Contact, Donation, MemberProfile, PortalSettings, User
+
+logger = logging.getLogger(__name__)
+
+CONTACT_DAILY_LIMIT = 3
 
 
 def get_portal_settings():
@@ -121,3 +128,62 @@ def refresh_member_totals(member_profile):
     member_profile.save(update_fields=['total_donated', 'updated_at'])
     issue_membership_card_if_eligible(member_profile)
     return member_profile
+
+
+def contact_submissions_today_count(email):
+    """How many contact messages this email has sent since local midnight."""
+    today = timezone.localdate()
+    return Contact.objects.filter(
+        email__iexact=email.strip(),
+        created_at__date=today,
+    ).count()
+
+
+def contact_rate_limit_exceeded(email):
+    return contact_submissions_today_count(email) >= CONTACT_DAILY_LIMIT
+
+
+def send_contact_notification_emails(name, email, subject, message):
+    """Notify admin and sender; failures are logged but do not block the form."""
+    admin_email = getattr(settings, 'CONTACT_ADMIN_EMAIL', None) or settings.DEFAULT_FROM_EMAIL
+    admin_subject = f'New Contact Form Submission: {subject}'
+    admin_body = (
+        f'You have received a new contact form submission:\n\n'
+        f'Name: {name}\n'
+        f'Email: {email}\n'
+        f'Subject: {subject}\n'
+        f'Message: {message}\n\n'
+        f'Please respond to this inquiry promptly.'
+    )
+    user_subject = 'Thank you for contacting us'
+    user_body = (
+        f'Dear {name},\n\n'
+        f'Thank you for reaching out to us. We have received your message regarding:\n'
+        f'"{subject}"\n\n'
+        f'Our team will review your inquiry and get back to you as soon as possible.\n\n'
+        f"Here's a copy of your message for your reference:\n{message}\n\n"
+        f'Best regards,\nGachana Charity Association'
+    )
+    from_email = settings.DEFAULT_FROM_EMAIL
+
+    try:
+        send_mail(
+            admin_subject,
+            admin_body,
+            from_email,
+            [admin_email],
+            fail_silently=True,
+        )
+    except Exception:
+        logger.exception('Failed to send contact notification to admin')
+
+    try:
+        send_mail(
+            user_subject,
+            user_body,
+            from_email,
+            [email],
+            fail_silently=True,
+        )
+    except Exception:
+        logger.exception('Failed to send contact confirmation to %s', email)

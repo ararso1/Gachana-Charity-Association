@@ -1,0 +1,126 @@
+{% extends 'portal/admin/content/base_content.html' %}
+{% block title %}Sponsors{% endblock %}
+{% block content %}
+<header class="content-page-header">
+  <div>
+    <p class="content-page-eyebrow">Website content</p>
+    <h1>Sponsors &amp; partners</h1>
+    <p class="content-page-sub">Manage sponsor cards shown in the public sponsors banner on the home and about pages.</p>
+  </div>
+  <a href="{% url 'create_sponsor' %}" class="btn btn-success btn-sm">
+    <i class="fa fa-plus me-2"></i>Add sponsor
+  </a>
+</header>
+
+<div class="content-stat-row">
+  <div class="content-stat-card">
+    <div class="content-stat-card__icon content-stat-card__icon--blue"><i class="fa fa-handshake"></i></div>
+    <div>
+      <span class="content-stat-card__label">Total sponsors</span>
+      <span class="content-stat-card__value">{{ stats.total }}</span>
+    </div>
+  </div>
+  <div class="content-stat-card">
+    <div class="content-stat-card__icon content-stat-card__icon--green"><i class="fa fa-eye"></i></div>
+    <div>
+      <span class="content-stat-card__label">Live on site now</span>
+      <span class="content-stat-card__value">{{ stats.live_on_site }}</span>
+    </div>
+  </div>
+  <div class="content-stat-card">
+    <div class="content-stat-card__icon content-stat-card__icon--purple"><i class="fa fa-toggle-on"></i></div>
+    <div>
+      <span class="content-stat-card__label">Marked active</span>
+      <span class="content-stat-card__value">{{ stats.active }}</span>
+    </div>
+  </div>
+  <div class="content-stat-card">
+    <div class="content-stat-card__icon content-stat-card__icon--gold"><i class="fa fa-filter"></i></div>
+    <div>
+      <span class="content-stat-card__label">Showing</span>
+      <span class="content-stat-card__value">{{ stats.filtered }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="portal-card content-table-card p-0">
+  <div class="content-table-card__head">
+    <h2><i class="fa fa-building text-success me-2"></i>All sponsors</h2>
+    <span class="text-muted small">{{ stats.filtered }} of {{ stats.total }}</span>
+  </div>
+
+  <form method="get" action="{% url 'sponsor_list' %}" class="content-toolbar">
+    <div class="content-toolbar__search">
+      <i class="fa fa-search content-toolbar__search-icon" aria-hidden="true"></i>
+      <input class="form-control" type="search" name="q" placeholder="Search name or tagline…" value="{{ query|default:'' }}" autocomplete="off">
+    </div>
+    <select name="tier" class="form-select content-toolbar__filter" aria-label="Filter by tier">
+      <option value="">All tiers</option>
+      {% for value, label in tier_choices %}
+      <option value="{{ value }}" {% if tier_filter == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-success content-toolbar__btn"><i class="fa fa-filter me-1"></i>Filter</button>
+    {% if query or tier_filter %}
+    <a href="{% url 'sponsor_list' %}" class="btn btn-outline-secondary content-toolbar__btn">Clear</a>
+    {% endif %}
+  </form>
+
+  <div class="content-sponsor-admin-grid">
+    {% for sponsor in sponsors %}
+    <article class="content-sponsor-admin-card {% if not sponsor.is_active %}content-sponsor-admin-card--inactive{% endif %}">
+      <div class="content-sponsor-admin-card__logo">
+        {% if sponsor.logo %}
+        <img src="{{ sponsor.logo.url }}" alt="">
+        {% else %}
+        <i class="fa fa-image opacity-25"></i>
+        {% endif %}
+        <span class="content-sponsor-admin-card__tier content-sponsor-admin-card__tier--{{ sponsor.tier }}">{{ sponsor.tier_label }}</span>
+      </div>
+      <div class="content-sponsor-admin-card__body">
+        <h3 class="content-sponsor-admin-card__name">{{ sponsor.name }}</h3>
+        {% if sponsor.tagline %}<p class="content-sponsor-admin-card__tagline">{{ sponsor.tagline|truncatechars:70 }}</p>{% endif %}
+        <p class="content-sponsor-admin-card__meta mb-2">
+          Order {{ sponsor.sort_order }} · {{ sponsor.visibility_preset_label }}
+          {% if sponsor.is_publicly_visible %}
+          <span class="badge content-badge content-badge--published ms-1">Live</span>
+          {% elif sponsor.is_active %}
+          <span class="badge content-badge content-badge--draft ms-1">Not on site</span>
+          {% else %}
+          <span class="badge content-badge content-badge--draft ms-1">Hidden</span>
+          {% endif %}
+        </p>
+        <p class="content-sponsor-admin-card__visibility small mb-2">
+          <i class="fa fa-calendar-alt me-1"></i>{{ sponsor.visibility_status_label }}
+        </p>
+        <div class="content-sponsor-admin-card__actions">
+          <a href="{% url 'edit_sponsor' sponsor.id %}" class="btn btn-sm btn-outline-primary flex-grow-1">
+            <i class="fa fa-edit me-1"></i>Edit
+          </a>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-danger"
+            title="Delete"
+            data-delete-url="{% url 'delete_sponsor' sponsor.id %}"
+            data-delete-title="Remove sponsor?"
+            data-delete-text="“{{ sponsor.name|truncatechars:50 }}” will be removed from the public site."
+          ><i class="fa fa-trash"></i></button>
+        </div>
+      </div>
+    </article>
+    {% empty %}
+    <div class="content-table__empty w-100">
+      <i class="fa fa-handshake d-block"></i>
+      <p class="mb-2">No sponsors yet.</p>
+      <a href="{% url 'create_sponsor' %}" class="btn btn-success btn-sm">Add your first sponsor</a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% include 'portal/admin/content/_delete_modal.html' %}
+{% endblock %}
+
+{% block admin_extra_js %}
+{% include 'portal/admin/content/_delete_script.html' %}
+{% endblock %}

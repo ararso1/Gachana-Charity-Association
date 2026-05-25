@@ -573,42 +573,6 @@
     </div>
     <!-- Testimonial End -->
 
-    <!-- Sponsors and Partners Start -->
-    <div class="container-xxl py-5">
-        <div class="container">
-            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
-                <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Support & Collaboration</div>
-                <h1 class="display-6 mb-5">Our Sponsors and Partners</h1>
-            </div>
-            <div class="row g-4 justify-content-center">
-                <div class="col-lg-2 col-md-3 col-sm-4 col-6 wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="bg-light p-3 rounded text-center">
-                        <img src="{% static 'img/childfund.jpeg' %}" class="img-fluid mb-2" alt="Sponsor 1 Logo">
-                        <p class="mb-0 small">UNICEF</p>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-3 col-sm-4 col-6 wow fadeInUp" data-wow-delay="0.2s">
-                    <div class="bg-light p-3 rounded text-center">
-                        <img src="{% static 'img/blog-1.jpg' %}" class="img-fluid mb-2" alt="Sponsor 2 Logo">
-                        <p class="mb-0 small">Save the Children</p>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-3 col-sm-4 col-6 wow fadeInUp" data-wow-delay="0.3s">
-                    <div class="bg-light p-3 rounded text-center">
-                        <img src="{% static 'img/sponsor3.png' %}" class="img-fluid mb-2" alt="Sponsor 3 Logo">
-                        <p class="mb-0 small">Pamoja</p>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-3 col-sm-4 col-6 wow fadeInUp" data-wow-delay="0.4s">
-                    <div class="bg-light p-3 rounded text-center">
-                        <img src="{% static 'img/sponsor4.png' %}" class="img-fluid mb-2" alt="Sponsor 4 Logo">
-                        <p class="mb-0 small">Local Government</p>
-                    </div>
-                </div>
-                <!-- Add more partners/sponsors as needed -->
-            </div>
-        </div>
-    </div>
-    <!-- Sponsors and Partners End -->
+    {% include 'components/sponsors_section.html' %}
 
     {% include 'components/footer.html' %}

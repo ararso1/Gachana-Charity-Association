@@ -1,0 +1,61 @@
+{% extends 'portal/admin/content/base_content.html' %}
+{% block title %}Contact message{% endblock %}
+{% block content %}
+<header class="content-page-header content-form-header">
+  <div>
+    <p class="content-page-eyebrow">Website inbox</p>
+    <h1>{{ message.subject }}</h1>
+    <p class="content-page-sub">Received {{ message.created_at|date:"F j, Y" }} at {{ message.created_at|time:"g:i A" }}</p>
+  </div>
+  <a href="{% url 'contact_message_list' %}" class="btn btn-outline-secondary btn-back">
+    <i class="fa fa-arrow-left me-2"></i>Back to messages
+  </a>
+</header>
+
+<div class="portal-card contact-message-detail">
+  <div class="contact-message-detail__meta">
+    <div class="contact-message-detail__field">
+      <span class="contact-message-detail__label">From</span>
+      <strong>{{ message.name }}</strong>
+    </div>
+    <div class="contact-message-detail__field">
+      <span class="contact-message-detail__label">Email</span>
+      <a href="mailto:{{ message.email }}">{{ message.email }}</a>
+    </div>
+    <div class="contact-message-detail__field">
+      <span class="contact-message-detail__label">Subject</span>
+      <span>{{ message.subject }}</span>
+    </div>
+  </div>
+
+  <div class="contact-message-detail__body">
+    <span class="contact-message-detail__label">Message</span>
+    <div class="contact-message-detail__text">{{ message.message|linebreaksbr }}</div>
+  </div>
+
+  <div class="content-form-footer border-0 pt-0 mt-4">
+    <a
+      href="mailto:{{ message.email }}?subject={{ 'Re: '|add:message.subject|urlencode }}"
+      class="btn btn-success"
+    >
+      <i class="fa fa-reply me-2"></i>Reply by email
+    </a>
+    <button
+      type="button"
+      class="btn btn-outline-danger"
+      data-delete-url="{% url 'delete_contact_message' message.id %}"
+      data-delete-title="Delete contact message?"
+      data-delete-text="Message from {{ message.name|truncatechars:40 }} will be removed permanently."
+    >
+      <i class="fa fa-trash me-2"></i>Delete
+    </button>
+    <a href="{% url 'contact_message_list' %}" class="btn btn-outline-secondary">Back to list</a>
+  </div>
+</div>
+
+{% include 'portal/admin/content/_delete_modal.html' %}
+{% endblock %}
+
+{% block admin_extra_js %}
+{% include 'portal/admin/content/_delete_script.html' %}
+{% endblock %}

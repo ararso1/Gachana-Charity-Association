@@ -1,4 +1,11 @@
-from .models import StaffProfile, User
+from .models import Sponsor, StaffProfile, User
+
+
+def public_sponsors(request):
+    """Active sponsors for the public website sponsors section."""
+    return {
+        'public_sponsors': Sponsor.objects.publicly_visible().order_by('sort_order', 'name'),
+    }
 
 
 def portal_staff(request):

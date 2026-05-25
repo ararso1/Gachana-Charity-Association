@@ -202,6 +202,12 @@
         <a href="{% url 'gallery_list' %}" class="dash-action-btn dash-action-btn--green">
           <i class="fa fa-th"></i><span>Manage gallery</span>
         </a>
+        <a href="{% url 'contact_message_list' %}" class="dash-action-btn dash-action-btn--blue">
+          <i class="fa fa-envelope"></i><span>Contact messages</span>
+        </a>
+        <a href="{% url 'sponsor_list' %}" class="dash-action-btn dash-action-btn--gray">
+          <i class="fa fa-handshake"></i><span>Manage sponsors</span>
+        </a>
       </div>
     </div>
   </div>
@@ -228,6 +234,20 @@
             <span>Gallery images</span>
             <strong>{{ stats.gallery }}</strong>
             {% if stats.last_gallery %}<small>Added {{ stats.last_gallery|date:"M d" }}</small>{% endif %}
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'contact_message_list' %}">
+            <span>Contact messages</span>
+            <strong>{{ stats.contact_messages }}</strong>
+            <small>From website form</small>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'sponsor_list' %}">
+            <span>Sponsors on site</span>
+            <strong>{{ stats.sponsors }}</strong>
+            <small>Active partner cards</small>
           </a>
         </li>
       </ul>

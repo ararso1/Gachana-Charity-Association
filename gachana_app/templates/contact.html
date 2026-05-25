@@ -53,8 +53,9 @@
                                 </div>
                             </div>
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary py-2 px-3 me-3">
-                                    Send Message
+                                <div id="contactFormAlert" class="alert d-none mb-3" role="alert"></div>
+                                <button type="submit" class="btn btn-primary py-2 px-3 me-3" id="contactSubmitBtn">
+                                    <span class="contact-submit-label">Send Message</span>
                                     <div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
                                         <i class="fa fa-arrow-right"></i>
                                     </div>
@@ -73,7 +74,7 @@
     </div>
     
     <!-- Success Confirmation Modal -->
-    <div id="successModal" class="modal">
+    <div id="successModal" class="contact-page-modal">
         <div class="modal-content animate">
             <div class="modal-header">
                 <h3>Your message was successfully sent!</h3>
@@ -88,8 +89,7 @@
     </div>
     
     <style>
-        /* Modal Styles */
-        .modal {
+        .contact-page-modal {
             display: none;
             position: fixed;
             z-index: 1000;
@@ -102,12 +102,12 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        
-        .modal.show {
+
+        .contact-page-modal.show {
             opacity: 1;
         }
-        
-        .modal-content {
+
+        .contact-page-modal .modal-content {
             background-color: #fefefe;
             margin: 10% auto;
             padding: 20px;
@@ -118,41 +118,36 @@
             transform: translateY(-50px);
             transition: all 0.3s ease;
         }
-        
-        .modal.show .modal-content {
+
+        .contact-page-modal.show .modal-content {
             transform: translateY(0);
         }
-        
-        .modal-header {
+
+        .contact-page-modal .modal-header {
             padding: 10px 0;
             border-bottom: 1px solid #eee;
             margin-bottom: 15px;
         }
-        
-        .modal-header h3 {
+
+        .contact-page-modal .modal-header h3 {
             margin: 0;
             color: #069c42;
             font-size: 1.5rem;
         }
-        
-        .modal-body {
-            padding: 10px 0;
-            margin-bottom: 15px;
-        }
-        
-        .modal-body p {
+
+        .contact-page-modal .modal-body p {
             margin: 0;
             color: #555;
             font-size: 1.1rem;
         }
-        
-        .modal-footer {
+
+        .contact-page-modal .modal-footer {
             text-align: right;
             padding-top: 15px;
             border-top: 1px solid #eee;
         }
-        
-        .modal-button {
+
+        .contact-page-modal .modal-button {
             background-color: #0ccc49;
             color: white;
             border: none;
@@ -160,63 +155,84 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 1rem;
-            transition: background-color 0.3s;
         }
-        
-        .modal-button:hover {
-            background-color: #2980b9;
+
+        .contact-page-modal .modal-button:hover {
+            background-color: #06a84a;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateY(-50px); }
-            to { transform: translateY(0); }
+
+        #contactSubmitBtn:disabled {
+            opacity: 0.7;
+            cursor: wait;
         }
     </style>
-    
+
     <script>
-        document.getElementById("contactForm").addEventListener("submit", function(event) {
-            event.preventDefault();  // Prevent normal form submission
-        
-            let formData = new FormData(this);
-        
-            fetch("{% url 'contact' %}", {
-                method: "POST",
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const modal = document.getElementById("successModal");
-                    modal.style.display = "block";
-                    setTimeout(() => {
-                        modal.classList.add("show");
-                    }, 10);
-                    document.getElementById("contactForm").reset();  // Reset the form
-                }
-            })
-            .catch(error => console.error("Error:", error));
-        });
-        
-        function closeModal() {
-            const modal = document.getElementById("successModal");
-            modal.classList.remove("show");
-            setTimeout(() => {
-                modal.style.display = "none";
-            }, 300);
-        }
-        
-        // Close modal when clicking outside of it
-        window.addEventListener('click', function(event) {
-            const modal = document.getElementById("successModal");
-            if (event.target === modal) {
-                closeModal();
+        (function () {
+            const form = document.getElementById('contactForm');
+            const submitBtn = document.getElementById('contactSubmitBtn');
+            const alertBox = document.getElementById('contactFormAlert');
+            const successModal = document.getElementById('successModal');
+
+            function showAlert(message, type) {
+                alertBox.textContent = message;
+                alertBox.className = 'alert alert-' + type + ' mb-3';
+                alertBox.classList.remove('d-none');
             }
-        });
+
+            function hideAlert() {
+                alertBox.classList.add('d-none');
+            }
+
+            function openSuccessModal(text) {
+                const body = successModal.querySelector('.modal-body p');
+                if (body && text) body.textContent = text;
+                successModal.style.display = 'block';
+                setTimeout(() => successModal.classList.add('show'), 10);
+            }
+
+            window.closeModal = function () {
+                successModal.classList.remove('show');
+                setTimeout(() => { successModal.style.display = 'none'; }, 300);
+            };
+
+            successModal.addEventListener('click', function (event) {
+                if (event.target === successModal) closeModal();
+            });
+
+            form.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                hideAlert();
+                submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch("{% url 'contact' %}", {
+                        method: 'POST',
+                        body: new FormData(form),
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    });
+
+                    let data = {};
+                    const contentType = response.headers.get('content-type') || '';
+                    if (contentType.includes('application/json')) {
+                        data = await response.json();
+                    }
+
+                    if (response.ok && data.success) {
+                        form.reset();
+                        openSuccessModal(data.message);
+                        return;
+                    }
+
+                    const message = data.message || 'Could not send your message. Please try again.';
+                    showAlert(message, response.status === 429 ? 'warning' : 'danger');
+                } catch (err) {
+                    showAlert('Network error. Check your connection and try again.', 'danger');
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            });
+        })();
     </script>
     
     {% include 'components/footer.html' %}

@@ -74,6 +74,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'gachana_app.context_processors.portal_staff',
+                'gachana_app.context_processors.public_sponsors',
             ],
         },
     },

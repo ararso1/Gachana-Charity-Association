@@ -48,6 +48,15 @@ urlpatterns = [
     path('edit_gallery/<int:gallery_id>/', views.update_gallery, name='edit_gallery'),
     path('delete_gallery/<int:gallery_id>/', views.delete_gallery, name='delete_gallery'),
 
+    path('sponsors/', views.sponsor_list, name='sponsor_list'),
+    path('sponsors/add/', views.create_sponsor, name='create_sponsor'),
+    path('sponsors/<int:sponsor_id>/edit/', views.update_sponsor, name='edit_sponsor'),
+    path('sponsors/<int:sponsor_id>/delete/', views.delete_sponsor, name='delete_sponsor'),
+
+    path('contact_messages/', views.contact_message_list, name='contact_message_list'),
+    path('contact_messages/<int:message_id>/', views.contact_message_detail, name='contact_message_detail'),
+    path('contact_messages/<int:message_id>/delete/', views.delete_contact_message, name='delete_contact_message'),
+
     path('admin_page/profile', views.profile, name='profile'),
     path('admin_page/edit_profile', views.profile_edit, name='profile_edit'),
 

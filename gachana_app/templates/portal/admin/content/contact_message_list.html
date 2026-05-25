@@ -1,0 +1,112 @@
+{% extends 'portal/admin/content/base_content.html' %}
+{% block title %}Contact messages{% endblock %}
+{% block content %}
+<header class="content-page-header">
+  <div>
+    <p class="content-page-eyebrow">Website inbox</p>
+    <h1>Contact messages</h1>
+    <p class="content-page-sub">Messages submitted from the public <a href="{% url 'contact' %}" target="_blank" rel="noopener">Contact Us</a> page.</p>
+  </div>
+</header>
+
+<div class="content-stat-row">
+  <div class="content-stat-card">
+    <div class="content-stat-card__icon content-stat-card__icon--blue"><i class="fa fa-envelope"></i></div>
+    <div>
+      <span class="content-stat-card__label">Total messages</span>
+      <span class="content-stat-card__value">{{ stats.total }}</span>
+    </div>
+  </div>
+  <div class="content-stat-card">
+    <div class="content-stat-card__icon content-stat-card__icon--green"><i class="fa fa-calendar-week"></i></div>
+    <div>
+      <span class="content-stat-card__label">Last 7 days</span>
+      <span class="content-stat-card__value">{{ stats.last_7_days }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="portal-card content-table-card p-0">
+  <div class="content-table-card__head">
+    <h2><i class="fa fa-inbox text-success me-2"></i>All messages</h2>
+    <span class="text-muted small">
+      {% if query %}{{ stats.filtered }} matching{% else %}{{ stats.total }} message{{ stats.total|pluralize }}{% endif %}
+    </span>
+  </div>
+
+  <form method="get" action="{% url 'contact_message_list' %}" class="content-toolbar">
+    <div class="content-toolbar__search">
+      <i class="fa fa-search content-toolbar__search-icon" aria-hidden="true"></i>
+      <input class="form-control" type="search" name="q" placeholder="Search name, email, subject, or message…" value="{{ query|default:'' }}" autocomplete="off">
+    </div>
+    <button type="submit" class="btn btn-success content-toolbar__btn"><i class="fa fa-search me-1"></i>Search</button>
+    {% if query %}
+    <a href="{% url 'contact_message_list' %}" class="btn btn-outline-secondary content-toolbar__btn">Clear</a>
+    {% endif %}
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-hover content-table mb-0">
+      <thead>
+        <tr>
+          <th>From</th>
+          <th>Subject</th>
+          <th>Received</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for msg in contact_messages %}
+        <tr>
+          <td>
+            <div class="content-table__person">
+              <span class="content-table__thumb content-table__thumb--contact"><i class="fa fa-user"></i></span>
+              <div>
+                <span class="content-table__name">{{ msg.name }}</span>
+                <span class="content-table__meta">{{ msg.email }}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="content-table__name d-block">{{ msg.subject|truncatechars:80 }}</span>
+            <span class="content-table__meta">{{ msg.message|truncatechars:100 }}</span>
+          </td>
+          <td class="text-nowrap text-muted">{{ msg.created_at|date:"M d, Y" }}<br><small>{{ msg.created_at|time:"g:i A" }}</small></td>
+          <td class="text-end content-actions">
+            <a href="{% url 'contact_message_detail' msg.id %}" class="btn btn-sm btn-outline-primary" title="View message">
+              <i class="fa fa-eye me-1"></i>View
+            </a>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-danger"
+              title="Delete"
+              data-delete-url="{% url 'delete_contact_message' msg.id %}"
+              data-delete-title="Delete contact message?"
+              data-delete-text="Message from {{ msg.name|truncatechars:40 }} will be removed permanently."
+            ><i class="fa fa-trash"></i></button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="content-table__empty">
+            <i class="fa fa-envelope-open d-block"></i>
+            <p class="mb-2">No contact messages yet.</p>
+            {% if query %}
+            <a href="{% url 'contact_message_list' %}" class="btn btn-outline-secondary btn-sm">Clear search</a>
+            {% else %}
+            <p class="small text-muted mb-0">Submissions from the website contact form will appear here.</p>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include 'portal/admin/content/_delete_modal.html' %}
+{% endblock %}
+
+{% block admin_extra_js %}
+{% include 'portal/admin/content/_delete_script.html' %}
+{% endblock %}

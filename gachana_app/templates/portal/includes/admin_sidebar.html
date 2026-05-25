@@ -31,6 +31,12 @@
 <a href="{% url 'gallery_list' %}" class="{% if url_name == 'gallery_list' or url_name == 'create_gallery' or url_name == 'edit_gallery' %}active{% endif %}">
   <i class="fa fa-images me-2"></i>Gallery
 </a>
+<a href="{% url 'sponsor_list' %}" class="{% if url_name == 'sponsor_list' or url_name == 'create_sponsor' or url_name == 'edit_sponsor' %}active{% endif %}">
+  <i class="fa fa-handshake me-2"></i>Sponsors
+</a>
+<a href="{% url 'contact_message_list' %}" class="{% if url_name == 'contact_message_list' or url_name == 'contact_message_detail' %}active{% endif %}">
+  <i class="fa fa-envelope me-2"></i>Contact messages
+</a>
 
 <small class="text-white-50 d-block mb-2 mt-3">ACCOUNT</small>
 <a href="{% url 'profile' %}" class="{% if url_name == 'profile' %}active{% endif %}">

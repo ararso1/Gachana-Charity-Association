@@ -122,73 +122,86 @@ def blog_by_category(request, category_id=None):
     })
 
 def contact(request):
-    if request.method == "POST":
-        name = request.POST.get("name")
-        email = request.POST.get("email")
-        subject = request.POST.get("subject")
-        message = request.POST.get("message")
+    if request.method != 'POST':
+        return render(request, 'contact.html')
 
-        # Save message to the database
-        contact = Contact.objects.create(
-            name=name, 
-            email=email, 
-            subject=subject, 
-            message=message
+    name = (request.POST.get('name') or '').strip()
+    email = (request.POST.get('email') or '').strip().lower()
+    subject = (request.POST.get('subject') or '').strip()
+    message = (request.POST.get('message') or '').strip()
+
+    errors = []
+    if not name:
+        errors.append('Please enter your name.')
+    elif len(name) > 255:
+        errors.append('Name is too long.')
+    if not email:
+        errors.append('Please enter your email.')
+    else:
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            errors.append('Please enter a valid email address.')
+    if not subject:
+        errors.append('Please enter a subject.')
+    elif len(subject) > 455:
+        errors.append('Subject is too long.')
+    if not message:
+        errors.append('Please enter your message.')
+
+    if errors:
+        return JsonResponse({'success': False, 'message': ' '.join(errors)}, status=400)
+
+    from .utils import contact_rate_limit_exceeded, send_contact_notification_emails
+
+    if contact_rate_limit_exceeded(email):
+        return JsonResponse(
+            {
+                'success': False,
+                'message': (
+                    'You can only send up to 3 messages per day using this email address. '
+                    'Please try again tomorrow.'
+                ),
+            },
+            status=429,
         )
 
-        # Email to admin
-        admin_email = "areealisho12@gmail.com"
-        admin_subject = f"New Contact Form Submission: {subject}"
-        admin_message = f"""
-        You have received a new contact form submission:
-        
-        Name: {name}
-        Email: {email}
-        Subject: {subject}
-        Message: {message}
-        
-        Please respond to this inquiry promptly.
-        """
-        
-        send_mail(
-            admin_subject,
-            admin_message,
-            settings.DEFAULT_FROM_EMAIL,  # Use your configured email
-            [admin_email],
-            fail_silently=False,
+    try:
+        Contact.objects.create(
+            name=name,
+            email=email,
+            subject=subject,
+            message=message,
+        )
+    except Exception:
+        return JsonResponse(
+            {
+                'success': False,
+                'message': 'We could not save your message. Please try again in a few minutes.',
+            },
+            status=500,
         )
 
-        # Thank you email to user
-        user_subject = "Thank you for contacting us"
-        user_message = f"""
-        Dear {name},
-        
-        Thank you for reaching out to us. We have received your message regarding:
-        "{subject}"
-        
-        Our team will review your inquiry and get back to you as soon as possible.
-        
-        Here's a copy of your message for your reference:
-        {message}
-        
-        Best regards,
-        Gachana Charity Association
-        """
-        
-        send_mail(
-            user_subject,
-            user_message,
-            settings.DEFAULT_FROM_EMAIL,
-            [email],
-            fail_silently=False,
-        )
+    import threading
 
-        # Send a success response
-        return JsonResponse({
-            "success": True, 
-            "message": "Your message has been sent successfully! A confirmation email has been sent to your inbox."
-        })
-    return render(request, 'contact.html')
+    threading.Thread(
+        target=send_contact_notification_emails,
+        args=(name, email, subject, message),
+        daemon=True,
+    ).start()
+
+    return JsonResponse(
+        {
+            'success': True,
+            'message': (
+                'Your message was sent successfully! '
+                'We will get back to you as soon as possible.'
+            ),
+        }
+    )
 
 def climate(request):
     return render(request, 'climate.html')
@@ -648,6 +661,140 @@ def gallery_category_list(request):
             },
         },
     )
+
+
+# Sponsors (public website showcase)
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def sponsor_list(request):
+    query = request.GET.get('q')
+    tier_filter = request.GET.get('tier')
+    sponsors = Sponsor.objects.all().order_by('sort_order', 'name')
+
+    if tier_filter:
+        sponsors = sponsors.filter(tier=tier_filter)
+    if query:
+        sponsors = sponsors.filter(
+            Q(name__icontains=query)
+            | Q(tagline__icontains=query)
+        )
+
+    total = Sponsor.objects.count()
+    return render(
+        request,
+        'portal/admin/content/sponsor_list.html',
+        {
+            'sponsors': sponsors,
+            'query': query,
+            'tier_filter': tier_filter,
+            'tier_choices': Sponsor.Tier.choices,
+            'stats': {
+                'total': total,
+                'active': Sponsor.objects.filter(is_active=True).count(),
+                'live_on_site': Sponsor.objects.publicly_visible().count(),
+                'filtered': sponsors.count(),
+            },
+        },
+    )
+
+
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def create_sponsor(request):
+    if request.method == 'POST':
+        form = SponsorForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Sponsor added successfully.')
+            return redirect('sponsor_list')
+    else:
+        form = SponsorForm()
+    return render(request, 'portal/admin/content/sponsor_form.html', {'form': form, 'is_edit': False})
+
+
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def update_sponsor(request, sponsor_id):
+    sponsor = get_object_or_404(Sponsor, pk=sponsor_id)
+    if request.method == 'POST':
+        form = SponsorForm(request.POST, request.FILES, instance=sponsor)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Sponsor updated successfully.')
+            return redirect('sponsor_list')
+    else:
+        form = SponsorForm(instance=sponsor)
+    return render(
+        request,
+        'portal/admin/content/sponsor_form.html',
+        {'form': form, 'sponsor': sponsor, 'is_edit': True},
+    )
+
+
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def delete_sponsor(request, sponsor_id):
+    sponsor = get_object_or_404(Sponsor, pk=sponsor_id)
+    if request.method == 'POST':
+        sponsor.delete()
+        messages.success(request, 'Sponsor removed.')
+    return redirect('sponsor_list')
+
+
+# Contact form messages (public website)
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def contact_message_list(request):
+    from datetime import timedelta
+
+    query = request.GET.get('q')
+    messages_qs = Contact.objects.all().order_by('-created_at')
+
+    if query:
+        messages_qs = messages_qs.filter(
+            Q(name__icontains=query)
+            | Q(email__icontains=query)
+            | Q(subject__icontains=query)
+            | Q(message__icontains=query)
+        )
+
+    total = Contact.objects.count()
+    return render(
+        request,
+        'portal/admin/content/contact_message_list.html',
+        {
+            'contact_messages': messages_qs,
+            'query': query,
+            'stats': {
+                'total': total,
+                'filtered': messages_qs.count(),
+                'last_7_days': Contact.objects.filter(
+                    created_at__gte=timezone.now() - timedelta(days=7)
+                ).count(),
+            },
+        },
+    )
+
+
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def contact_message_detail(request, message_id):
+    message = get_object_or_404(Contact, pk=message_id)
+    return render(
+        request,
+        'portal/admin/content/contact_message_detail.html',
+        {'message': message},
+    )
+
+
+@login_required(login_url='/login/')
+@role_required(User.Role.ADMIN)
+def delete_contact_message(request, message_id):
+    message = get_object_or_404(Contact, pk=message_id)
+    if request.method == 'POST':
+        message.delete()
+        messages.success(request, 'Contact message deleted.')
+    return redirect('contact_message_list')
 
 
 @login_required(login_url='/login/')

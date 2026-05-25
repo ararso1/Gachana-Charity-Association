@@ -111,6 +111,73 @@ class GalleryCategoryForm(forms.ModelForm):
         return ''
 
 
+class SponsorForm(forms.ModelForm):
+    class Meta:
+        model = Sponsor
+        fields = [
+            'name',
+            'logo',
+            'tagline',
+            'website_url',
+            'tier',
+            'visibility_preset',
+            'visible_until',
+            'sort_order',
+            'is_active',
+        ]
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Organization name'}),
+            'tagline': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'e.g. Supporting education in Dire Dawa'}
+            ),
+            'website_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://'}),
+            'tier': forms.Select(attrs={'class': 'form-select'}),
+            'visibility_preset': forms.Select(attrs={'class': 'form-select', 'id': 'id_visibility_preset'}),
+            'visible_until': forms.DateInput(
+                attrs={'class': 'form-control', 'type': 'date', 'id': 'id_visible_until'}
+            ),
+            'sort_order': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'logo': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['visible_until'].required = False
+        self.fields['visible_until'].help_text = 'Required when using a custom end date.'
+        if self.instance and self.instance.pk:
+            self.fields['logo'].required = False
+
+    def clean(self):
+        cleaned = super().clean()
+        preset = cleaned.get('visibility_preset')
+        custom_until = cleaned.get('visible_until')
+
+        if preset == Sponsor.VisibilityPreset.CUSTOM:
+            if not custom_until:
+                self.add_error('visible_until', 'Choose the last day this sponsor should appear on the site.')
+        elif preset == Sponsor.VisibilityPreset.LIFETIME:
+            cleaned['visible_until'] = None
+        elif (
+            self.instance.pk
+            and preset == self.instance.visibility_preset
+            and self.instance.visible_until
+        ):
+            cleaned['visible_until'] = self.instance.visible_until
+        else:
+            cleaned['visible_until'] = Sponsor.compute_visible_until(preset)
+
+        return cleaned
+
+    def save(self, commit=True):
+        sponsor = super().save(commit=False)
+        preset = self.cleaned_data['visibility_preset']
+        sponsor.visible_until = self.cleaned_data.get('visible_until')
+        if commit:
+            sponsor.save()
+        return sponsor
+
+
 class GalleryForm(forms.ModelForm):
     class Meta:
         model = Gallery

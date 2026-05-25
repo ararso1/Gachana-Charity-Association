@@ -1,0 +1,154 @@
+{% extends 'portal/admin/content/base_content.html' %}
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Sponsor{% endblock %}
+{% block content %}
+<header class="content-page-header content-form-header">
+  <div>
+    <p class="content-page-eyebrow">Website content</p>
+    <h1>{% if is_edit %}Edit sponsor{% else %}Add sponsor{% endif %}</h1>
+    <p class="content-page-sub">Sponsors appear as cards in the public banner section. Platinum tier cards are larger on desktop.</p>
+  </div>
+  <a href="{% url 'sponsor_list' %}" class="btn btn-outline-secondary btn-back">
+    <i class="fa fa-arrow-left me-2"></i>Back to sponsors
+  </a>
+</header>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="portal-card content-form-card">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="content-form-card__section">
+          <h3 class="content-form-card__section-title"><i class="fa fa-building"></i>Organization</h3>
+          <div class="mb-3">
+            <label class="form-label" for="id_name">Name</label>
+            {{ form.name }}
+            {% for error in form.name.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="id_tagline">Tagline</label>
+            {{ form.tagline }}
+            <div class="form-text">Optional short description on the public card.</div>
+          </div>
+          <div class="mb-0">
+            <label class="form-label" for="id_website_url">Website URL</label>
+            {{ form.website_url }}
+            <div class="form-text">Optional. Makes the card clickable on the public site.</div>
+          </div>
+        </div>
+
+        <div class="content-form-card__section">
+          <h3 class="content-form-card__section-title"><i class="fa fa-image"></i>Logo</h3>
+          <div class="mb-0">
+            <label class="form-label" for="id_logo">Logo image {% if is_edit %}(leave empty to keep current){% endif %}</label>
+            {{ form.logo }}
+            <div class="form-text">PNG or JPG with transparent or white background works best.</div>
+            {% for error in form.logo.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+
+        <div class="content-form-card__section">
+          <h3 class="content-form-card__section-title"><i class="fa fa-calendar-alt"></i>Visibility on website</h3>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="id_visibility_preset">Display duration</label>
+              {{ form.visibility_preset }}
+              <div class="form-text">Counted from today when you change the duration. Lifetime never expires.</div>
+              {% for error in form.visibility_preset.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="col-md-6" id="sponsorCustomUntilWrap">
+              <label class="form-label" for="id_visible_until">Custom end date</label>
+              {{ form.visible_until }}
+              <div class="form-text">Last day the sponsor card is shown (inclusive).</div>
+              {% for error in form.visible_until.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            </div>
+            {% if is_edit and sponsor.visible_until %}
+            <div class="col-12">
+              <div class="alert alert-light border mb-0 py-2 small">
+                <i class="fa fa-info-circle text-success me-1"></i>
+                Currently scheduled: <strong>{{ sponsor.visibility_status_label }}</strong>
+                ({{ sponsor.visibility_preset_label }})
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="content-form-card__section">
+          <h3 class="content-form-card__section-title"><i class="fa fa-sliders-h"></i>Display</h3>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="id_tier">Sponsorship tier</label>
+              {{ form.tier }}
+              <div class="form-text">Platinum cards span wider on large screens.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="id_sort_order">Sort order</label>
+              {{ form.sort_order }}
+              <div class="form-text">Lower numbers appear first.</div>
+            </div>
+            <div class="col-12">
+              <div class="form-check">
+                {{ form.is_active }}
+                <label class="form-check-label" for="id_is_active">Enabled (must be on and within visibility dates to appear on site)</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-form-footer">
+          <button type="submit" class="btn btn-success">
+            <i class="fa fa-check me-2"></i>{% if is_edit %}Save changes{% else %}Add sponsor{% endif %}
+          </button>
+          <a href="{% url 'sponsor_list' %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    {% if is_edit and sponsor.logo %}
+    <div class="content-form-preview mb-3">
+      <img src="{{ sponsor.logo.url }}" alt="" class="content-form-preview__img" style="object-fit:contain;max-height:200px;background:#f8faf9">
+      <p class="content-form-preview__caption mb-0"><strong>{{ sponsor.name }}</strong> — {{ sponsor.tier_label }}</p>
+    </div>
+    {% endif %}
+    <div class="portal-card p-4 mb-3" style="border-radius:14px">
+      <h4 class="h6 text-success mb-3"><i class="fa fa-clock me-1"></i>Duration options</h4>
+      <ul class="small text-muted mb-0 ps-3">
+        <li class="mb-1">One week · One month · Three months</li>
+        <li class="mb-1">Six months · One year · Lifetime</li>
+        <li>Custom — pick any end date</li>
+      </ul>
+    </div>
+    <div class="portal-card p-4" style="border-radius:14px">
+      <h4 class="h6 text-success mb-3"><i class="fa fa-info-circle me-1"></i>Tier guide</h4>
+      <ul class="small text-muted mb-0 ps-3">
+        <li class="mb-2"><strong>Platinum</strong> — flagship partners; largest card on desktop.</li>
+        <li class="mb-2"><strong>Gold</strong> — major sponsors; standard card size.</li>
+        <li class="mb-2"><strong>Silver</strong> — supporting sponsors.</li>
+        <li><strong>Partner</strong> — community partners; compact logo display.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block admin_extra_js %}
+<script>
+(function () {
+  const preset = document.getElementById('id_visibility_preset');
+  const customWrap = document.getElementById('sponsorCustomUntilWrap');
+  const customInput = document.getElementById('id_visible_until');
+
+  function syncVisibilityFields() {
+    const isCustom = preset && preset.value === 'custom';
+    if (customWrap) customWrap.classList.toggle('d-none', !isCustom);
+    if (customInput) customInput.required = isCustom;
+  }
+
+  if (preset) preset.addEventListener('change', syncVisibilityFields);
+  syncVisibilityFields();
+})();
+</script>
+{% endblock %}

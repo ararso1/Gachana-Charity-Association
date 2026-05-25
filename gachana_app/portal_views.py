@@ -702,7 +702,7 @@ def portal_admin_dashboard(request):
     from django.db.models.functions import TruncMonth
     from django.utils import timezone
 
-    from .models import Blog, Gallery, Vacancy
+    from .models import Blog, Contact, Gallery, Sponsor, Vacancy
 
     now = timezone.now()
     six_months_ago = now - timedelta(days=183)
@@ -710,6 +710,8 @@ def portal_admin_dashboard(request):
     blog_count = Blog.objects.count()
     vacancy_count = Vacancy.objects.count()
     gallery_count = Gallery.objects.count()
+    contact_count = Contact.objects.count()
+    sponsor_count = Sponsor.objects.publicly_visible().count()
     published_blogs = Blog.objects.filter(status=1).count()
 
     last_blog = Blog.objects.aggregate(last=Max('updated_at'))['last'] if blog_count else None
@@ -789,6 +791,8 @@ def portal_admin_dashboard(request):
         'published_blogs': published_blogs,
         'vacancies': vacancy_count,
         'gallery': gallery_count,
+        'contact_messages': contact_count,
+        'sponsors': sponsor_count,
         'last_blog': last_blog,
         'last_vacancy': last_vacancy,
         'last_gallery': last_gallery,

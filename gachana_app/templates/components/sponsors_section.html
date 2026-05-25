@@ -1,0 +1,52 @@
+{% load static %}
+{% if public_sponsors %}
+<link href="{% static 'css/sponsors_public.css' %}" rel="stylesheet">
+<section class="sponsors-section" aria-labelledby="sponsors-section-title">
+  <div class="sponsors-section__bg" aria-hidden="true"></div>
+  <div class="container position-relative">
+    <div class="sponsors-section__header text-center wow fadeInUp" data-wow-delay="0.1s">
+      <span class="sponsors-section__eyebrow">Support &amp; Collaboration</span>
+      <h2 id="sponsors-section-title" class="sponsors-section__title">Our Sponsors &amp; Partners</h2>
+      <p class="sponsors-section__lead">
+        Gachana Charity Association is grateful to the organizations that stand with us
+        and help extend our impact across communities.
+      </p>
+    </div>
+
+    <div class="sponsors-grid">
+      {% for sponsor in public_sponsors %}
+      <article class="sponsor-card sponsor-card--{{ sponsor.tier }} wow fadeInUp" data-wow-delay="0.{% cycle '1' '2' '3' '4' %}s">
+        {% if sponsor.website_url %}
+        <a href="{{ sponsor.website_url }}" class="sponsor-card__link" target="_blank" rel="noopener noreferrer" title="Visit {{ sponsor.name }}">
+        {% else %}
+        <div class="sponsor-card__link sponsor-card__link--static">
+        {% endif %}
+          <div class="sponsor-card__logo-wrap">
+            <img
+              src="{{ sponsor.logo.url }}"
+              alt="{{ sponsor.name }} logo"
+              class="sponsor-card__logo"
+              loading="lazy"
+            >
+          </div>
+          <div class="sponsor-card__body">
+            <span class="sponsor-card__tier sponsor-card__tier--{{ sponsor.tier }}">{{ sponsor.tier_label }}</span>
+            <h3 class="sponsor-card__name">{{ sponsor.name }}</h3>
+            {% if sponsor.tagline %}
+            <p class="sponsor-card__tagline">{{ sponsor.tagline }}</p>
+            {% endif %}
+            {% if sponsor.website_url %}
+            <span class="sponsor-card__cta">Visit website <i class="fa fa-external-link-alt" aria-hidden="true"></i></span>
+            {% endif %}
+          </div>
+        {% if sponsor.website_url %}
+        </a>
+        {% else %}
+        </div>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}

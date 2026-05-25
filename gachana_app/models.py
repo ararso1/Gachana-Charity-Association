@@ -385,6 +385,118 @@ class Vacancy(models.Model):
         return self.title
 
 
+class SponsorQuerySet(models.QuerySet):
+    def publicly_visible(self):
+        today = timezone.localdate()
+        return self.filter(is_active=True).filter(
+            models.Q(visible_until__isnull=True) | models.Q(visible_until__gte=today)
+        )
+
+
+class Sponsor(models.Model):
+    """Organization or partner showcased on the public sponsors section."""
+
+    class Tier(models.TextChoices):
+        PLATINUM = 'platinum', 'Platinum'
+        GOLD = 'gold', 'Gold'
+        SILVER = 'silver', 'Silver'
+        PARTNER = 'partner', 'Partner'
+
+    class VisibilityPreset(models.TextChoices):
+        ONE_WEEK = 'one_week', 'One week'
+        ONE_MONTH = 'one_month', 'One month'
+        THREE_MONTHS = 'three_months', 'Three months'
+        SIX_MONTHS = 'six_months', 'Six months'
+        ONE_YEAR = 'one_year', 'One year'
+        LIFETIME = 'lifetime', 'Lifetime'
+        CUSTOM = 'custom', 'Custom date'
+
+    PRESET_DURATION_DAYS = {
+        VisibilityPreset.ONE_WEEK: 7,
+        VisibilityPreset.ONE_MONTH: 30,
+        VisibilityPreset.THREE_MONTHS: 90,
+        VisibilityPreset.SIX_MONTHS: 180,
+        VisibilityPreset.ONE_YEAR: 365,
+    }
+
+    name = models.CharField(max_length=200)
+    logo = models.ImageField(upload_to='sponsors/')
+    tagline = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text='Short line shown under the sponsor name (optional).',
+    )
+    website_url = models.URLField(blank=True, help_text='Optional link when visitors click the card.')
+    tier = models.CharField(
+        max_length=20,
+        choices=Tier.choices,
+        default=Tier.GOLD,
+    )
+    visibility_preset = models.CharField(
+        max_length=20,
+        choices=VisibilityPreset.choices,
+        default=VisibilityPreset.ONE_YEAR,
+        help_text='How long this sponsor stays on the public website.',
+    )
+    visible_until = models.DateField(
+        null=True,
+        blank=True,
+        help_text='Last day shown on the site (inclusive). Leave empty for lifetime.',
+    )
+    sort_order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    objects = SponsorQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['sort_order', 'name']
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def tier_label(self):
+        return self.get_tier_display()
+
+    @property
+    def visibility_preset_label(self):
+        return self.get_visibility_preset_display()
+
+    @classmethod
+    def compute_visible_until(cls, preset, custom_date=None, *, from_date=None):
+        from datetime import timedelta
+
+        start = from_date or timezone.localdate()
+        if preset == cls.VisibilityPreset.LIFETIME:
+            return None
+        if preset == cls.VisibilityPreset.CUSTOM:
+            return custom_date
+        days = cls.PRESET_DURATION_DAYS.get(preset)
+        if not days:
+            return None
+        return start + timedelta(days=days)
+
+    def is_publicly_visible(self):
+        if not self.is_active:
+            return False
+        if self.visible_until is None:
+            return True
+        return self.visible_until >= timezone.localdate()
+
+    @property
+    def visibility_status_label(self):
+        if self.visible_until is None:
+            return 'Lifetime'
+        today = timezone.localdate()
+        if self.visible_until < today:
+            return f'Expired {self.visible_until.strftime("%b %d, %Y")}'
+        if self.visible_until == today:
+            return 'Ends today'
+        return f'Until {self.visible_until.strftime("%b %d, %Y")}'
+
+
 class Contact(models.Model):
     name = models.CharField(max_length=255)
     email = models.EmailField()
