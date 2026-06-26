@@ -65,4 +65,14 @@
   window.addEventListener('resize', () => {
     if (!isMobile()) closeNav();
   });
+
+  const nav = sidebar.querySelector('.portal-sidebar__nav');
+  const activeLink = nav && nav.querySelector('a.active, .portal-nav-link.active');
+  if (activeLink && nav) {
+    const navRect = nav.getBoundingClientRect();
+    const linkRect = activeLink.getBoundingClientRect();
+    if (linkRect.top < navRect.top || linkRect.bottom > navRect.bottom) {
+      activeLink.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }
 })();

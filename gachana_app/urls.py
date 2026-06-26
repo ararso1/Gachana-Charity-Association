@@ -83,6 +83,7 @@ urlpatterns = [
     path('portal/admin/member-settings/', portal_views.portal_admin_member_settings, name='portal_admin_member_settings'),
     path('portal/admin/banks/', portal_views.portal_admin_banks, name='portal_admin_banks'),
     path('portal/admin/staff/', portal_views.portal_manage_staff, name='portal_manage_staff'),
+    path('portal/admin/designations/', portal_views.portal_manage_designations, name='portal_manage_designations'),
     path('portal/admin/staff/<int:user_id>/detail/', portal_views.portal_staff_detail, name='portal_staff_detail'),
     path('portal/admin/staff/<int:user_id>/id-card/', portal_views.portal_admin_staff_id_card, name='portal_admin_staff_id_card'),
 

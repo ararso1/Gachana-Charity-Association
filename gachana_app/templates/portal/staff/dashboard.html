@@ -26,7 +26,13 @@
     <div class="staff-stat__icon staff-stat__icon--role"><i class="fa fa-briefcase"></i></div>
     <div>
       <div class="staff-stat__label">Designation</div>
-      <div class="staff-stat__value staff-stat__value--sm">{{ staff_profile.designation|default:"Not assigned" }}</div>
+      <div class="staff-stat__value staff-stat__value--sm">
+        {% for title in staff_profile.get_designation_titles %}
+          {{ title }}{% if not forloop.last %}, {% endif %}
+        {% empty %}
+          Not assigned
+        {% endfor %}
+      </div>
     </div>
   </div>
   <div class="staff-stat">
@@ -50,14 +56,25 @@
   {% endif %}
 </div>
 
-{% if not staff_can_manage_donations %}
+{% if not staff_modules %}
 <div class="staff-info-banner" role="status">
   <i class="fa fa-info-circle fa-lg"></i>
   <div>
-    <strong>Donation management</strong> is not enabled for your account.
-    Contact an administrator if you need access to review member donations.
+    <strong>No portal modules</strong> are enabled for your account.
+    Contact an administrator if you need access to operational modules.
   </div>
 </div>
+{% endif %}
+
+{% if staff_profile.get_module_labels %}
+<section class="staff-quick-card">
+  <h2><i class="fa fa-shield-alt me-2 text-primary"></i>Your allowed modules</h2>
+  <div class="d-flex flex-wrap gap-2">
+    {% for module in staff_profile.get_module_labels %}
+    <span class="badge bg-light text-success border px-3 py-2">{{ module }}</span>
+    {% endfor %}
+  </div>
+</section>
 {% endif %}
 
 <section class="staff-quick-card">

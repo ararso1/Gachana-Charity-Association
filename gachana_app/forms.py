@@ -315,6 +315,107 @@ class ChapaDonationForm(forms.Form):
     )
 
 
+class PublicChapaDonationForm(forms.Form):
+    amount = forms.DecimalField(
+        min_value=1,
+        max_digits=12,
+        decimal_places=2,
+        widget=forms.NumberInput(
+            attrs={'class': 'form-control', 'min': '1', 'step': '0.01', 'placeholder': '0.00'},
+        ),
+    )
+    email = forms.EmailField(
+        required=False,
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'you@example.com'}),
+    )
+    first_name = forms.CharField(
+        required=False,
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First name'}),
+    )
+    last_name = forms.CharField(
+        required=False,
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last name'}),
+    )
+
+    def __init__(self, *args, member_user=None, **kwargs):
+        self.member_user = member_user
+        super().__init__(*args, **kwargs)
+        if member_user:
+            for name in ('email', 'first_name', 'last_name'):
+                self.fields[name].required = False
+                self.fields[name].widget = forms.HiddenInput()
+
+    def clean(self):
+        cleaned = super().clean()
+        if self.member_user:
+            return cleaned
+        if not cleaned.get('email'):
+            self.add_error('email', 'Email is required for online payment.')
+        if not cleaned.get('first_name'):
+            self.add_error('first_name', 'First name is required.')
+        return cleaned
+
+
+class PublicManualDonationForm(forms.ModelForm):
+    email = forms.EmailField(
+        required=False,
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'you@example.com'}),
+    )
+    first_name = forms.CharField(
+        required=False,
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First name'}),
+    )
+    last_name = forms.CharField(
+        required=False,
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last name'}),
+    )
+
+    class Meta:
+        model = Donation
+        fields = ['amount', 'bank', 'manual_proof']
+        widgets = {
+            'amount': forms.NumberInput(
+                attrs={'min': '1', 'step': '0.01', 'class': 'form-control', 'placeholder': '0.00'},
+            ),
+            'bank': forms.Select(attrs={'class': 'form-select', 'id': 'id_bank'}),
+            'manual_proof': forms.FileInput(
+                attrs={'class': 'form-control', 'accept': 'image/*,.pdf'},
+            ),
+        }
+
+    def __init__(self, *args, member_user=None, **kwargs):
+        self.member_user = member_user
+        super().__init__(*args, **kwargs)
+        self.fields['bank'].queryset = DonationBank.objects.filter(is_active=True)
+        self.fields['bank'].empty_label = 'Select a bank'
+        self.fields['bank'].required = True
+        self.fields['manual_proof'].required = True
+        if member_user:
+            for name in ('email', 'first_name', 'last_name'):
+                self.fields[name].required = False
+                self.fields[name].widget = forms.HiddenInput()
+
+    def clean_bank(self):
+        bank = self.cleaned_data.get('bank')
+        if not bank or not bank.is_active:
+            raise forms.ValidationError('Please select a valid bank.')
+        return bank
+
+    def clean(self):
+        cleaned = super().clean()
+        if self.member_user:
+            return cleaned
+        if not cleaned.get('email'):
+            self.add_error('email', 'Email is required.')
+        if not cleaned.get('first_name'):
+            self.add_error('first_name', 'First name is required.')
+        return cleaned
+
+
 class MemberProfileForm(forms.ModelForm):
     class Meta:
         model = User
@@ -387,10 +488,10 @@ class StaffCreateForm(forms.ModelForm):
 
 
 class StaffAdminUpdateForm(forms.ModelForm):
-    designation = forms.ModelChoiceField(
+    designations = forms.ModelMultipleChoiceField(
         queryset=StaffDesignation.objects.all(),
         required=False,
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'staff-designation-check'}),
     )
     department = forms.CharField(
         required=False,
@@ -422,7 +523,11 @@ class StaffAdminUpdateForm(forms.ModelForm):
         staff_profile = kwargs.pop('staff_profile', None)
         super().__init__(*args, **kwargs)
         if staff_profile:
-            self.fields['designation'].initial = staff_profile.designation_id
+            assigned = staff_profile.designations.all()
+            if assigned.exists():
+                self.fields['designations'].initial = assigned
+            elif staff_profile.designation_id:
+                self.fields['designations'].initial = [staff_profile.designation_id]
             self.fields['department'].initial = staff_profile.department
             self.fields['is_active'].initial = staff_profile.is_active
             self.fields['can_manage_donations'].initial = staff_profile.can_manage_donations
@@ -438,13 +543,23 @@ class StaffAdminUpdateForm(forms.ModelForm):
 
 
 class StaffDesignationForm(forms.ModelForm):
+    modules = forms.MultipleChoiceField(
+        choices=StaffDesignation.Module.choices,
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'staff-module-check'}),
+        help_text='Staff assigned this designation can access the selected portal modules.',
+    )
+
     class Meta:
         model = StaffDesignation
-        fields = ['title', 'description']
+        fields = ['title', 'description', 'modules']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+
+    def clean_modules(self):
+        return list(self.cleaned_data.get('modules') or [])
 
 
 class PortalSettingsForm(forms.ModelForm):

@@ -446,6 +446,42 @@
   border-color: #06a84a;
 }
 
+.staff-checkbox-grid,
+.staff-module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.65rem;
+}
+
+.staff-checkbox-card,
+.staff-module-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8faf9;
+  cursor: pointer;
+}
+
+.staff-checkbox-card input,
+.staff-module-option input {
+  margin-top: 0.2rem;
+}
+
+.staff-checkbox-card strong {
+  display: block;
+  color: #0b3d2e;
+  font-size: 0.92rem;
+}
+
+.staff-checkbox-card small {
+  display: block;
+  color: #64748b;
+  line-height: 1.35;
+}
+
 .members-detail-modal {
   border: none;
   border-radius: 16px;
@@ -583,8 +619,12 @@
   border-radius: 10px;
 }
 
-.donations-admin-table .btn + .btn {
+.members-detail__donations .btn + .btn {
   margin-left: 0.25rem;
+}
+
+.members-detail__donations td {
+  vertical-align: middle;
 }
 
 .portal-confirm-modal__title {

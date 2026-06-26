@@ -34,7 +34,7 @@
         <tbody>
           {% for d in donations %}
           <tr>
-            <td>{{ d.member.get_full_name|default:d.member.email }}</td>
+            <td>{{ d.donor_display_name }}</td>
             <td class="fw-semibold">{{ d.amount }} {{ d.currency }}</td>
             <td>{{ d.provider_display }}</td>
             <td>
@@ -51,7 +51,7 @@
                 title="View payment proof"
                 data-proof-url="{% url 'portal_donation_proof' d.id %}"
                 data-proof-image="{% if d.proof_is_image %}1{% else %}0{% endif %}"
-                data-member="{{ d.member.get_full_name|default:d.member.email }}"
+                data-member="{{ d.donor_display_name }}"
                 data-amount="{{ d.amount }} {{ d.currency }}"
               >
                 <i class="fa fa-file-image me-1"></i>Proof
@@ -64,7 +64,7 @@
                 type="button"
                 class="btn btn-sm btn-success donation-confirm-trigger"
                 data-action="{% url 'portal_confirm_donation' d.id %}"
-                data-member="{{ d.member.get_full_name|default:d.member.email }}"
+                data-member="{{ d.donor_display_name }}"
                 data-amount="{{ d.amount }} {{ d.currency }}"
                 data-provider="{{ d.provider_display }}"
               >Confirm</button>
@@ -72,7 +72,7 @@
                 type="button"
                 class="btn btn-sm btn-outline-danger donation-reject-trigger"
                 data-action="{% url 'portal_reject_donation' d.id %}"
-                data-member="{{ d.member.get_full_name|default:d.member.email }}"
+                data-member="{{ d.donor_display_name }}"
                 data-amount="{{ d.amount }} {{ d.currency }}"
                 data-provider="{{ d.provider_display }}"
               >Reject</button>

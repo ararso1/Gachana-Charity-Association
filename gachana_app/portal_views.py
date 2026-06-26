@@ -17,8 +17,18 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from .chapa import ChapaError, initialize_payment, parse_webhook_payload, verify_payment, verify_webhook_signature
-from .decorators import donation_manager_required, role_required, user_can_manage_donations
+from .chapa import ChapaError, parse_webhook_payload, verify_payment, verify_webhook_signature
+from .donation_service import (
+    confirm_chapa_donation,
+    save_manual_donation,
+    start_chapa_checkout,
+)
+from .decorators import (
+    donation_manager_required,
+    role_required,
+    staff_module_required,
+    user_can_manage_donations,
+)
 from .forms import (
     ChapaDonationForm,
     DonationBankForm,
@@ -47,7 +57,6 @@ from .utils import (
     confirm_donation,
     generate_employee_id,
     generate_membership_id,
-    generate_tx_ref,
     get_dashboard_url_name,
     get_or_create_member_profile,
     get_portal_settings,
@@ -113,11 +122,7 @@ def member_donate(request):
             else:
                 manual_form = DonationForm(request.POST, request.FILES)
                 if manual_form.is_valid():
-                    donation = manual_form.save(commit=False)
-                    donation.member = request.user
-                    donation.payment_method = Donation.PaymentMethod.MANUAL
-                    donation.status = Donation.Status.PENDING
-                    donation.save()
+                    save_manual_donation(form=manual_form, member=request.user)
                     messages.success(
                         request,
                         'Donation submitted. It will appear on your membership card once confirmed by our team.',
@@ -126,7 +131,16 @@ def member_donate(request):
         elif payment_type == 'chapa':
             chapa_form = ChapaDonationForm(request.POST)
             if chapa_form.is_valid():
-                return _start_chapa_checkout(request, chapa_form.cleaned_data['amount'])
+                return start_chapa_checkout(
+                    request,
+                    amount=chapa_form.cleaned_data['amount'],
+                    member=request.user,
+                    email=request.user.email,
+                    first_name=request.user.first_name,
+                    last_name=request.user.last_name,
+                    error_redirect_name='member_donate',
+                    description='Membership donation',
+                )
 
     banks_data = [
         {
@@ -153,40 +167,6 @@ def member_donate(request):
             'has_banks': banks.exists(),
         },
     )
-
-
-def _start_chapa_checkout(request, amount):
-    tx_ref = generate_tx_ref()
-    donation = Donation.objects.create(
-        member=request.user,
-        amount=amount,
-        purpose='',
-        payment_method=Donation.PaymentMethod.CHAPA,
-        status=Donation.Status.PENDING,
-        chapa_tx_ref=tx_ref,
-    )
-    callback_url = request.build_absolute_uri(reverse('chapa_callback'))
-    return_url = request.build_absolute_uri(reverse('chapa_return', kwargs={'tx_ref': tx_ref}))
-
-    try:
-        data = initialize_payment(
-            amount=amount,
-            email=request.user.email,
-            first_name=request.user.first_name,
-            last_name=request.user.last_name,
-            tx_ref=tx_ref,
-            callback_url=callback_url,
-            return_url=return_url,
-        )
-    except ChapaError as exc:
-        donation.status = Donation.Status.CANCELLED
-        donation.save(update_fields=['status', 'updated_at'])
-        messages.error(request, str(exc))
-        return redirect('member_donate')
-
-    donation.chapa_checkout_url = data.get('checkout_url', '')
-    donation.save(update_fields=['chapa_checkout_url', 'updated_at'])
-    return redirect(donation.chapa_checkout_url)
 
 
 @login_required(login_url='/login/')
@@ -244,7 +224,7 @@ def chapa_callback(request):
         return HttpResponse('Donation not found', status=404)
 
     if status in ('success', 'successful'):
-        _confirm_chapa_donation(donation)
+        confirm_chapa_donation(donation)
     elif status in ('failed', 'cancelled'):
         donation.status = Donation.Status.CANCELLED
         donation.save(update_fields=['status', 'updated_at'])
@@ -252,31 +232,44 @@ def chapa_callback(request):
     return HttpResponse('OK')
 
 
-@login_required(login_url='/login/')
 def chapa_return(request, tx_ref):
-    donation = get_object_or_404(Donation, chapa_tx_ref=tx_ref, member=request.user)
+    donation = get_object_or_404(Donation, chapa_tx_ref=tx_ref)
+
+    if donation.member_id:
+        if not request.user.is_authenticated or request.user.pk != donation.member_id:
+            messages.info(request, 'Please sign in to view your donation status.')
+            return redirect('login')
+        if donation.status == Donation.Status.CONFIRMED:
+            messages.success(request, 'Thank you! Your donation was confirmed and your membership card is ready.')
+            return redirect('member_card')
+        try:
+            result = verify_payment(tx_ref)
+            data = result.get('data', {})
+            if data.get('status') == 'success':
+                confirm_chapa_donation(donation)
+                messages.success(request, 'Payment successful! Your membership card is now available.')
+                return redirect('member_card')
+        except ChapaError:
+            pass
+        messages.info(request, 'Payment is being processed. You will be notified once it is confirmed.')
+        return redirect('member_donations')
+
     if donation.status == Donation.Status.CONFIRMED:
-        messages.success(request, 'Thank you! Your donation was confirmed and your membership card is ready.')
-        return redirect('member_card')
+        messages.success(request, 'Thank you! Your donation was received successfully.')
+        return redirect('donate')
 
     try:
         result = verify_payment(tx_ref)
         data = result.get('data', {})
         if data.get('status') == 'success':
-            _confirm_chapa_donation(donation)
-            messages.success(request, 'Payment successful! Your membership card is now available.')
-            return redirect('member_card')
+            confirm_chapa_donation(donation)
+            messages.success(request, 'Thank you! Your payment was successful.')
+            return redirect(f"{reverse('donate')}?paid=1")
     except ChapaError:
         pass
 
-    messages.info(request, 'Payment is being processed. You will be notified once it is confirmed.')
-    return redirect('member_donations')
-
-
-def _confirm_chapa_donation(donation):
-    if donation.status == Donation.Status.CONFIRMED:
-        return
-    confirm_donation(donation)
+    messages.info(request, 'Payment is being processed. Thank you for your support.')
+    return redirect('donate')
 
 
 @login_required(login_url='/login/')
@@ -383,10 +376,19 @@ def portal_donation_proof(request, donation_id):
 def portal_confirm_donation(request, donation_id):
     donation = get_object_or_404(Donation, pk=donation_id)
     if donation.status != Donation.Status.PENDING:
-        messages.warning(request, 'Only pending donations can be confirmed.')
+        message = 'Only pending donations can be confirmed.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'message': message}, status=400)
+        messages.warning(request, message)
     else:
         confirm_donation(donation, confirmed_by=request.user)
-        messages.success(request, 'Donation confirmed. Membership card issued if eligible.')
+        message = 'Donation confirmed. Membership card issued if eligible.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'ok': True, 'message': message})
+        messages.success(request, message)
+    next_url = request.POST.get('next')
+    if next_url:
+        return redirect(next_url)
     return redirect('portal_donation_list')
 
 
@@ -395,11 +397,23 @@ def portal_confirm_donation(request, donation_id):
 @require_POST
 def portal_reject_donation(request, donation_id):
     donation = get_object_or_404(Donation, pk=donation_id)
-    donation.status = Donation.Status.REJECTED
-    donation.confirmed_by = request.user
-    donation.confirmed_at = timezone.now()
-    donation.save()
-    messages.info(request, 'Donation marked as rejected.')
+    if donation.status != Donation.Status.PENDING:
+        message = 'Only pending donations can be rejected.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'message': message}, status=400)
+        messages.warning(request, message)
+    else:
+        donation.status = Donation.Status.REJECTED
+        donation.confirmed_by = request.user
+        donation.confirmed_at = timezone.now()
+        donation.save()
+        message = 'Donation marked as rejected.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'ok': True, 'message': message})
+        messages.info(request, message)
+    next_url = request.POST.get('next')
+    if next_url:
+        return redirect(next_url)
     return redirect('portal_donation_list')
 
 
@@ -413,7 +427,7 @@ def _members_filters_query(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.MEMBERS)
 def portal_manage_members(request):
     base_qs = User.objects.filter(role=User.Role.MEMBER)
     stats = {
@@ -486,12 +500,13 @@ def portal_manage_members(request):
                 'portal_member_detail',
                 kwargs={'user_id': 0},
             ),
+            'can_manage_donations': user_can_manage_donations(request.user),
         },
     )
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.MEMBERS)
 def portal_member_detail(request, user_id):
     user = get_object_or_404(
         User.objects.select_related('member_profile'),
@@ -504,6 +519,7 @@ def portal_member_detail(request, user_id):
         confirmed=Count('id', filter=Q(status=Donation.Status.CONFIRMED)),
         pending=Count('id', filter=Q(status=Donation.Status.PENDING)),
     )
+    can_manage_donations = user_can_manage_donations(request.user)
 
     return JsonResponse(
         {
@@ -520,14 +536,29 @@ def portal_member_detail(request, user_id):
             'card_issued_at': profile.card_issued_at.strftime('%B %d, %Y') if profile and profile.card_issued_at else '',
             'date_joined': user.date_joined.strftime('%B %d, %Y'),
             'donation_stats': donation_stats,
+            'can_manage_donations': can_manage_donations,
             'recent_donations': [
                 {
+                    'id': d.pk,
                     'amount': float(d.amount),
                     'currency': d.currency,
                     'status': d.get_status_display(),
                     'status_key': d.status,
                     'provider': d.provider_display,
+                    'payment_method': d.payment_method,
                     'date': d.created_at.strftime('%b %d, %Y'),
+                    'has_proof': bool(d.manual_proof),
+                    'proof_is_image': d.proof_is_image,
+                    'proof_url': reverse('portal_donation_proof', kwargs={'donation_id': d.pk})
+                    if d.manual_proof
+                    else '',
+                    'can_review': (
+                        can_manage_donations
+                        and d.status == Donation.Status.PENDING
+                        and d.payment_method == Donation.PaymentMethod.MANUAL
+                    ),
+                    'confirm_url': reverse('portal_confirm_donation', kwargs={'donation_id': d.pk}),
+                    'reject_url': reverse('portal_reject_donation', kwargs={'donation_id': d.pk}),
                 }
                 for d in donations
             ],
@@ -536,15 +567,14 @@ def portal_member_detail(request, user_id):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.STAFF)
 def portal_manage_staff(request):
     staff_users = User.objects.filter(role=User.Role.STAFF).select_related(
         'staff_profile',
         'staff_profile__designation',
-    ).order_by('-date_joined')
-    designations = StaffDesignation.objects.annotate(staff_count=Count('staff_members'))
+    ).prefetch_related('staff_profile__designations').order_by('-date_joined')
     staff_form = StaffCreateForm()
-    designation_form = StaffDesignationForm()
+    designations = StaffDesignation.objects.order_by('title')
 
     active_count = StaffProfile.objects.filter(user__role=User.Role.STAFF, is_active=True).count()
     stats = {
@@ -559,13 +589,22 @@ def portal_manage_staff(request):
             staff_form = StaffCreateForm(request.POST)
             if staff_form.is_valid():
                 user = staff_form.save()
-                StaffProfile.objects.create(
+                selected_designations = StaffDesignation.objects.filter(
+                    pk__in=request.POST.getlist('designations'),
+                )
+                primary_designation = selected_designations.first()
+                can_manage_donations = any(
+                    StaffDesignation.Module.DONATIONS in (designation.modules or [])
+                    for designation in selected_designations
+                )
+                profile = StaffProfile.objects.create(
                     user=user,
                     employee_id=generate_employee_id(),
-                    designation_id=request.POST.get('designation') or None,
+                    designation=primary_designation,
                     department=request.POST.get('department', ''),
-                    can_manage_donations=bool(request.POST.get('can_manage_donations')),
+                    can_manage_donations=can_manage_donations,
                 )
+                profile.designations.set(selected_designations)
                 messages.success(request, 'Staff account created.')
                 return redirect('portal_manage_staff')
         elif action == 'update_staff':
@@ -577,11 +616,16 @@ def portal_manage_staff(request):
                 user.username = form.cleaned_data['email'].lower()
                 user.email = form.cleaned_data['email'].lower()
                 user.save(update_fields=['username', 'email'])
-                profile.designation = form.cleaned_data.get('designation')
+                selected_designations = form.cleaned_data.get('designations')
+                profile.designation = selected_designations.first() if selected_designations else None
                 profile.department = form.cleaned_data.get('department', '')
                 profile.is_active = form.cleaned_data.get('is_active', False)
-                profile.can_manage_donations = form.cleaned_data.get('can_manage_donations', False)
+                profile.can_manage_donations = any(
+                    StaffDesignation.Module.DONATIONS in (designation.modules or [])
+                    for designation in selected_designations
+                )
                 profile.save()
+                profile.designations.set(selected_designations)
                 messages.success(request, 'Staff account updated.')
                 return redirect('portal_manage_staff')
         elif action == 'toggle_staff':
@@ -604,30 +648,6 @@ def portal_manage_staff(request):
             user.delete()
             messages.success(request, f'Staff account "{name}" removed.')
             return redirect('portal_manage_staff')
-        elif action == 'create_designation':
-            designation_form = StaffDesignationForm(request.POST)
-            if designation_form.is_valid():
-                designation_form.save()
-                messages.success(request, 'Designation added.')
-                return redirect('portal_manage_staff')
-        elif action == 'update_designation':
-            designation = get_object_or_404(StaffDesignation, pk=request.POST.get('designation_id'))
-            designation_form = StaffDesignationForm(request.POST, instance=designation)
-            if designation_form.is_valid():
-                designation_form.save()
-                messages.success(request, 'Designation updated.')
-                return redirect('portal_manage_staff')
-        elif action == 'delete_designation':
-            designation = get_object_or_404(StaffDesignation, pk=request.POST.get('designation_id'))
-            if designation.staff_members.exists():
-                messages.error(
-                    request,
-                    f'Cannot delete "{designation.title}" while staff are assigned. Reassign them first.',
-                )
-            else:
-                designation.delete()
-                messages.success(request, 'Designation removed.')
-            return redirect('portal_manage_staff')
 
     return render(
         request,
@@ -636,7 +656,6 @@ def portal_manage_staff(request):
             'staff_users': staff_users,
             'designations': designations,
             'staff_form': staff_form,
-            'designation_form': designation_form,
             'stats': stats,
             'staff_detail_url_template': reverse('portal_staff_detail', kwargs={'user_id': 0}),
             'staff_id_card_url_template': reverse('portal_admin_staff_id_card', kwargs={'user_id': 0}),
@@ -645,10 +664,62 @@ def portal_manage_staff(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.STAFF)
+def portal_manage_designations(request):
+    designations = StaffDesignation.objects.annotate(
+        staff_count=Count('staff_profiles', distinct=True),
+    ).order_by('title')
+    designation_form = StaffDesignationForm()
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'create_designation':
+            designation_form = StaffDesignationForm(request.POST)
+            if designation_form.is_valid():
+                designation_form.save()
+                messages.success(request, 'Designation added.')
+                return redirect('portal_manage_designations')
+        elif action == 'update_designation':
+            designation = get_object_or_404(StaffDesignation, pk=request.POST.get('designation_id'))
+            designation_form = StaffDesignationForm(request.POST, instance=designation)
+            if designation_form.is_valid():
+                designation_form.save()
+                messages.success(request, 'Designation updated.')
+                return redirect('portal_manage_designations')
+        elif action == 'delete_designation':
+            designation = get_object_or_404(StaffDesignation, pk=request.POST.get('designation_id'))
+            if designation.staff_profiles.exists() or designation.staff_members.exists():
+                messages.error(
+                    request,
+                    f'Cannot delete "{designation.title}" while staff are assigned. Reassign them first.',
+                )
+            else:
+                designation.delete()
+                messages.success(request, 'Designation removed.')
+            return redirect('portal_manage_designations')
+
+    return render(
+        request,
+        'portal/admin/designations.html',
+        {
+            'designations': designations,
+            'designation_form': designation_form,
+            'module_choices': StaffDesignation.Module.choices,
+            'stats': {
+                'total': designations.count(),
+                'in_use': designations.filter(staff_count__gt=0).count(),
+            },
+        },
+    )
+
+
+@login_required(login_url='/login/')
+@staff_module_required(StaffDesignation.Module.STAFF)
 def portal_staff_detail(request, user_id):
     user = get_object_or_404(
-        User.objects.select_related('staff_profile', 'staff_profile__designation'),
+        User.objects.select_related('staff_profile', 'staff_profile__designation').prefetch_related(
+            'staff_profile__designations',
+        ),
         pk=user_id,
         role=User.Role.STAFF,
     )
@@ -668,10 +739,12 @@ def portal_staff_detail(request, user_id):
             'address': user.address or '',
             'photo_url': user.photo.url if user.photo else '',
             'employee_id': profile.employee_id,
-            'designation': str(profile.designation) if profile.designation else '',
+            'designation': ', '.join(profile.get_designation_titles()),
+            'designation_ids': [designation.pk for designation in profile.get_designations()],
+            'modules': profile.get_module_labels(),
             'department': profile.department or '',
             'is_active': profile.is_active,
-            'can_manage_donations': profile.can_manage_donations,
+            'can_manage_donations': profile.has_module(StaffDesignation.Module.DONATIONS),
             'date_joined': user.date_joined.strftime('%B %d, %Y'),
             'id_card_url': reverse('portal_admin_staff_id_card', kwargs={'user_id': user.pk}),
         }
@@ -679,7 +752,7 @@ def portal_staff_detail(request, user_id):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.STAFF)
 def portal_admin_staff_id_card(request, user_id):
     user = get_object_or_404(User, pk=user_id, role=User.Role.STAFF)
     staff_profile = get_object_or_404(
@@ -824,7 +897,7 @@ def portal_admin_dashboard(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.BANKS)
 def portal_admin_banks(request):
     banks = DonationBank.objects.all()
     bank_form = DonationBankForm()
@@ -870,7 +943,7 @@ def portal_admin_banks(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.SETTINGS)
 def portal_admin_member_settings(request):
     settings = get_portal_settings()
     if request.method == 'POST':

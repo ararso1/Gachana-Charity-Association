@@ -38,14 +38,36 @@ class User(AbstractUser):
 
 
 class StaffDesignation(models.Model):
+    class Module(models.TextChoices):
+        MEMBERS = 'members', 'Members'
+        STAFF = 'staff', 'Staff & designations'
+        DONATIONS = 'donations', 'Donations'
+        BANKS = 'banks', 'Bank accounts'
+        BLOGS = 'blogs', 'Blogs'
+        VACANCIES = 'vacancies', 'Vacancies'
+        GALLERY = 'gallery', 'Gallery'
+        SPONSORS = 'sponsors', 'Sponsors'
+        CONTACTS = 'contacts', 'Contact messages'
+        SETTINGS = 'settings', 'Giving goal settings'
+
     title = models.CharField(max_length=120, unique=True)
     description = models.TextField(blank=True)
+    modules = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='Portal modules this designation can access.',
+    )
 
     class Meta:
         ordering = ['title']
 
     def __str__(self):
         return self.title
+
+    @property
+    def module_labels(self):
+        labels = dict(self.Module.choices)
+        return [labels.get(module, module) for module in self.modules or []]
 
 
 class StaffProfile(models.Model):
@@ -57,6 +79,11 @@ class StaffProfile(models.Model):
         null=True,
         blank=True,
         related_name='staff_members',
+    )
+    designations = models.ManyToManyField(
+        StaffDesignation,
+        blank=True,
+        related_name='staff_profiles',
     )
     department = models.CharField(max_length=120, blank=True)
     date_joined = models.DateField(default=timezone.now)
@@ -70,6 +97,30 @@ class StaffProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.username} ({self.employee_id})"
+
+    def get_designations(self):
+        assigned = list(self.designations.all())
+        if not assigned and self.designation_id:
+            assigned = [self.designation]
+        return assigned
+
+    def get_designation_titles(self):
+        return [designation.title for designation in self.get_designations()]
+
+    def get_module_codes(self):
+        modules = set()
+        for designation in self.get_designations():
+            modules.update(designation.modules or [])
+        if self.can_manage_donations:
+            modules.add(StaffDesignation.Module.DONATIONS)
+        return modules
+
+    def get_module_labels(self):
+        labels = dict(StaffDesignation.Module.choices)
+        return [labels.get(module, module) for module in sorted(self.get_module_codes())]
+
+    def has_module(self, module):
+        return self.is_active and module in self.get_module_codes()
 
 
 class PortalSettings(models.Model):
@@ -173,7 +224,16 @@ class Donation(models.Model):
         REJECTED = 'rejected', 'Rejected'
         CANCELLED = 'cancelled', 'Cancelled'
 
-    member = models.ForeignKey(User, on_delete=models.CASCADE, related_name='donations')
+    member = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='donations',
+        null=True,
+        blank=True,
+    )
+    donor_email = models.EmailField(blank=True)
+    donor_first_name = models.CharField(max_length=100, blank=True)
+    donor_last_name = models.CharField(max_length=100, blank=True)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     currency = models.CharField(max_length=3, default='ETB')
     payment_method = models.CharField(max_length=10, choices=PaymentMethod.choices)
@@ -206,7 +266,15 @@ class Donation(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.member} - {self.amount} {self.currency} ({self.status})"
+        label = self.member or self.donor_display_name or 'Guest donor'
+        return f"{label} - {self.amount} {self.currency} ({self.status})"
+
+    @property
+    def donor_display_name(self):
+        if self.member_id:
+            return self.member.get_full_name() or self.member.email
+        name = f'{self.donor_first_name} {self.donor_last_name}'.strip()
+        return name or self.donor_email or 'Guest donor'
 
     @property
     def provider_display(self):

@@ -134,18 +134,53 @@ body.portal-nav-open {
   background: rgba(0, 0, 0, 0.08);
 }
 
-.portal-sidebar a {
+.portal-sidebar a,
+.portal-sidebar .portal-nav-link {
   display: block;
+  position: relative;
   color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
   padding: 0.6rem 0.75rem;
   border-radius: 8px;
   margin-bottom: 0.2rem;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .portal-sidebar a:hover,
-.portal-sidebar a.active {
+.portal-sidebar .portal-nav-link:hover {
   background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.portal-sidebar a.active,
+.portal-sidebar .portal-nav-link.active {
+  background: #06a84a;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(6, 168, 74, 0.35);
+}
+
+.portal-sidebar a.active::before,
+.portal-sidebar .portal-nav-link.active::before {
+  content: "";
+  position: absolute;
+  left: -1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  border-radius: 0 4px 4px 0;
+  background: #fff;
+}
+
+.portal-sidebar a.active:hover,
+.portal-sidebar .portal-nav-link.active:hover {
+  background: #059c44;
+  color: #fff;
+}
+
+.portal-sidebar a.active i,
+.portal-sidebar .portal-nav-link.active i {
   color: #fff;
 }
 

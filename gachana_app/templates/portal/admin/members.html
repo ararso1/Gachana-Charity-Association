@@ -8,9 +8,16 @@
     <h1>Members</h1>
     <p class="members-page-sub">Registered members, giving history, and membership cards.</p>
   </div>
-  <a href="{% url 'portal_admin_member_settings' %}" class="btn btn-outline-success btn-sm">
-    <i class="fa fa-bullseye me-1"></i>Giving goal
-  </a>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="{% url 'portal_admin_member_settings' %}" class="btn btn-outline-success btn-sm">
+      <i class="fa fa-bullseye me-1"></i>Giving goal
+    </a>
+    {% if can_manage_donations %}
+    <a href="{% url 'portal_donation_list' %}?status=pending" class="btn btn-outline-warning btn-sm">
+      <i class="fa fa-clock me-1"></i>Pending donations
+    </a>
+    {% endif %}
+  </div>
 </header>
 
 <div class="members-stat-row">
@@ -204,19 +211,102 @@
     </div>
   </div>
 </div>
+
+{% if can_manage_donations %}
+<div class="modal fade" id="memberDonationProofModal" tabindex="-1" aria-labelledby="memberDonationProofModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="memberDonationProofModalLabel">Payment receipt</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body pt-2">
+        <p class="text-muted small mb-3" id="memberDonationProofMeta"></p>
+        <div id="memberDonationProofBody" class="donation-proof-viewer text-center"></div>
+      </div>
+      <div class="modal-footer border-0 pt-0 flex-wrap gap-2">
+        <a href="#" id="memberDonationProofDownload" class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener">
+          <i class="fa fa-download me-1"></i>Open / download
+        </a>
+        <button type="button" class="btn btn-success btn-sm d-none" id="memberDonationProofApprove">
+          <i class="fa fa-check me-1"></i>Approve
+        </button>
+        <button type="button" class="btn btn-outline-danger btn-sm d-none" id="memberDonationProofReject">
+          <i class="fa fa-times me-1"></i>Reject
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm ms-auto" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade portal-confirm-modal" id="memberDonationConfirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content portal-confirm-modal__content">
+      <div class="modal-body text-center px-4 py-4">
+        <div class="portal-confirm-modal__icon portal-confirm-modal__icon--success" aria-hidden="true">
+          <i class="fa fa-check"></i>
+        </div>
+        <h5 class="portal-confirm-modal__title">Approve this donation?</h5>
+        <p class="portal-confirm-modal__text mb-2" id="memberDonationConfirmText"></p>
+        <p class="portal-confirm-modal__meta small text-muted mb-0">
+          The member’s total giving will be updated and a membership card may be issued if eligible.
+        </p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center gap-2 pb-4">
+        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success px-4" id="memberDonationConfirmSubmit">Approve donation</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade portal-confirm-modal" id="memberDonationRejectModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content portal-confirm-modal__content">
+      <div class="modal-body text-center px-4 py-4">
+        <div class="portal-confirm-modal__icon portal-confirm-modal__icon--danger" aria-hidden="true">
+          <i class="fa fa-times"></i>
+        </div>
+        <h5 class="portal-confirm-modal__title">Reject this donation?</h5>
+        <p class="portal-confirm-modal__text mb-2" id="memberDonationRejectText"></p>
+        <p class="portal-confirm-modal__meta small text-muted mb-0">
+          This cannot be undone. The member will see the donation as rejected.
+        </p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center gap-2 pb-4">
+        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger px-4" id="memberDonationRejectSubmit">Reject donation</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block admin_extra_js %}
 <script>
 (function () {
   const detailUrlTemplate = "{{ member_detail_url_template|escapejs }}";
+  const csrfToken = "{{ csrf_token }}";
+  let currentMemberId = null;
+
   function memberDetailUrl(id) {
     return detailUrlTemplate.replace(/\/0\/?$/, '/' + id + '/');
   }
+
   const modalEl = document.getElementById('memberDetailModal');
   const bodyEl = document.getElementById('memberDetailBody');
   const modal = modalEl ? new bootstrap.Modal(modalEl) : null;
   const placeholderImg = "{% static 'img/gachana.png' %}";
+  const proofModalEl = document.getElementById('memberDonationProofModal');
+  const confirmModalEl = document.getElementById('memberDonationConfirmModal');
+  const rejectModalEl = document.getElementById('memberDonationRejectModal');
+  const proofModal = proofModalEl ? new bootstrap.Modal(proofModalEl) : null;
+  const confirmModal = confirmModalEl ? new bootstrap.Modal(confirmModalEl) : null;
+  const rejectModal = rejectModalEl ? new bootstrap.Modal(rejectModalEl) : null;
+  let pendingConfirmUrl = '';
+  let pendingRejectUrl = '';
 
   function statusBadgeClass(key) {
     if (key === 'confirmed') return 'success';
@@ -225,9 +315,138 @@
     return 'secondary';
   }
 
+  function donationReviewCell(d) {
+    if (!d.can_review) {
+      if (d.payment_method === 'manual' && d.has_proof) {
+        return `<td class="text-end text-nowrap">
+          <button type="button" class="btn btn-sm btn-outline-primary member-proof-btn"
+            data-proof-url="${d.proof_url}" data-proof-image="${d.proof_is_image ? '1' : '0'}"
+            data-amount="${d.amount.toLocaleString()} ${d.currency}" data-date="${d.date}">
+            <i class="fa fa-file-image"></i> Receipt
+          </button>
+        </td>`;
+      }
+      return '<td class="text-end text-muted small">—</td>';
+    }
+    const proofBtn = d.has_proof
+      ? `<button type="button" class="btn btn-sm btn-outline-primary member-proof-btn"
+          data-proof-url="${d.proof_url}" data-proof-image="${d.proof_is_image ? '1' : '0'}"
+          data-amount="${d.amount.toLocaleString()} ${d.currency}" data-date="${d.date}"
+          data-confirm-url="${d.confirm_url}" data-reject-url="${d.reject_url}">
+          <i class="fa fa-file-image me-1"></i>View receipt
+        </button>`
+      : '<span class="text-muted small me-2">No receipt</span>';
+    return `<td class="text-end text-nowrap">
+      ${proofBtn}
+      <button type="button" class="btn btn-sm btn-success member-confirm-btn"
+        data-confirm-url="${d.confirm_url}" data-amount="${d.amount.toLocaleString()} ${d.currency}"
+        data-provider="${d.provider}" data-date="${d.date}">
+        Approve
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-danger member-reject-btn"
+        data-reject-url="${d.reject_url}" data-amount="${d.amount.toLocaleString()} ${d.currency}"
+        data-provider="${d.provider}" data-date="${d.date}">
+        Reject
+      </button>
+    </td>`;
+  }
+
+  function showDonationAlert(message, type) {
+    const alertEl = document.getElementById('memberDonationActionAlert');
+    if (!alertEl) return;
+    alertEl.className = 'alert alert-' + type + ' mt-3 mb-0';
+    alertEl.textContent = message;
+    alertEl.classList.remove('d-none');
+  }
+
+  function bindDonationActions() {
+    bodyEl.querySelectorAll('.member-proof-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const url = btn.dataset.proofUrl;
+        const isImage = btn.dataset.proofImage === '1';
+        const body = document.getElementById('memberDonationProofBody');
+        const meta = document.getElementById('memberDonationProofMeta');
+        const download = document.getElementById('memberDonationProofDownload');
+        const approveBtn = document.getElementById('memberDonationProofApprove');
+        const rejectBtn = document.getElementById('memberDonationProofReject');
+        document.getElementById('memberDonationProofModalLabel').textContent = 'Payment receipt';
+        meta.textContent = (btn.dataset.amount || '') + ' · ' + (btn.dataset.date || '');
+        download.href = url;
+        if (isImage) {
+          body.innerHTML = '<img src="' + url + '" alt="Payment receipt" class="donation-proof-viewer__img">';
+        } else {
+          body.innerHTML =
+            '<iframe src="' + url + '" class="donation-proof-viewer__frame" title="Payment receipt"></iframe>' +
+            '<p class="small text-muted mt-2 mb-0">If the document does not display, use Open / download.</p>';
+        }
+        const canAct = btn.dataset.confirmUrl && btn.dataset.rejectUrl;
+        approveBtn.classList.toggle('d-none', !canAct);
+        rejectBtn.classList.toggle('d-none', !canAct);
+        if (canAct) {
+          pendingConfirmUrl = btn.dataset.confirmUrl;
+          pendingRejectUrl = btn.dataset.rejectUrl;
+          approveBtn.dataset.amount = btn.dataset.amount || '';
+          approveBtn.dataset.provider = btn.dataset.provider || '';
+        }
+        proofModal.show();
+      });
+    });
+
+    bodyEl.querySelectorAll('.member-confirm-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        pendingConfirmUrl = btn.dataset.confirmUrl;
+        document.getElementById('memberDonationConfirmText').textContent =
+          'Approve ' + btn.dataset.amount + ' via ' + btn.dataset.provider + ' (' + btn.dataset.date + ')?';
+        confirmModal.show();
+      });
+    });
+
+    bodyEl.querySelectorAll('.member-reject-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        pendingRejectUrl = btn.dataset.rejectUrl;
+        document.getElementById('memberDonationRejectText').textContent =
+          'Reject ' + btn.dataset.amount + ' via ' + btn.dataset.provider + ' (' + btn.dataset.date + ')?';
+        rejectModal.show();
+      });
+    });
+  }
+
+  async function postDonationAction(url) {
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', csrfToken);
+    const res = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      throw new Error(data.message || 'Action failed');
+    }
+    return data.message;
+  }
+
+  async function refreshMemberDetail() {
+    if (!currentMemberId) return;
+    try {
+      const res = await fetch(memberDetailUrl(currentMemberId), {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      });
+      if (!res.ok) throw new Error('Failed to load');
+      const data = await res.json();
+      renderDetail(data);
+    } catch (err) {
+      showDonationAlert('Updated, but could not refresh details. Close and reopen this member.', 'warning');
+    }
+  }
+
   function renderDetail(data) {
     const photo = data.photo_url || placeholderImg;
     const donations = data.recent_donations || [];
+    const reviewCol = data.can_manage_donations ? 1 : 0;
     const donationsHtml = donations.length
       ? donations.map(d => `
           <tr>
@@ -235,8 +454,9 @@
             <td class="fw-semibold">${d.amount.toLocaleString()} ${d.currency}</td>
             <td>${d.provider}</td>
             <td><span class="badge bg-${statusBadgeClass(d.status_key)}">${d.status}</span></td>
+            ${data.can_manage_donations ? donationReviewCell(d) : ''}
           </tr>`).join('')
-      : '<tr><td colspan="4" class="text-muted text-center py-3">No donations yet.</td></tr>';
+      : `<tr><td colspan="${4 + reviewCol}" class="text-muted text-center py-3">No donations yet.</td></tr>`;
 
     bodyEl.innerHTML = `
       <div class="members-detail">
@@ -301,13 +521,18 @@
           </div>
         </div>
         <h6 class="members-detail__section-title"><i class="fa fa-history me-2 text-success"></i>Recent donations</h6>
+        ${data.can_manage_donations && data.donation_stats.pending > 0
+          ? '<p class="small text-muted mb-2">Pending manual transfers can be reviewed and approved below.</p>'
+          : ''}
         <div class="table-responsive">
           <table class="table table-sm members-detail__donations mb-0">
-            <thead><tr><th>Date</th><th>Amount</th><th>Provider</th><th>Status</th></tr></thead>
+            <thead><tr><th>Date</th><th>Amount</th><th>Provider</th><th>Status</th>${data.can_manage_donations ? '<th class="text-end">Review</th>' : ''}</tr></thead>
             <tbody>${donationsHtml}</tbody>
           </table>
         </div>
+        <div id="memberDonationActionAlert" class="alert d-none mt-3 mb-0" role="alert"></div>
       </div>`;
+    bindDonationActions();
   }
 
   function showLoading() {
@@ -320,6 +545,7 @@
 
   async function openMemberDetail(memberId) {
     if (!modal) return;
+    currentMemberId = memberId;
     showLoading();
     modal.show();
     try {
@@ -333,6 +559,55 @@
       bodyEl.innerHTML = '<p class="text-danger text-center py-4 mb-0">Could not load member details. Please try again.</p>';
     }
   }
+
+  document.getElementById('memberDonationConfirmSubmit')?.addEventListener('click', async () => {
+    const btn = document.getElementById('memberDonationConfirmSubmit');
+    if (!pendingConfirmUrl) return;
+    btn.disabled = true;
+    try {
+      const message = await postDonationAction(pendingConfirmUrl);
+      confirmModal.hide();
+      proofModal?.hide();
+      showDonationAlert(message, 'success');
+      await refreshMemberDetail();
+    } catch (err) {
+      showDonationAlert(err.message, 'danger');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('memberDonationRejectSubmit')?.addEventListener('click', async () => {
+    const btn = document.getElementById('memberDonationRejectSubmit');
+    if (!pendingRejectUrl) return;
+    btn.disabled = true;
+    try {
+      const message = await postDonationAction(pendingRejectUrl);
+      rejectModal.hide();
+      proofModal?.hide();
+      showDonationAlert(message, 'info');
+      await refreshMemberDetail();
+    } catch (err) {
+      showDonationAlert(err.message, 'danger');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('memberDonationProofApprove')?.addEventListener('click', () => {
+    if (!pendingConfirmUrl) return;
+    proofModal.hide();
+    document.getElementById('memberDonationConfirmText').textContent =
+      'Approve ' + (document.getElementById('memberDonationProofApprove').dataset.amount || 'this donation') + '?';
+    confirmModal.show();
+  });
+
+  document.getElementById('memberDonationProofReject')?.addEventListener('click', () => {
+    if (!pendingRejectUrl) return;
+    proofModal.hide();
+    document.getElementById('memberDonationRejectText').textContent = 'Reject this donation?';
+    rejectModal.show();
+  });
 
   document.querySelectorAll('.members-table__row').forEach(row => {
     const id = row.dataset.memberId;

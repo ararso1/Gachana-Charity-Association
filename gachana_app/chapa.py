@@ -10,7 +10,17 @@ class ChapaError(Exception):
     pass
 
 
-def initialize_payment(*, amount, email, first_name, last_name, tx_ref, callback_url, return_url):
+def initialize_payment(
+    *,
+    amount,
+    email,
+    first_name,
+    last_name,
+    tx_ref,
+    callback_url,
+    return_url,
+    description='Charity donation',
+):
     """Initialize a Chapa checkout session."""
     secret = settings.CHAPA_SECRET_KEY
     if not secret:
@@ -19,15 +29,16 @@ def initialize_payment(*, amount, email, first_name, last_name, tx_ref, callback
     payload = {
         'amount': str(amount),
         'currency': settings.CHAPA_CURRENCY,
-        'email': email,
+        'email': email or 'donor@gachanacharity.com',
         'first_name': first_name or 'Gachana',
-        'last_name': last_name or 'Member',
+        'last_name': last_name or 'Donor',
         'tx_ref': tx_ref,
         'callback_url': callback_url,
         'return_url': return_url,
         'customization': {
-            'title': 'Gachana Charity Association',
-            'description': 'Membership donation',
+            # Chapa limits the title to 16 characters.
+            'title': 'Gachana Charity',
+            'description': description,
         },
     }
 
@@ -42,9 +53,26 @@ def initialize_payment(*, amount, email, first_name, last_name, tx_ref, callback
     )
     data = response.json()
     if response.status_code != 200 or data.get('status') != 'success':
-        raise ChapaError(data.get('message', 'Failed to initialize Chapa payment.'))
+        raise ChapaError(_format_chapa_error(data))
 
     return data['data']
+
+
+def _format_chapa_error(data):
+    """Turn a Chapa error response into a readable message."""
+    message = data.get('message')
+    if isinstance(message, dict):
+        parts = []
+        for field, errors in message.items():
+            if isinstance(errors, (list, tuple)):
+                parts.append(f"{field}: {', '.join(str(e) for e in errors)}")
+            else:
+                parts.append(f"{field}: {errors}")
+        if parts:
+            return 'Payment error — ' + '; '.join(parts)
+    if message:
+        return str(message)
+    return 'Failed to initialize Chapa payment.'
 
 
 def verify_payment(tx_ref):

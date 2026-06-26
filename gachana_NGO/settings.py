@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 
+from decouple import config
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -156,14 +158,14 @@ LOGGING = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 
-SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
+SITE_URL = config('SITE_URL', default='http://127.0.0.1:8000')
 
 LOGIN_URL = '/login/'
 
 # Chapa payment (https://developer.chapa.co)
-CHAPA_SECRET_KEY = os.environ.get('CHAPA_SECRET_KEY', '')
-CHAPA_PUBLIC_KEY = os.environ.get('CHAPA_PUBLIC_KEY', '')
-CHAPA_WEBHOOK_SECRET = os.environ.get('CHAPA_WEBHOOK_SECRET', '')
+CHAPA_SECRET_KEY = config('CHAPA_SECRET_KEY', default='')
+CHAPA_PUBLIC_KEY = config('CHAPA_PUBLIC_KEY', default='')
+CHAPA_WEBHOOK_SECRET = config('CHAPA_WEBHOOK_SECRET', default='')
 CHAPA_BASE_URL = 'https://api.chapa.co/v1'
 CHAPA_CURRENCY = 'ETB'
 # Email config

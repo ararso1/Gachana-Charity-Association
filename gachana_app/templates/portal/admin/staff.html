@@ -5,9 +5,12 @@
 <header class="members-page-header">
   <div>
     <p class="members-page-eyebrow">Team management</p>
-    <h1>Staff & designations</h1>
-    <p class="members-page-sub">Manage staff portal access, roles, and job designations.</p>
+    <h1>Staff</h1>
+    <p class="members-page-sub">Manage staff portal accounts, roles, and access.</p>
   </div>
+  <a href="{% url 'portal_manage_designations' %}" class="btn btn-outline-success btn-sm">
+    <i class="fa fa-briefcase me-1"></i>Manage designations
+  </a>
 </header>
 
 <div class="members-stat-row">
@@ -34,22 +37,20 @@
   </div>
 </div>
 
-<div class="row g-4">
-  <div class="col-lg-8">
-    <div class="portal-card members-table-card p-0 overflow-hidden">
-      <div class="members-table-card__head">
+<div class="portal-card members-table-card p-0 overflow-hidden">
+  <div class="members-table-card__head">
         <h2><i class="fa fa-users-cog text-success me-2"></i>Staff accounts</h2>
         <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addStaffModal">
           <i class="fa fa-plus me-1"></i>Add staff
         </button>
-      </div>
-      <div class="table-responsive">
+  </div>
+  <div class="table-responsive">
         <table class="table table-hover members-table mb-0">
           <thead>
             <tr>
               <th>Staff member</th>
               <th>Employee ID</th>
-              <th>Designation</th>
+              <th>Designations</th>
               <th>Department</th>
               <th>Status</th>
               <th class="text-end">Actions</th>
@@ -77,7 +78,15 @@
                 <code class="members-table__id">{{ profile.employee_id }}</code>
                 {% else %}—{% endif %}
               </td>
-              <td>{{ profile.designation|default:"—" }}</td>
+              <td>
+                {% if profile and profile.get_designation_titles %}
+                  {% for title in profile.get_designation_titles %}
+                  <span class="badge bg-light text-dark border me-1 mb-1">{{ title }}</span>
+                  {% endfor %}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
               <td>{{ profile.department|default:"—" }}</td>
               <td>
                 {% if profile and profile.is_active %}
@@ -98,10 +107,9 @@
                     data-email="{{ s.email }}"
                     data-phone="{{ s.phone|default:'' }}"
                     data-address="{{ s.address|default:'' }}"
-                    data-designation="{% if profile and profile.designation_id %}{{ profile.designation_id }}{% endif %}"
+                    data-designations="{% if profile %}{% for d in profile.get_designations %}{{ d.id }}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}"
                     data-department="{% if profile %}{{ profile.department|default:'' }}{% endif %}"
                     data-is-active="{% if profile and profile.is_active %}1{% else %}0{% endif %}"
-                    data-can-manage-donations="{% if profile and profile.can_manage_donations %}1{% else %}0{% endif %}"
                     data-name="{{ s.get_full_name|default:s.username }}"
                   >
                     <i class="fa fa-edit"></i>
@@ -143,52 +151,6 @@
             {% endfor %}
           </tbody>
         </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-lg-4">
-    <div class="portal-card">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0"><i class="fa fa-briefcase text-success me-2"></i>Designations</h5>
-        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addDesignationModal">
-          <i class="fa fa-plus"></i>
-        </button>
-      </div>
-      <ul class="list-group list-group-flush staff-designation-list">
-        {% for d in designations %}
-        <li class="list-group-item px-0 staff-designation-item">
-          <div class="d-flex justify-content-between align-items-start gap-2">
-            <div class="flex-grow-1 min-w-0">
-              <span class="fw-semibold">{{ d.title }}</span>
-              {% if d.description %}<p class="small text-muted mb-0 mt-1">{{ d.description|truncatewords:12 }}</p>{% endif %}
-              <span class="badge bg-success rounded-pill mt-1">{{ d.staff_count }} staff</span>
-            </div>
-            <div class="staff-designation-actions flex-shrink-0">
-              <button
-                type="button"
-                class="btn btn-outline-primary btn-sm designation-edit-trigger"
-                title="Edit"
-                data-id="{{ d.pk }}"
-                data-title="{{ d.title }}"
-                data-description="{{ d.description|default:'' }}"
-              ><i class="fa fa-edit"></i></button>
-              <button
-                type="button"
-                class="btn btn-outline-danger btn-sm designation-delete-trigger"
-                title="Delete"
-                data-id="{{ d.pk }}"
-                data-title="{{ d.title }}"
-                data-count="{{ d.staff_count }}"
-              ><i class="fa fa-trash-alt"></i></button>
-            </div>
-          </div>
-        </li>
-        {% empty %}
-        <li class="list-group-item text-muted px-0">No designations yet.</li>
-        {% endfor %}
-      </ul>
-    </div>
   </div>
 </div>
 
@@ -212,23 +174,31 @@
               {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
             </div>
             {% endfor %}
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold">Designation</label>
-              <select name="designation" class="form-select">
-                <option value="">—</option>
-                {% for d in designations %}<option value="{{ d.id }}">{{ d.title }}</option>{% endfor %}
-              </select>
+            <div class="col-12">
+              <label class="form-label small fw-semibold">Designations</label>
+              <div class="staff-checkbox-grid">
+                {% for d in designations %}
+                <label class="staff-checkbox-card">
+                  <input type="checkbox" name="designations" value="{{ d.id }}">
+                  <span>
+                    <strong>{{ d.title }}</strong>
+                    <small>
+                      {% for module_label in d.module_labels %}
+                        {{ module_label }}{% if not forloop.last %}, {% endif %}
+                      {% empty %}
+                        No modules assigned
+                      {% endfor %}
+                    </small>
+                  </span>
+                </label>
+                {% empty %}
+                <p class="text-muted small mb-0">No designations yet. <a href="{% url 'portal_manage_designations' %}">Create designations</a> first, then assign them to staff.</p>
+                {% endfor %}
+              </div>
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-semibold">Department</label>
               <input type="text" name="department" class="form-control" placeholder="e.g. Programs">
-            </div>
-            <div class="col-12">
-              <div class="form-check">
-                <input type="checkbox" name="can_manage_donations" id="add-can-manage-donations" class="form-check-input" value="1">
-                <label class="form-check-label" for="add-can-manage-donations">Allow donation management</label>
-                <div class="form-text">Staff can review and confirm member donations in the portal.</div>
-              </div>
             </div>
           </div>
         </form>
@@ -277,12 +247,25 @@
               <label class="form-label small fw-semibold">Address</label>
               <input type="text" name="address" id="edit-address" class="form-control">
             </div>
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold">Designation</label>
-              <select name="designation" id="edit-designation" class="form-select">
-                <option value="">—</option>
-                {% for d in designations %}<option value="{{ d.id }}">{{ d.title }}</option>{% endfor %}
-              </select>
+            <div class="col-12">
+              <label class="form-label small fw-semibold">Designations</label>
+              <div class="staff-checkbox-grid">
+                {% for d in designations %}
+                <label class="staff-checkbox-card">
+                  <input type="checkbox" name="designations" value="{{ d.id }}" class="edit-designation-check">
+                  <span>
+                    <strong>{{ d.title }}</strong>
+                    <small>
+                      {% for module_label in d.module_labels %}
+                        {{ module_label }}{% if not forloop.last %}, {% endif %}
+                      {% empty %}
+                        No modules assigned
+                      {% endfor %}
+                    </small>
+                  </span>
+                </label>
+                {% endfor %}
+              </div>
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-semibold">Department</label>
@@ -293,11 +276,6 @@
                 <input type="checkbox" name="is_active" id="edit-is-active" class="form-check-input" value="1">
                 <label class="form-check-label" for="edit-is-active">Active staff account</label>
               </div>
-              <div class="form-check">
-                <input type="checkbox" name="can_manage_donations" id="edit-can-manage-donations" class="form-check-input" value="1">
-                <label class="form-check-label" for="edit-can-manage-donations">Allow donation management</label>
-                <div class="form-text">Staff can review and confirm member donations in the portal.</div>
-              </div>
             </div>
           </div>
         </form>
@@ -305,35 +283,6 @@
       <div class="modal-footer border-0 pt-0">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
         <button type="submit" form="edit-staff-form" class="btn btn-success">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Add designation modal -->
-<div class="modal fade portal-confirm-modal" id="addDesignationModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content portal-confirm-modal__content">
-      <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title fw-bold"><i class="fa fa-briefcase me-2 text-success"></i>Add designation</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body pt-2">
-        <form method="post" id="add-designation-form">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="create_designation">
-          {% for field in designation_form %}
-          <div class="mb-3">
-            <label class="form-label small fw-semibold">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
-          </div>
-          {% endfor %}
-        </form>
-      </div>
-      <div class="modal-footer border-0 pt-0">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="submit" form="add-designation-form" class="btn btn-success">Add designation</button>
       </div>
     </div>
   </div>
@@ -352,66 +301,6 @@
           <i class="fa fa-spinner fa-spin fa-2x text-success"></i>
           <p class="text-muted mt-2 mb-0">Loading…</p>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Edit designation modal -->
-<div class="modal fade portal-confirm-modal" id="editDesignationModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content portal-confirm-modal__content">
-      <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title fw-bold"><i class="fa fa-briefcase me-2 text-success"></i>Edit designation</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body pt-2">
-        <form method="post" id="edit-designation-form">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="update_designation">
-          <input type="hidden" name="designation_id" id="edit-designation-id">
-          <div class="mb-3">
-            <label class="form-label small fw-semibold">Title</label>
-            <input type="text" name="title" id="edit-designation-title" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label small fw-semibold">Description</label>
-            <textarea name="description" id="edit-designation-description" class="form-control" rows="3"></textarea>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer border-0 pt-0">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="submit" form="edit-designation-form" class="btn btn-success">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<form method="post" id="designation-delete-form" class="d-none" aria-hidden="true">
-  {% csrf_token %}
-  <input type="hidden" name="action" value="delete_designation">
-  <input type="hidden" name="designation_id" id="designation-delete-id">
-</form>
-
-<div class="modal fade portal-confirm-modal" id="designationDeleteModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content portal-confirm-modal__content">
-      <div class="modal-body text-center pt-4 pb-2 px-4">
-        <div class="portal-confirm-modal__icon portal-confirm-modal__icon--danger" aria-hidden="true">
-          <i class="fa fa-trash-alt"></i>
-        </div>
-        <h5 class="portal-confirm-modal__title">Delete designation?</h5>
-        <p class="portal-confirm-modal__text mb-2">
-          Remove <strong id="designationDeleteName"></strong> from the system.
-        </p>
-        <p class="portal-confirm-modal__meta small text-muted mb-0" id="designationDeleteMeta"></p>
-      </div>
-      <div class="modal-footer border-0 justify-content-center gap-2 pb-4 pt-2 px-4">
-        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger px-4" id="designationDeleteConfirm">
-          <i class="fa fa-trash-alt me-1"></i>Yes, delete
-        </button>
       </div>
     </div>
   </div>
@@ -474,9 +363,9 @@
     const statusBadge = data.is_active
       ? '<span class="badge members-badge members-badge--success">Active</span>'
       : '<span class="badge members-badge members-badge--muted">Inactive</span>';
-    const donationBadge = data.can_manage_donations
-      ? '<span class="badge bg-primary ms-1">Donations</span>'
-      : '';
+    const moduleBadges = (data.modules || []).map(
+      (module) => '<span class="badge bg-light text-success border me-1 mb-1">' + module + '</span>'
+    ).join('') || '<span class="text-muted">No modules assigned</span>';
 
     detailBody.innerHTML = `
       <div class="staff-detail">
@@ -484,15 +373,15 @@
           <img src="${photo}" alt="" class="staff-detail__photo" id="staffDetailPhoto">
           <div class="staff-detail__info">
             <h4 class="staff-detail__name mb-1">${data.full_name}</h4>
-            <p class="mb-2">${statusBadge}${donationBadge}</p>
+            <p class="mb-2">${statusBadge}</p>
             <dl class="staff-detail__dl mb-0">
               <div><dt>Email</dt><dd><a href="mailto:${data.email}">${data.email}</a></dd></div>
               <div><dt>Phone</dt><dd>${data.phone || '—'}</dd></div>
               <div><dt>Address</dt><dd>${data.address || '—'}</dd></div>
               <div><dt>Employee ID</dt><dd><code>${data.employee_id}</code></dd></div>
-              <div><dt>Designation</dt><dd>${data.designation || '—'}</dd></div>
+              <div><dt>Designations</dt><dd>${data.designation || '—'}</dd></div>
               <div><dt>Department</dt><dd>${data.department || '—'}</dd></div>
-              <div><dt>Donation access</dt><dd>${data.can_manage_donations ? 'Enabled' : 'Disabled'}</dd></div>
+              <div><dt>Allowed modules</dt><dd>${moduleBadges}</dd></div>
               <div><dt>Joined</dt><dd>${data.date_joined}</dd></div>
             </dl>
           </div>
@@ -561,10 +450,12 @@
       document.getElementById('edit-email').value = btn.dataset.email || '';
       document.getElementById('edit-phone').value = btn.dataset.phone || '';
       document.getElementById('edit-address').value = btn.dataset.address || '';
-      document.getElementById('edit-designation').value = btn.dataset.designation || '';
+      const selectedDesignations = (btn.dataset.designations || '').split(',').filter(Boolean);
+      document.querySelectorAll('.edit-designation-check').forEach((input) => {
+        input.checked = selectedDesignations.includes(input.value);
+      });
       document.getElementById('edit-department').value = btn.dataset.department || '';
       document.getElementById('edit-is-active').checked = btn.dataset.isActive === '1';
-      document.getElementById('edit-can-manage-donations').checked = btn.dataset.canManageDonations === '1';
       document.getElementById('editStaffModalLabel').innerHTML =
         '<i class="fa fa-edit me-2 text-success"></i>Edit ' + (btn.dataset.name || 'staff');
       new bootstrap.Modal(editModal).show();
@@ -602,52 +493,6 @@
   {% if staff_form.errors %}
   new bootstrap.Modal(document.getElementById('addStaffModal')).show();
   {% endif %}
-  {% if designation_form.errors %}
-  new bootstrap.Modal(document.getElementById('addDesignationModal')).show();
-  {% endif %}
-
-  const editDesigModal = document.getElementById('editDesignationModal');
-  document.querySelectorAll('.designation-edit-trigger').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      document.getElementById('edit-designation-id').value = btn.dataset.id;
-      document.getElementById('edit-designation-title').value = btn.dataset.title || '';
-      document.getElementById('edit-designation-description').value = btn.dataset.description || '';
-      new bootstrap.Modal(editDesigModal).show();
-    });
-  });
-
-  const desigDeleteModalEl = document.getElementById('designationDeleteModal');
-  const desigDeleteForm = document.getElementById('designation-delete-form');
-  const desigDeleteConfirm = document.getElementById('designationDeleteConfirm');
-  const desigDeleteModal = desigDeleteModalEl ? new bootstrap.Modal(desigDeleteModalEl) : null;
-
-  document.querySelectorAll('.designation-delete-trigger').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      document.getElementById('designation-delete-id').value = btn.dataset.id;
-      document.getElementById('designationDeleteName').textContent = btn.dataset.title || 'this designation';
-      const count = parseInt(btn.dataset.count || '0', 10);
-      document.getElementById('designationDeleteMeta').textContent = count > 0
-        ? count + ' staff member(s) still use this designation — reassign them before deleting.'
-        : 'This cannot be undone.';
-      if (desigDeleteConfirm) desigDeleteConfirm.disabled = count > 0;
-      desigDeleteModal.show();
-    });
-  });
-
-  if (desigDeleteConfirm) {
-    desigDeleteConfirm.addEventListener('click', () => {
-      if (desigDeleteConfirm.disabled) return;
-      desigDeleteConfirm.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i>Deleting…';
-      desigDeleteConfirm.disabled = true;
-      desigDeleteForm.submit();
-    });
-    desigDeleteModalEl.addEventListener('hidden.bs.modal', () => {
-      desigDeleteConfirm.disabled = false;
-      desigDeleteConfirm.innerHTML = '<i class="fa fa-trash-alt me-1"></i>Yes, delete';
-    });
-  }
 })();
 </script>
 {% endblock %}

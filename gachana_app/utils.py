@@ -109,8 +109,9 @@ def confirm_donation(donation, confirmed_by=None):
     donation.confirmed_at = timezone.now()
     donation.confirmed_by = confirmed_by
     donation.save(update_fields=['status', 'confirmed_at', 'confirmed_by', 'updated_at'])
-    profile = get_or_create_member_profile(donation.member)
-    refresh_member_totals(profile)
+    if donation.member_id:
+        profile = get_or_create_member_profile(donation.member)
+        refresh_member_totals(profile)
     return donation
 
 

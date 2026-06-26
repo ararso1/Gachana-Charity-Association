@@ -3,10 +3,10 @@ from .models import *
 from django.http import JsonResponse
 from django.utils import timezone
 from .forms import *
-from .models import MemberProfile
+from .models import MemberProfile, DonationBank
 from .utils import generate_membership_id
 from django.contrib.auth.decorators import login_required
-from .decorators import role_required
+from .decorators import role_required, staff_module_required
 from .models import User
 from .utils import get_dashboard_url_name
 from django.db.models import Max, F
@@ -23,6 +23,9 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.db import IntegrityError
 from django.db.models import Q
+import json
+
+from .donation_service import member_user_for_donation, save_manual_donation, start_chapa_checkout
 
 
 
@@ -225,7 +228,90 @@ def signin(request):
     return redirect('login')
 
 def donate(request):
-    return render(request, 'donate.html')
+    member_user = member_user_for_donation(request.user)
+    banks = DonationBank.objects.filter(is_active=True)
+    chapa_form = PublicChapaDonationForm(member_user=member_user)
+    manual_form = PublicManualDonationForm(member_user=member_user)
+    active_tab = request.GET.get('tab', 'chapa')
+    chapa_configured = bool(settings.CHAPA_SECRET_KEY)
+
+    if request.method == 'POST':
+        payment_type = request.POST.get('payment_type')
+        active_tab = payment_type if payment_type in ('chapa', 'manual') else active_tab
+        if payment_type == 'manual':
+            if not banks.exists():
+                messages.error(request, 'Bank transfer is not available yet. Please use Chapa or contact support.')
+            else:
+                manual_form = PublicManualDonationForm(
+                    request.POST,
+                    request.FILES,
+                    member_user=member_user,
+                )
+                if manual_form.is_valid():
+                    save_manual_donation(
+                        form=manual_form,
+                        member=member_user,
+                        donor_email=manual_form.cleaned_data.get('email', ''),
+                        donor_first_name=manual_form.cleaned_data.get('first_name', ''),
+                        donor_last_name=manual_form.cleaned_data.get('last_name', ''),
+                    )
+                    if member_user:
+                        messages.success(
+                            request,
+                            'Donation submitted. It will appear on your membership card once confirmed by our team.',
+                        )
+                    else:
+                        messages.success(
+                            request,
+                            'Donation submitted. Our team will confirm your transfer shortly. Thank you for your support!',
+                        )
+                    return redirect('donate')
+        elif payment_type == 'chapa':
+            if not chapa_configured:
+                messages.error(request, 'Online payment is not configured yet. Please use bank transfer or contact us.')
+            else:
+                chapa_form = PublicChapaDonationForm(request.POST, member_user=member_user)
+                if chapa_form.is_valid():
+                    email = member_user.email if member_user else chapa_form.cleaned_data['email']
+                    first_name = member_user.first_name if member_user else chapa_form.cleaned_data['first_name']
+                    last_name = member_user.last_name if member_user else chapa_form.cleaned_data.get('last_name', '')
+                    return start_chapa_checkout(
+                        request,
+                        amount=chapa_form.cleaned_data['amount'],
+                        member=member_user,
+                        email=email,
+                        first_name=first_name,
+                        last_name=last_name,
+                        error_redirect_name='donate',
+                        description='Gachana charity donation',
+                    )
+
+    banks_data = [
+        {
+            'id': b.pk,
+            'name': b.name,
+            'account_name': b.account_name,
+            'account_number': b.account_number,
+            'branch': b.branch,
+        }
+        for b in banks
+    ]
+
+    return render(
+        request,
+        'donate.html',
+        {
+            'chapa_form': chapa_form,
+            'manual_form': manual_form,
+            'banks': banks,
+            'banks_json': json.dumps(banks_data),
+            'active_tab': active_tab,
+            'has_banks': banks.exists(),
+            'chapa_configured': chapa_configured,
+            'is_member': bool(member_user),
+            'payment_success': request.GET.get('paid') == '1',
+        },
+    )
 
 def custom_404(request, exception=None):
     return render(request, '404.html', status=404)
@@ -338,7 +424,7 @@ def admin_dashboard(request):
 
 # vacancy part
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.VACANCIES)
 def vacancy_list(request):
     query = request.GET.get('q')
     vacancies = Vacancy.objects.all().order_by('-created_at')
@@ -363,7 +449,7 @@ def vacancy_list(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.VACANCIES)
 def create_vacancy(request):
     if request.method == "POST":
         form = VacancyForm(request.POST, request.FILES)
@@ -384,7 +470,7 @@ def create_vacancy(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.VACANCIES)
 def update_vacancy(request, vacancy_id):
     vacancy = get_object_or_404(Vacancy, id=vacancy_id)
     
@@ -403,7 +489,7 @@ def update_vacancy(request, vacancy_id):
     return render(request, 'portal/admin/content/vacancy_form.html', {'form': form, 'vacancy': vacancy, 'is_edit': True})
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.VACANCIES)
 def delete_vacancy(request, vacancy_id):
     vacancy = get_object_or_404(Vacancy, id=vacancy_id)
     if request.method == "POST":
@@ -414,7 +500,7 @@ def delete_vacancy(request, vacancy_id):
 
 # blog part
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.BLOGS)
 def blog_list(request):
     query = request.GET.get('q')
     blogs = Blog.objects.prefetch_related('categories').order_by('-created_at')
@@ -439,7 +525,7 @@ def blog_list(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.BLOGS)
 def create_blogs(request):
     if request.method == 'POST':
         form = BlogForm(request.POST, request.FILES)
@@ -461,7 +547,7 @@ def create_blogs(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.BLOGS)
 def update_blog(request, blog_id):
     blog = get_object_or_404(Blog, id=blog_id)
     
@@ -489,7 +575,7 @@ def update_blog(request, blog_id):
     return render(request, 'portal/admin/content/blog_form.html', {'form': form, 'blog': blog, 'is_edit': True})
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.BLOGS)
 def delete_blog(request, blog_id):
     blog = get_object_or_404(Blog, id=blog_id)
     if request.method == "POST":
@@ -499,7 +585,7 @@ def delete_blog(request, blog_id):
 
 # gallery part
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.GALLERY)
 def gallery_list(request):
     query = request.GET.get('q')
     category_slug = request.GET.get('category')
@@ -527,7 +613,7 @@ def gallery_list(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.GALLERY)
 def create_gallery(request):
     if request.method == 'POST':
         form = GalleryForm(request.POST, request.FILES)
@@ -541,7 +627,7 @@ def create_gallery(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.GALLERY)
 def update_gallery(request, gallery_id):
     item = get_object_or_404(Gallery, id=gallery_id)
     if request.method == 'POST':
@@ -560,7 +646,7 @@ def update_gallery(request, gallery_id):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.GALLERY)
 def delete_gallery(request, gallery_id):
     item = get_object_or_404(Gallery, id=gallery_id)
     if request.method == 'POST':
@@ -570,7 +656,7 @@ def delete_gallery(request, gallery_id):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.BLOGS)
 def blog_category_list(request):
     categories = Category.objects.annotate(blog_count=Count('blogs')).order_by('name')
 
@@ -616,7 +702,7 @@ def blog_category_list(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.GALLERY)
 def gallery_category_list(request):
     categories = GalleryCategory.objects.annotate(image_count=Count('images')).order_by(
         'sort_order', 'name'
@@ -665,7 +751,7 @@ def gallery_category_list(request):
 
 # Sponsors (public website showcase)
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.SPONSORS)
 def sponsor_list(request):
     query = request.GET.get('q')
     tier_filter = request.GET.get('tier')
@@ -699,7 +785,7 @@ def sponsor_list(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.SPONSORS)
 def create_sponsor(request):
     if request.method == 'POST':
         form = SponsorForm(request.POST, request.FILES)
@@ -713,7 +799,7 @@ def create_sponsor(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.SPONSORS)
 def update_sponsor(request, sponsor_id):
     sponsor = get_object_or_404(Sponsor, pk=sponsor_id)
     if request.method == 'POST':
@@ -732,7 +818,7 @@ def update_sponsor(request, sponsor_id):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.SPONSORS)
 def delete_sponsor(request, sponsor_id):
     sponsor = get_object_or_404(Sponsor, pk=sponsor_id)
     if request.method == 'POST':
@@ -743,7 +829,7 @@ def delete_sponsor(request, sponsor_id):
 
 # Contact form messages (public website)
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.CONTACTS)
 def contact_message_list(request):
     from datetime import timedelta
 
@@ -777,7 +863,7 @@ def contact_message_list(request):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.CONTACTS)
 def contact_message_detail(request, message_id):
     message = get_object_or_404(Contact, pk=message_id)
     return render(
@@ -788,7 +874,7 @@ def contact_message_detail(request, message_id):
 
 
 @login_required(login_url='/login/')
-@role_required(User.Role.ADMIN)
+@staff_module_required(StaffDesignation.Module.CONTACTS)
 def delete_contact_message(request, message_id):
     message = get_object_or_404(Contact, pk=message_id)
     if request.method == 'POST':

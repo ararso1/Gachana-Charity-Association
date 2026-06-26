@@ -1,133 +1,335 @@
-        {% include 'components/navbar.html' %}
-        {% load static %}
+{% include 'components/navbar.html' %}
+{% load static %}
+<link href="{% static 'css/donate.css' %}" rel="stylesheet">
 
-        <!-- Page Header Start -->
-        <div class="container-fluid page-header mb-5 wow fadeIn" data-wow-delay="0.1s">
-            <div class="container text-center">
-                <h1 class="display-4 text-white animated slideInDown mb-4">Sustainability & Why Donate</h1>
-                <nav aria-label="breadcrumb animated slideInDown">
-                    <ol class="breadcrumb justify-content-center mb-0">
-                        <li class="breadcrumb-item"><a class="text-white" href="#">Home</a></li>
-                        <li class="breadcrumb-item"><a class="text-white" href="#">Pages</a></li>
-                        <li class="breadcrumb-item text-primary active" aria-current="page">Sustainability</li>
-                    </ol>
-                </nav>
+<!-- Page Header Start -->
+<div class="container-fluid page-header mb-5 wow fadeIn" data-wow-delay="0.1s">
+    <div class="container text-center">
+        <h1 class="display-4 text-white animated slideInDown mb-4">Sustainability & Why Donate</h1>
+        <nav aria-label="breadcrumb animated slideInDown">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a class="text-white" href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a class="text-white" href="{% url 'donate' %}">Pages</a></li>
+                <li class="breadcrumb-item text-primary active" aria-current="page">Sustainability</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<!-- Page Header End -->
+
+<!-- Sustainability Content Start -->
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="position-relative overflow-hidden h-100" style="min-height: 400px;">
+                    <img class="position-absolute w-100 h-100 pt-5 pe-5" src="{% static 'img/childfor.jpg' %}" alt="Children in sustainable environment" style="object-fit: cover;">
+                </div>
+            </div>
+            <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="h-100">
+                    <h1 class="display-6 mb-4">Every Child Deserves a Sustainable Future</h1>
+                    <p class="mb-4">Every child has the right to a clean, healthy, sustainable and abundant environment. But children today are facing more weather-related extreme events than ever before. More droughts. More floods. Longer heatwaves. More extreme wildfires. Devastating storms.</p>
+                    <p class="mb-4">As these events accelerate year by year, so do the threats to the natural resources children need for their development. Without food, water, air and land, children's health, education, livelihoods and safety are at risk.</p>
+                    <div class="bg-light p-4 rounded">
+                        <p class="mb-0"><i class="fa fa-exclamation-triangle text-primary me-2"></i> Families take their children out of school, relinquish them into forced marriage, send them into hazardous child labor — or worse — to keep food on the table.</p>
+                    </div>
+                </div>
             </div>
         </div>
-        <!-- Page Header End -->
 
-        <!-- Sustainability Content Start -->
-        <div class="container-xxl py-5">
-            <div class="container">
-                <div class="row g-5">
-                    <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
-                        <div class="position-relative overflow-hidden h-100" style="min-height: 400px;">
-                            <img class="position-absolute w-100 h-100 pt-5 pe-5" src="{% static 'img/childfor.jpg' %}" alt="Children in sustainable environment" style="object-fit: cover;">
-                        </div>
+        <div class="row g-5 mt-3">
+            <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="bg-light rounded p-5">
+                    <h2 class="mb-4">Centering Children in Building Sustainable Resilience</h2>
+                    <p>We see what natural catastrophes do to children and youth who live on the frontlines of environmental shocks in the low-income countries where we work. Our local partners and country offices see firsthand how these events undo the developmental gains children and youth have made toward achieving their potential.</p>
+                    <p class="mb-0">This requires a holistic response that embodies both adaptation and environmental care — across all levels of society — to ensure the continued achievement of positive outcomes with children across health, education, protection and livelihoods.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Sustainability Content End -->
+
+<!-- Donate CTA Start -->
+<div class="container-fluid py-5" style="background-color: #06cd45;">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
+                <h1 class="display-6 text-white mb-4">Your Donation Builds Climate Resilience</h1>
+                <p class="text-white mb-0">We center children as we work with communities to build sustainable resilience as well as prevent and respond to environmental shocks.</p>
+            </div>
+            <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
+                <div class="text-lg-end">
+                    <a href="#donate" class="btn btn-dark py-3 px-5">Donate Now <i class="fa fa-arrow-right ms-2"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Donate CTA End -->
+
+<!-- Donate Section Start -->
+<div id="donate" class="container-fluid py-5 bg-light">
+    <div class="container">
+        <div class="row g-5 align-items-start">
+            <div class="col-lg-5 wow fadeIn" data-wow-delay="0.1s">
+                <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Donate Now</div>
+                <h1 class="display-6 mb-4">Thanks For The Results Achieved With You</h1>
+                <p class="mb-4">Your support makes a difference—together, we are creating positive change and transforming lives.</p>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="fa fa-check text-primary me-2"></i>Pay instantly with Chapa (card, mobile money)</li>
+                    <li class="mb-2"><i class="fa fa-check text-primary me-2"></i>Or transfer to our bank accounts and upload proof</li>
+                    {% if is_member %}
+                    <li><i class="fa fa-check text-primary me-2"></i>Donations are linked to your membership account</li>
+                    {% else %}
+                    <li><i class="fa fa-check text-primary me-2"></i><a href="{% url 'login' %}?register=1">Join as a member</a> to track giving and get your membership card</li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="col-lg-7 wow fadeIn" data-wow-delay="0.5s">
+                {% if messages %}
+                <div class="public-donate-messages mb-3">
+                    {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} mb-2" role="alert">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if payment_success %}
+                <div class="alert alert-success public-donate-alert" role="alert">
+                    <i class="fa fa-check-circle me-2"></i>Thank you! Your online payment was successful.
+                </div>
+                {% endif %}
+
+                <div class="public-donate-panel">
+                    <div class="public-donate-tabs" role="tablist">
+                        <button type="button" class="public-donate-tab{% if active_tab == 'chapa' %} is-active{% endif %}" data-tab="chapa" role="tab" aria-selected="{% if active_tab == 'chapa' %}true{% else %}false{% endif %}"{% if not chapa_configured %} disabled title="Online payment not configured"{% endif %}>
+                            <i class="fa fa-credit-card"></i>Chapa (online)
+                        </button>
+                        <button type="button" class="public-donate-tab{% if active_tab == 'manual' %} is-active{% endif %}" data-tab="manual" role="tab" aria-selected="{% if active_tab == 'manual' %}true{% else %}false{% endif %}"{% if not has_banks %} disabled title="No bank accounts configured"{% endif %}>
+                            <i class="fa fa-university"></i>Bank transfer
+                        </button>
                     </div>
-                    <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
-                        <div class="h-100">
-                            <h1 class="display-6 mb-4">Every Child Deserves a Sustainable Future</h1>
-                            <p class="mb-4">Every child has the right to a clean, healthy, sustainable and abundant environment. But children today are facing more weather-related extreme events than ever before. More droughts. More floods. Longer heatwaves. More extreme wildfires. Devastating storms.</p>
-                            
-                            <p class="mb-4">As these events accelerate year by year, so do the threats to the natural resources children need for their development. Without food, water, air and land, children's health, education, livelihoods and safety are at risk.</p>
-                            
-                            <div class="bg-light p-4 rounded">
-                                <p class="mb-0"><i class="fa fa-exclamation-triangle text-primary me-2"></i> Families take their children out of school, relinquish them into forced marriage, send them into hazardous child labor — or worse — to keep food on the table.</p>
+
+                    <div class="public-donate-body">
+                        {% if is_member %}
+                        <div class="public-member-note">
+                            <i class="fa fa-user-check me-2 text-success"></i>
+                            Signed in as <strong>{{ request.user.get_full_name|default:request.user.email }}</strong>. Donations will count toward your membership.
+                        </div>
+                        {% endif %}
+
+                        <div id="panel-chapa" class="public-pay-panel{% if active_tab == 'chapa' %} is-active{% endif %}" role="tabpanel">
+                            {% if not chapa_configured %}
+                            <div class="alert alert-warning public-donate-alert mb-0">
+                                Online payment is not available right now. Please use bank transfer or contact the office.
                             </div>
+                            {% else %}
+                            <p class="public-donate-panel__lead">
+                                <i class="fa fa-bolt text-warning me-1"></i>
+                                Pay securely online. Your donation is confirmed automatically when payment succeeds.
+                            </p>
+                            <form method="post" novalidate>
+                                {% csrf_token %}
+                                <input type="hidden" name="payment_type" value="chapa">
+                                {% if not is_member %}
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-semibold">First name</label>
+                                        {{ chapa_form.first_name }}
+                                        {% if chapa_form.first_name.errors %}<div class="text-danger small">{{ chapa_form.first_name.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-semibold">Last name</label>
+                                        {{ chapa_form.last_name }}
+                                        {% if chapa_form.last_name.errors %}<div class="text-danger small">{{ chapa_form.last_name.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-semibold">Email</label>
+                                        {{ chapa_form.email }}
+                                        {% if chapa_form.email.errors %}<div class="text-danger small">{{ chapa_form.email.errors }}</div>{% endif %}
+                                    </div>
+                                </div>
+                                {% else %}
+                                {{ chapa_form.first_name }}
+                                {{ chapa_form.last_name }}
+                                {{ chapa_form.email }}
+                                {% endif %}
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Amount (ETB)</label>
+                                    {{ chapa_form.amount }}
+                                    {% if chapa_form.amount.errors %}<div class="text-danger small">{{ chapa_form.amount.errors }}</div>{% endif %}
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 py-3">
+                                    <i class="fa fa-lock me-2"></i>Continue to Chapa
+                                </button>
+                            </form>
+                            {% endif %}
                         </div>
-                    </div>
-                </div>
-                
-                <!-- Centering Children Section -->
-                <div class="row g-5 mt-3">
-                    <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
-                        <div class="bg-light rounded p-5">
-                            <h2 class="mb-4">Centering Children in Building Sustainable Resilience</h2>
-                            <p>We see what natural catastrophes do to children and youth who live on the frontlines of environmental shocks in the low-income countries where we work. Our local partners and country offices see firsthand how these events undo the developmental gains children and youth have made toward achieving their potential.</p>
-                            
-                            <p class="mb-0">This requires a holistic response that embodies both adaptation and environmental care — across all levels of society — to ensure the continued achievement of positive outcomes with children across health, education, protection and livelihoods.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Sustainability Content End -->
 
-        <!-- Donate CTA Start -->
-        <div class="container-fluid py-5" style="background-color: #06cd45;">
-            <div class="container">
-                <div class="row g-5 align-items-center">
-                    <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
-                        <h1 class="display-6 text-white mb-4">Your Donation Builds Climate Resilience</h1>
-                        <p class="text-white mb-0">We center children as we work with communities to build sustainable resilience as well as prevent and respond to environmental shocks.</p>
-                    </div>
-                    <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
-                        <div class="text-lg-end">
-                            <a href="#donate" class="btn btn-dark py-3 px-5">Donate Now <i class="fa fa-arrow-right ms-2"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Donate CTA End -->
-
-        <!-- Donate Section Start -->
-        <div id="donate" class="container-fluid py-5">
-            <div class="container">
-                <div class="row g-5 align-items-center">
-                    <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
-                        <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Donate Now</div>
-                        <h1 class="display-6 mb-5">Thanks For The Results Achieved With You</h1>
-                        <p class="mb-0">Your support makes a difference—together, we are creating positive change and transforming lives.</p>
-                    </div>
-                    <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
-                        <div class="h-100 bg-secondary p-5 text-center">
-                            <!-- Initial Donate Button -->
-                            <button id="showAccountBtn" class="btn btn-primary px-5 mb-4" style="height: 60px;">
-                                Donate Now
-                                <div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
-                                    <i class="fa fa-arrow-right"></i>
-                                </div>
-                            </button>
-                            
-                            <!-- Account Details (Hidden Initially) -->
-                            <div id="accountDetails" class="text-start" style="display: none;">
-                                <h4 class="mb-3">Bank Transfer Details</h4>
-                                <div class="bg-light p-4 rounded mb-3">
-                                    <p class="mb-1"><strong>Account Name:</strong> Gachana Charity Association</p>
-                                    <p class="mb-1"><strong>Account Number:</strong> 1234567890</p>
-                                    <p class="mb-1"><strong>Bank Name:</strong> Example Bank</p>
-                                    <p class="mb-0"><strong>Swift Code:</strong> EXMPUS33</p>
-                                </div>
-                                <div class="bg-light p-4 rounded mb-3">
-                                    <p class="mb-1"><strong>Account Name:</strong> Gachana Charity Association</p>
-                                    <p class="mb-1"><strong>Account Number:</strong> 1234567890</p>
-                                    <p class="mb-1"><strong>Bank Name:</strong> Example Bank</p>
-                                    <p class="mb-0"><strong>Swift Code:</strong> EXMPUS33</p>
-                                </div>
-                                <p class="small text-muted">Please use your name as reference when making transfers</p>
+                        <div id="panel-manual" class="public-pay-panel{% if active_tab == 'manual' %} is-active{% endif %}" role="tabpanel">
+                            {% if not has_banks %}
+                            <div class="alert alert-info public-donate-alert mb-0">
+                                Bank transfer is not available right now. Please use Chapa or contact the association office.
                             </div>
+                            {% else %}
+                            <p class="public-donate-panel__lead">
+                                Transfer the amount to our account, then upload your payment proof. Staff will confirm your donation.
+                            </p>
+                            <form method="post" enctype="multipart/form-data" novalidate id="manual-donation-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="payment_type" value="manual">
+                                {% if not is_member %}
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-semibold">First name</label>
+                                        {{ manual_form.first_name }}
+                                        {% if manual_form.first_name.errors %}<div class="text-danger small">{{ manual_form.first_name.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-semibold">Last name</label>
+                                        {{ manual_form.last_name }}
+                                        {% if manual_form.last_name.errors %}<div class="text-danger small">{{ manual_form.last_name.errors }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-semibold">Email</label>
+                                        {{ manual_form.email }}
+                                        {% if manual_form.email.errors %}<div class="text-danger small">{{ manual_form.email.errors }}</div>{% endif %}
+                                    </div>
+                                </div>
+                                {% else %}
+                                {{ manual_form.first_name }}
+                                {{ manual_form.last_name }}
+                                {{ manual_form.email }}
+                                {% endif %}
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold" for="{{ manual_form.amount.id_for_label }}">Amount (ETB)</label>
+                                    {{ manual_form.amount }}
+                                    {% if manual_form.amount.errors %}<div class="text-danger small">{{ manual_form.amount.errors }}</div>{% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold" for="{{ manual_form.bank.id_for_label }}">Select bank</label>
+                                    {{ manual_form.bank }}
+                                    {% if manual_form.bank.errors %}<div class="text-danger small">{{ manual_form.bank.errors }}</div>{% endif %}
+                                </div>
+                                <div id="bank-details" class="public-bank-details" aria-live="polite">
+                                    <div class="fw-semibold mb-2">Transfer to this account</div>
+                                    <dl>
+                                        <div>
+                                            <dt>Account name</dt>
+                                            <dd id="bank-account-name">—</dd>
+                                        </div>
+                                        <div>
+                                            <dt>Account number</dt>
+                                            <dd><span id="bank-account-number" class="public-account-number" title="Click to copy" tabindex="0" role="button">—</span></dd>
+                                        </div>
+                                        <div id="bank-branch-row" class="d-none">
+                                            <dt>Branch</dt>
+                                            <dd id="bank-branch">—</dd>
+                                        </div>
+                                    </dl>
+                                </div>
+                                <div id="manual-after-bank" class="d-none">
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-semibold" for="{{ manual_form.manual_proof.id_for_label }}">Payment proof</label>
+                                        {{ manual_form.manual_proof }}
+                                        <div class="form-text">Upload a screenshot or PDF of your transfer receipt.</div>
+                                        {% if manual_form.manual_proof.errors %}<div class="text-danger small">{{ manual_form.manual_proof.errors }}</div>{% endif %}
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100 py-3">
+                                        <i class="fa fa-paper-plane me-2"></i>Submit donation
+                                    </button>
+                                </div>
+                            </form>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
+<!-- Donate Section End -->
 
-        <script>
-            document.getElementById('showAccountBtn').addEventListener('click', function() {
-                const accountDetails = document.getElementById('accountDetails');
-                const button = this;
-                
-                if (accountDetails.style.display === 'none') {
-                    accountDetails.style.display = 'block';
-                    button.innerHTML = 'Hide Details <div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2"><i class="fa fa-times"></i></div>';
-                } else {
-                    accountDetails.style.display = 'none';
-                    button.innerHTML = 'Donate Now <div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2"><i class="fa fa-arrow-right"></i></div>';
-                }
-            });
-        </script>
-        <!-- Donate Section End -->
+<script>
+(function () {
+  const banks = {{ banks_json|safe }};
+  const bankMap = Object.fromEntries(banks.map(b => [String(b.id), b]));
 
-        {% include 'components/footer.html' %}
+  document.querySelectorAll('.public-donate-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      if (tab.disabled) return;
+      const name = tab.dataset.tab;
+      document.querySelectorAll('.public-donate-tab').forEach(t => {
+        t.classList.toggle('is-active', t === tab);
+        t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+      });
+      document.querySelectorAll('.public-pay-panel').forEach(panel => {
+        panel.classList.toggle('is-active', panel.id === 'panel-' + name);
+      });
+    });
+  });
+
+  const bankSelect = document.getElementById('id_bank');
+  const detailsEl = document.getElementById('bank-details');
+  const afterBankEl = document.getElementById('manual-after-bank');
+  const accountNumEl = document.getElementById('bank-account-number');
+  const branchRow = document.getElementById('bank-branch-row');
+
+  function updateBankUI() {
+    if (!bankSelect || !detailsEl) return;
+    const bank = bankMap[bankSelect.value];
+    if (!bank) {
+      detailsEl.classList.remove('is-visible');
+      if (afterBankEl) afterBankEl.classList.add('d-none');
+      return;
+    }
+    document.getElementById('bank-account-name').textContent = bank.account_name;
+    accountNumEl.textContent = bank.account_number;
+    if (bank.branch) {
+      document.getElementById('bank-branch').textContent = bank.branch;
+      branchRow.classList.remove('d-none');
+    } else if (branchRow) {
+      branchRow.classList.add('d-none');
+    }
+    detailsEl.classList.add('is-visible');
+    if (afterBankEl) afterBankEl.classList.remove('d-none');
+  }
+
+  if (bankSelect) {
+    bankSelect.addEventListener('change', updateBankUI);
+    updateBankUI();
+  }
+
+  async function copyAccountNumber() {
+    const value = accountNumEl.textContent.trim();
+    if (!value || value === '—') return;
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch (e) {
+      const range = document.createRange();
+      range.selectNodeContents(accountNumEl);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      document.execCommand('copy');
+      sel.removeAllRanges();
+    }
+    accountNumEl.title = 'Copied!';
+    setTimeout(() => { accountNumEl.title = 'Click to copy'; }, 2000);
+  }
+
+  if (accountNumEl) {
+    accountNumEl.addEventListener('click', copyAccountNumber);
+    accountNumEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        copyAccountNumber();
+      }
+    });
+  }
+})();
+</script>
+
+{% include 'components/footer.html' %}
