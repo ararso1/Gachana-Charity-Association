@@ -254,6 +254,7 @@ def donate(request):
                         donor_email=manual_form.cleaned_data.get('email', ''),
                         donor_first_name=manual_form.cleaned_data.get('first_name', ''),
                         donor_last_name=manual_form.cleaned_data.get('last_name', ''),
+                        donor_phone=manual_form.cleaned_data['phone'],
                     )
                     if member_user:
                         messages.success(
@@ -282,6 +283,7 @@ def donate(request):
                         email=email,
                         first_name=first_name,
                         last_name=last_name,
+                        phone_number=chapa_form.cleaned_data['phone'],
                         error_redirect_name='donate',
                         description='Gachana charity donation',
                     )

@@ -110,7 +110,7 @@ def member_donate(request):
     portal_settings = get_portal_settings()
     banks = DonationBank.objects.filter(is_active=True)
     manual_form = DonationForm()
-    chapa_form = ChapaDonationForm()
+    chapa_form = ChapaDonationForm(member_user=request.user)
     active_tab = request.GET.get('tab', 'chapa')
 
     if request.method == 'POST':
@@ -129,7 +129,7 @@ def member_donate(request):
                     )
                     return redirect('member_donations')
         elif payment_type == 'chapa':
-            chapa_form = ChapaDonationForm(request.POST)
+            chapa_form = ChapaDonationForm(request.POST, member_user=request.user)
             if chapa_form.is_valid():
                 return start_chapa_checkout(
                     request,
@@ -138,6 +138,7 @@ def member_donate(request):
                     email=request.user.email,
                     first_name=request.user.first_name,
                     last_name=request.user.last_name,
+                    phone_number=chapa_form.cleaned_data['phone'],
                     error_redirect_name='member_donate',
                     description='Membership donation',
                 )

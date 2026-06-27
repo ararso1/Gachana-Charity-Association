@@ -30,6 +30,12 @@
         {% csrf_token %}
         <input type="hidden" name="payment_type" value="chapa">
         <div class="mb-3">
+          <label class="member-form-label">Phone number</label>
+          {{ chapa_form.phone }}
+          <div class="member-file-hint">This number will appear on the Chapa payment page.</div>
+          {% if chapa_form.phone.errors %}<div class="text-danger small">{{ chapa_form.phone.errors }}</div>{% endif %}
+        </div>
+        <div class="mb-3">
           <label class="member-form-label">Amount (ETB)</label>
           {{ chapa_form.amount }}
           {% if chapa_form.amount.errors %}<div class="text-danger small">{{ chapa_form.amount.errors }}</div>{% endif %}

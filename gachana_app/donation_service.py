@@ -23,6 +23,7 @@ def start_chapa_checkout(
     email='',
     first_name='',
     last_name='',
+    phone_number='',
     error_redirect_name,
     description='Charity donation',
 ):
@@ -32,6 +33,7 @@ def start_chapa_checkout(
         donor_email=email.lower() if email else '',
         donor_first_name=first_name or '',
         donor_last_name=last_name or '',
+        donor_phone=phone_number or '',
         amount=amount,
         purpose='',
         payment_method=Donation.PaymentMethod.CHAPA,
@@ -47,6 +49,7 @@ def start_chapa_checkout(
             email=email,
             first_name=first_name,
             last_name=last_name,
+            phone_number=phone_number,
             tx_ref=tx_ref,
             callback_url=callback_url,
             return_url=return_url,
@@ -63,12 +66,21 @@ def start_chapa_checkout(
     return redirect(donation.chapa_checkout_url)
 
 
-def save_manual_donation(*, form, member=None, donor_email='', donor_first_name='', donor_last_name=''):
+def save_manual_donation(
+    *,
+    form,
+    member=None,
+    donor_email='',
+    donor_first_name='',
+    donor_last_name='',
+    donor_phone='',
+):
     donation = form.save(commit=False)
     donation.member = member
     donation.donor_email = donor_email.lower() if donor_email else ''
     donation.donor_first_name = donor_first_name or ''
     donation.donor_last_name = donor_last_name or ''
+    donation.donor_phone = donor_phone or ''
     donation.payment_method = Donation.PaymentMethod.MANUAL
     donation.status = Donation.Status.PENDING
     donation.save()

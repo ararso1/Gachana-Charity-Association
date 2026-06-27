@@ -1,6 +1,20 @@
 from django import forms
+import re
+
 from .models import *
 from ckeditor.widgets import CKEditorWidget
+
+
+def normalize_ethiopian_phone(value):
+    """Normalize to 10-digit 09xxxxxxxx / 07xxxxxxxx for Chapa."""
+    digits = re.sub(r'\D', '', value or '')
+    if digits.startswith('251') and len(digits) == 12:
+        digits = '0' + digits[3:]
+    if len(digits) == 9 and digits[0] in '79':
+        digits = '0' + digits
+    if not re.fullmatch(r'0[79]\d{8}', digits):
+        raise forms.ValidationError('Enter a valid phone number (09xxxxxxxx or 07xxxxxxxx).')
+    return digits
 
 class BlogForm(forms.ModelForm):
     categories = forms.ModelMultipleChoiceField(
@@ -235,15 +249,22 @@ class MemberSignupForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'auth-input', 'placeholder': 'First name'}),
             'last_name': forms.TextInput(attrs={'class': 'auth-input', 'placeholder': 'Last name'}),
             'email': forms.EmailInput(attrs={'class': 'auth-input', 'placeholder': 'Email address'}),
-            'phone': forms.TextInput(attrs={'class': 'auth-input', 'placeholder': 'Phone (optional)'}),
+            'phone': forms.TextInput(attrs={'class': 'auth-input', 'placeholder': '09xxxxxxxx', 'inputmode': 'tel'}),
             'address': forms.TextInput(attrs={'class': 'auth-input', 'placeholder': 'Address (optional)'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['phone'].required = True
 
     def clean_email(self):
         email = self.cleaned_data['email'].lower()
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError('An account with this email already exists.')
         return email
+
+    def clean_phone(self):
+        return normalize_ethiopian_phone(self.cleaned_data.get('phone'))
 
     def clean(self):
         cleaned = super().clean()
@@ -313,6 +334,21 @@ class ChapaDonationForm(forms.Form):
             attrs={'class': 'form-control member-input', 'min': '1', 'step': '0.01', 'placeholder': '0.00'}
         ),
     )
+    phone = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(
+            attrs={'class': 'form-control member-input', 'placeholder': '09xxxxxxxx', 'inputmode': 'tel'},
+        ),
+    )
+
+    def __init__(self, *args, member_user=None, **kwargs):
+        self.member_user = member_user
+        super().__init__(*args, **kwargs)
+        if member_user and not self.data and member_user.phone:
+            self.fields['phone'].initial = member_user.phone
+
+    def clean_phone(self):
+        return normalize_ethiopian_phone(self.cleaned_data.get('phone'))
 
 
 class PublicChapaDonationForm(forms.Form):
@@ -338,6 +374,12 @@ class PublicChapaDonationForm(forms.Form):
         max_length=100,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last name'}),
     )
+    phone = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'placeholder': '09xxxxxxxx', 'inputmode': 'tel'},
+        ),
+    )
 
     def __init__(self, *args, member_user=None, **kwargs):
         self.member_user = member_user
@@ -346,6 +388,11 @@ class PublicChapaDonationForm(forms.Form):
             for name in ('email', 'first_name', 'last_name'):
                 self.fields[name].required = False
                 self.fields[name].widget = forms.HiddenInput()
+            if not self.data and member_user.phone:
+                self.fields['phone'].initial = member_user.phone
+
+    def clean_phone(self):
+        return normalize_ethiopian_phone(self.cleaned_data.get('phone'))
 
     def clean(self):
         cleaned = super().clean()
@@ -373,6 +420,12 @@ class PublicManualDonationForm(forms.ModelForm):
         max_length=100,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last name'}),
     )
+    phone = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'placeholder': '09xxxxxxxx', 'inputmode': 'tel'},
+        ),
+    )
 
     class Meta:
         model = Donation
@@ -398,6 +451,11 @@ class PublicManualDonationForm(forms.ModelForm):
             for name in ('email', 'first_name', 'last_name'):
                 self.fields[name].required = False
                 self.fields[name].widget = forms.HiddenInput()
+            if not self.data and member_user.phone:
+                self.fields['phone'].initial = member_user.phone
+
+    def clean_phone(self):
+        return normalize_ethiopian_phone(self.cleaned_data.get('phone'))
 
     def clean_bank(self):
         bank = self.cleaned_data.get('bank')

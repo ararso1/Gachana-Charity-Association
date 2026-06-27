@@ -144,11 +144,12 @@
               </div>
 
               <div class="auth-field">
-                <label for="id_phone">Phone <span style="font-weight:400;color:var(--gca-muted)">(optional)</span></label>
+                <label for="id_phone">Phone number</label>
                 <div class="auth-input-wrap">
                   <i class="fas fa-phone"></i>
                   {{ signup_form.phone }}
                 </div>
+                {% for e in signup_form.phone.errors %}<p class="auth-field-error">{{ e }}</p>{% endfor %}
               </div>
 
               <div class="auth-field">

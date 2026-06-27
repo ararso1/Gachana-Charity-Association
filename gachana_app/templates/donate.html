@@ -150,11 +150,23 @@
                                         {{ chapa_form.email }}
                                         {% if chapa_form.email.errors %}<div class="text-danger small">{{ chapa_form.email.errors }}</div>{% endif %}
                                     </div>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-semibold">Phone number</label>
+                                        {{ chapa_form.phone }}
+                                        <div class="form-text">Used on the Chapa checkout (09xxxxxxxx or 07xxxxxxxx).</div>
+                                        {% if chapa_form.phone.errors %}<div class="text-danger small">{{ chapa_form.phone.errors }}</div>{% endif %}
+                                    </div>
                                 </div>
                                 {% else %}
                                 {{ chapa_form.first_name }}
                                 {{ chapa_form.last_name }}
                                 {{ chapa_form.email }}
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Phone number</label>
+                                    {{ chapa_form.phone }}
+                                    <div class="form-text">This number will appear on the Chapa payment page.</div>
+                                    {% if chapa_form.phone.errors %}<div class="text-danger small">{{ chapa_form.phone.errors }}</div>{% endif %}
+                                </div>
                                 {% endif %}
                                 <div class="mb-3">
                                     <label class="form-label small fw-semibold">Amount (ETB)</label>
@@ -197,11 +209,21 @@
                                         {{ manual_form.email }}
                                         {% if manual_form.email.errors %}<div class="text-danger small">{{ manual_form.email.errors }}</div>{% endif %}
                                     </div>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-semibold">Phone number</label>
+                                        {{ manual_form.phone }}
+                                        {% if manual_form.phone.errors %}<div class="text-danger small">{{ manual_form.phone.errors }}</div>{% endif %}
+                                    </div>
                                 </div>
                                 {% else %}
                                 {{ manual_form.first_name }}
                                 {{ manual_form.last_name }}
                                 {{ manual_form.email }}
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Phone number</label>
+                                    {{ manual_form.phone }}
+                                    {% if manual_form.phone.errors %}<div class="text-danger small">{{ manual_form.phone.errors }}</div>{% endif %}
+                                </div>
                                 {% endif %}
                                 <div class="mb-3">
                                     <label class="form-label small fw-semibold" for="{{ manual_form.amount.id_for_label }}">Amount (ETB)</label>

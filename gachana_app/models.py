@@ -234,6 +234,7 @@ class Donation(models.Model):
     donor_email = models.EmailField(blank=True)
     donor_first_name = models.CharField(max_length=100, blank=True)
     donor_last_name = models.CharField(max_length=100, blank=True)
+    donor_phone = models.CharField(max_length=20, blank=True)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     currency = models.CharField(max_length=3, default='ETB')
     payment_method = models.CharField(max_length=10, choices=PaymentMethod.choices)
