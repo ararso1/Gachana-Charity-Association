@@ -16,6 +16,14 @@
 .about1 .about-img {
     width: 100%;
     height: 100vh;
+    overflow: hidden;
+}
+
+.about1 .about-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .about1 .about-tab {

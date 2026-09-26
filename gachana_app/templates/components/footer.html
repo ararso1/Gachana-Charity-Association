@@ -5,7 +5,9 @@
         <div class="container py-5">
             <div class="row g-5">
                 <div class="col-lg-3 col-md-6">
-                    <img src="{% static 'img/gachana.png' %}" style="width: 70%;" alt="">
+                    <a href="{% url 'home' %}" class="footer-brand">
+                        <img src="{% static 'img/logo.jpg' %}" class="footer-logo" alt="Gachana Charity Association">
+                    </a>
                     <p>Every act of kindness, no matter how small, can create a ripple of change. Together, we can build a world where no one is left behind.</p>
                     <div class="d-flex pt-2">
                         <a class="btn btn-square me-1" href=""><i class="fab fa-twitter"></i></a>
@@ -71,7 +73,7 @@
     <script src="{% static 'lib/counterup/counterup.min.js' %}"></script>
 
     <!-- Template Javascript -->
-    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/main.js' %}?v=3"></script>
     <script src="{% static 'js/filter.js' %}"></script>
 </body>
 

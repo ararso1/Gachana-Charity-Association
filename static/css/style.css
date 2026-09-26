@@ -74,12 +74,52 @@
 
 /*** Navbar ***/
 .fixed-top {
-    transition: .5s;
+    transition: box-shadow .35s ease, top .5s ease;
+    background: #ffffff;
+    box-shadow: 0 1px 0 rgba(0, 29, 35, 0.06), 0 8px 24px rgba(0, 29, 35, 0.07);
+}
+
+.fixed-top.navbar-scrolled {
+    box-shadow: 0 4px 22px rgba(0, 29, 35, 0.14);
 }
 
 .top-bar {
-    height: 45px;
+    min-height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 3rem;
+    background: var(--dark);
     border-bottom: 1px solid rgba(255, 255, 255, .07);
+}
+
+.top-bar-contact,
+.top-bar-social {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    min-width: 0;
+}
+
+.top-bar-contact small {
+    white-space: nowrap;
+}
+
+.top-bar-social a {
+    line-height: 1;
+}
+
+.navbar-brand {
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-right: 1rem;
+}
+
+.navbar-brand .brand-logo {
+    height: 72px;
+    width: auto;
+    display: block;
 }
 
 .navbar .dropdown-toggle::after {
@@ -92,9 +132,9 @@
 }
 
 .navbar .navbar-nav .nav-link {
-    margin-right: 30px;
-    padding: 25px 0;
-    color: #FFFFFF;
+    margin-right: 28px;
+    padding: 10px 0;
+    color: var(--dark);
     font-weight: 500;
     outline: none;
 }
@@ -105,10 +145,34 @@
 }
 
 @media (max-width: 991.98px) {
+    .top-bar {
+        min-height: 34px;
+        padding: 6px 14px;
+        font-size: 12px;
+    }
+
+    .top-bar-contact {
+        gap: 0.65rem 1rem;
+        flex-wrap: wrap;
+    }
+
+    .top-bar-social {
+        gap: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    .top-bar-follow {
+        display: none;
+    }
+
+    .navbar-brand .brand-logo {
+        height: 56px;
+    }
+
     .navbar .navbar-nav {
-        margin-top: 10px;
-        border-top: 1px solid rgba(0, 0, 0, .07);
-        background: var(--dark);
+        margin-top: 8px;
+        border-top: 1px solid rgba(0, 29, 35, .08);
+        background: #ffffff;
     }
 
     .navbar .navbar-nav .nav-link {
@@ -396,6 +460,21 @@
 
 
 /*** Footer ***/
+.footer-brand {
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.footer-logo {
+    display: block;
+    height: 128px;
+    width: auto;
+    max-width: 100%;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 6px;
+    object-fit: contain;
+}
 
 .footer .btn.btn-link {
     display: block;
