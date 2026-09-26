@@ -1,0 +1,84 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: om\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Follow us:"
+msgstr "Nu hordofaa:"
+
+msgid "Language"
+msgstr "Afaan"
+
+msgid "Home"
+msgstr "Fuula jalqabaa"
+
+msgid "About"
+msgstr "Waa'ee"
+
+msgid "About Us"
+msgstr "Waa'ee keenya"
+
+msgid "Gallery"
+msgstr "Suuraalee"
+
+msgid "Blogs"
+msgstr "Barruulee"
+
+msgid "Contact"
+msgstr "Quunnamtii"
+
+msgid "Our Impact"
+msgstr "Dhiibbaa keenya"
+
+msgid "Climate Advocacy"
+msgstr "Falmaa haala qilleensaa"
+
+msgid "Our Works"
+msgstr "Hojiiwwan keenya"
+
+msgid "Sustainability & Why Donate"
+msgstr "Itti fufiinsa fi sababa arjoomaa"
+
+msgid "Vacancy"
+msgstr "Bakka hojii duwwaa"
+
+msgid "Login"
+msgstr "Seenuu"
+
+msgid "Donate Now"
+msgstr "Amma arjoomaa"
+
+msgid "Motto"
+msgstr "Mallattoo"
+
+msgid "Gachana Charity Association service from community to community."
+msgstr "Tajaajilli Waltajjii Tola Ooltummaa Gachanaa hawaasa irraa hawaasatti."
+
+msgid "Learn More"
+msgstr "Caalaa baradhu"
+
+msgid "One Helping Hand, Many Lives Saved"
+msgstr "Harki tokko gargaaru, lubbuun hedduun ni oolcha"
+
+msgid "Together, we can create a better future through kindness, compassion, and collective action."
+msgstr "Waliin, tolaa, mararfannaa fi gocha waliiniin gara fuulduraa gaarii uumuu dandeenya."
+
+msgid "Learn About Us"
+msgstr "Waa'ee keenya baradhu"
+
+msgid "Gachana Charity Association"
+msgstr "Waltajjii Tola Ooltummaa Gachanaa"
+
+msgid "Mission"
+msgstr "Ergama"
+
+msgid "Vision"
+msgstr "Mul'ata"
+
+msgid "Value"
+msgstr "Duudhaa"
+
+msgid "Gachana Charity Association is a non-profit organization based in Dire Dawa, founded three years ago, currently providing services within Dire Dawa, with a future goal of expanding its support across Ethiopia. The association focuses on education, healthcare, skills training, women's empowerment, and children's welfare to promote self-reliance and improve community well-being."
+msgstr "Waltajjii Tola Ooltummaa Gachanaa dhaabbata tola ooltummaa Dirree Dhawaatti argamu yoo ta'u, waggaa sadii dura kan hundeeffame, yeroo ammaa tajaajila Dirree Dhawa keessatti kennuu fi gara fuulduraatti deeggarsa isaa Itoophiyaa guutuutti babal'isuu kan kaayyeffatedha. Waltajjiin kun barnoota, fayyaa, leenjii ogummaa, humna dubartootaa fi kunuunsa daa'immanii irratti xiyyeeffachuun of danda'uu fi mijataa hawaasaa fooyyessuuf hojjeta."

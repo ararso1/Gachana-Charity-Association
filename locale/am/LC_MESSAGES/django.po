@@ -1,0 +1,84 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: am\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Follow us:"
+msgstr "ይከተሉን:"
+
+msgid "Language"
+msgstr "ቋንቋ"
+
+msgid "Home"
+msgstr "መነሻ"
+
+msgid "About"
+msgstr "ስለ እኛ"
+
+msgid "About Us"
+msgstr "ስለ እኛ"
+
+msgid "Gallery"
+msgstr "ማዕከለ ሥዕላት"
+
+msgid "Blogs"
+msgstr "ጦማሮች"
+
+msgid "Contact"
+msgstr "ያግኙን"
+
+msgid "Our Impact"
+msgstr "ተጽኖአችን"
+
+msgid "Climate Advocacy"
+msgstr "የአየር ንብረት ጥብቅና"
+
+msgid "Our Works"
+msgstr "ሥራዎቻችን"
+
+msgid "Sustainability & Why Donate"
+msgstr "ዘላቂነት እና ለምን ይለግሱ"
+
+msgid "Vacancy"
+msgstr "ክፍት የሥራ ቦታ"
+
+msgid "Login"
+msgstr "ግባ"
+
+msgid "Donate Now"
+msgstr "አሁን ይለግሱ"
+
+msgid "Motto"
+msgstr "መፈክር"
+
+msgid "Gachana Charity Association service from community to community."
+msgstr "የጋቻና የበጎ አድራጎት ማኅበር አገልግሎት ከማኅበረሰብ ወደ ማኅበረሰብ።"
+
+msgid "Learn More"
+msgstr "ተጨማሪ ይወቁ"
+
+msgid "One Helping Hand, Many Lives Saved"
+msgstr "አንድ የእርዳታ እጅ፣ ብዙ ሕይወት ይታደጋል"
+
+msgid "Together, we can create a better future through kindness, compassion, and collective action."
+msgstr "አብረን በደግነት፣ በርህራሄ እና በጋራ ተግባር የተሻለ ወደፊት መፍጠር እንችላለን።"
+
+msgid "Learn About Us"
+msgstr "ስለ እኛ ይወቁ"
+
+msgid "Gachana Charity Association"
+msgstr "የጋቻና የበጎ አድራጎት ማኅበር"
+
+msgid "Mission"
+msgstr "ተልዕኮ"
+
+msgid "Vision"
+msgstr "ራዕይ"
+
+msgid "Value"
+msgstr "እሴት"
+
+msgid "Gachana Charity Association is a non-profit organization based in Dire Dawa, founded three years ago, currently providing services within Dire Dawa, with a future goal of expanding its support across Ethiopia. The association focuses on education, healthcare, skills training, women's empowerment, and children's welfare to promote self-reliance and improve community well-being."
+msgstr "የጋቻና የበጎ አድራጎት ማኅበር በድሬዳዋ የሚገኝ ለትርፍ ያልተቋቋመ ድርጅት ሲሆን፣ ከሦስት ዓመት በፊት የተመሠረተ፣ በአሁኑ ጊዜ በድሬዳዋ ውስጥ አገልግሎት የሚሰጥ እና ወደፊት ድጋፉን በመላው ኢትዮጵያ ለማስፋት ግብ ያለው ነው። ማኅበሩ በትምህርት፣ በጤና፣ በክህሎት ሥልጠና፣ በሴቶች ማብቃት እና በልጆች ደህንነት ላይ በማተኮር ራስን መቻልን እና የማኅበረሰብ ደህንነትን ያሻሽላል።"

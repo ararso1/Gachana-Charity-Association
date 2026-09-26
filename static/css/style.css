@@ -122,6 +122,51 @@
     display: block;
 }
 
+.lang-switcher {
+    margin-bottom: 0;
+}
+
+.lang-switcher select {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid rgba(0, 29, 35, 0.16);
+    background-color: #f7f8f8;
+    color: var(--dark);
+    border-radius: 999px;
+    padding: 0.4rem 1.8rem 0.4rem 0.8rem;
+    font-size: 0.84rem;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23001D23' d='M1.4.6 6 5.2 10.6.6 12 2 6 8 0 2z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+    background-size: 10px 7px;
+}
+
+html[lang="am"] body {
+    font-family: "Noto Sans Ethiopic", "Inter", sans-serif;
+}
+
+html[lang="ar"] body {
+    font-family: "Noto Naskh Arabic", "Inter", sans-serif;
+}
+
+html[dir="rtl"] .lang-switcher select {
+    padding: 0.4rem 0.8rem 0.4rem 1.8rem;
+    background-position: left 0.65rem center;
+}
+
+html[dir="rtl"] .navbar .navbar-nav .nav-link {
+    margin-right: 0;
+    margin-left: 28px;
+}
+
+html[dir="rtl"] .navbar .dropdown-toggle::after {
+    margin-left: 0;
+    margin-right: 8px;
+}
+
 .navbar .dropdown-toggle::after {
     border: none;
     content: "\f107";

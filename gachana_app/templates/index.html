@@ -1,5 +1,5 @@
 {% include 'components/navbar.html' %}
-{% load static %}
+{% load static i18n %}
     <!-- Carousel Start -->
     <div class="container-fluid p-0 mb-5">
         <div id="header-carousel" class="carousel slide" data-bs-ride="carousel">
@@ -10,10 +10,10 @@
                         <div class="container">
                             <div class="row justify-content-center">
                                 <div class="col-lg-7 pt-5">
-                                    <h1 class="display-4 text-white mb-3 animated slideInDown">Motto</h1>
-                                    <p class="fs-5 text-white-50 mb-5 animated slideInDown">Gachana Charity Association service from community to community.</p>
+                                    <h1 class="display-4 text-white mb-3 animated slideInDown">{% trans "Motto" %}</h1>
+                                    <p class="fs-5 text-white-50 mb-5 animated slideInDown">{% trans "Gachana Charity Association service from community to community." %}</p>
                                     <a class="btn btn-primary py-2 px-3 animated slideInDown" href="{% url 'about' %}">
-                                        Learn More
+                                        {% trans "Learn More" %}
                                         <div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
                                             <i class="fa fa-arrow-right"></i>
                                         </div>
@@ -29,10 +29,10 @@
                         <div class="container">
                             <div class="row justify-content-center">
                                 <div class="col-lg-7 pt-5">
-                                    <h1 class="display-4 text-white mb-3 animated slideInDown">One Helping Hand, Many Lives Saved</h1>
-                                    <p class="fs-5 text-white-50 mb-5 animated slideInDown">Together, we can create a better future through kindness, compassion, and collective action.</p>
+                                    <h1 class="display-4 text-white mb-3 animated slideInDown">{% trans "One Helping Hand, Many Lives Saved" %}</h1>
+                                    <p class="fs-5 text-white-50 mb-5 animated slideInDown">{% trans "Together, we can create a better future through kindness, compassion, and collective action." %}</p>
                                     <a class="btn btn-primary py-2 px-3 animated slideInDown" href="{% url 'about' %}">
-                                        Learn More
+                                        {% trans "Learn More" %}
                                         <div class="d-inline-flex btn-sm-square bg-white text-primary rounded-circle ms-2">
                                             <i class="fa fa-arrow-right"></i>
                                         </div>
@@ -69,28 +69,29 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
-                            <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">Learn About Us</div>
-                            <h1 class="display-6 mb-5">Gachana Charity Association</h1>
+                            <div class="d-inline-block rounded-pill bg-secondary text-primary py-1 px-3 mb-3">{% trans "Learn About Us" %}</div>
+                            <h1 class="display-6 mb-5">{% trans "Gachana Charity Association" %}</h1>
                         </div>
                         <div class="about-tab">
                             <ul class="nav nav-pills nav-justified">
                                 <li class="nav-item">
-                                    <a class="nav-link active" data-toggle="pill" href="#tab-content-1">About</a>
+                                    <a class="nav-link active" data-toggle="pill" href="#tab-content-1">{% trans "About" %}</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-toggle="pill" href="#tab-content-2">Mission</a>
+                                    <a class="nav-link" data-toggle="pill" href="#tab-content-2">{% trans "Mission" %}</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-toggle="pill" href="#tab-content-3">Vision</a>
+                                    <a class="nav-link" data-toggle="pill" href="#tab-content-3">{% trans "Vision" %}</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-toggle="pill" href="#tab-content-4">Value</a>
+                                    <a class="nav-link" data-toggle="pill" href="#tab-content-4">{% trans "Value" %}</a>
                                 </li>
                             </ul>
 
                             <div class="tab-content">
                                 <div id="tab-content-1" class="container tab-pane active">
-                                    Gachana Charity Association is a non-profit organization based in Dire Dawa, founded three years ago, currently providing services within Dire Dawa, with a future goal of expanding its support across Ethiopia. The association focuses on education, healthcare, skills training, women’s empowerment, and children’s welfare to promote self-reliance and improve community well-being.                               </div>
+                                    {% blocktrans trimmed %}Gachana Charity Association is a non-profit organization based in Dire Dawa, founded three years ago, currently providing services within Dire Dawa, with a future goal of expanding its support across Ethiopia. The association focuses on education, healthcare, skills training, women's empowerment, and children's welfare to promote self-reliance and improve community well-being.{% endblocktrans %}
+                                </div>
                                 <div id="tab-content-2" class="container tab-pane fade">
                                     Gachana Charity Association aim to establish youth training centers and craft-learning facilities, support women facing various hardships, create sustainable job opportunities for women, and strengthen children’s welfare. Our mission includes establishing schools from kindergarten through high school, setting up a clinic under the name of Gachana Charity Association, developing our own sustainable sources of economic income, empowering individuals to build strong and independent mindsets, and expanding employment opportunities to improve lives and strengthen the community as a whole
                         

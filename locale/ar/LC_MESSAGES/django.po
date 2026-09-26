@@ -1,0 +1,84 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid "Follow us:"
+msgstr "تابعنا:"
+
+msgid "Language"
+msgstr "اللغة"
+
+msgid "Home"
+msgstr "الرئيسية"
+
+msgid "About"
+msgstr "عن الجمعية"
+
+msgid "About Us"
+msgstr "من نحن"
+
+msgid "Gallery"
+msgstr "معرض الصور"
+
+msgid "Blogs"
+msgstr "المدونة"
+
+msgid "Contact"
+msgstr "اتصل بنا"
+
+msgid "Our Impact"
+msgstr "أثرنا"
+
+msgid "Climate Advocacy"
+msgstr "مناصرة المناخ"
+
+msgid "Our Works"
+msgstr "أعمالنا"
+
+msgid "Sustainability & Why Donate"
+msgstr "الاستدامة ولماذا تتبرع"
+
+msgid "Vacancy"
+msgstr "الوظائف"
+
+msgid "Login"
+msgstr "تسجيل الدخول"
+
+msgid "Donate Now"
+msgstr "تبرع الآن"
+
+msgid "Motto"
+msgstr "الشعار"
+
+msgid "Gachana Charity Association service from community to community."
+msgstr "خدمة جمعية غاتشانا الخيرية من المجتمع إلى المجتمع."
+
+msgid "Learn More"
+msgstr "اعرف المزيد"
+
+msgid "One Helping Hand, Many Lives Saved"
+msgstr "يد واحدة مُعينة، وأرواح كثيرة تُنقذ"
+
+msgid "Together, we can create a better future through kindness, compassion, and collective action."
+msgstr "معًا نستطيع أن نصنع مستقبلًا أفضل باللطف والرحمة والعمل الجماعي."
+
+msgid "Learn About Us"
+msgstr "تعرّف علينا"
+
+msgid "Gachana Charity Association"
+msgstr "جمعية غاتشانا الخيرية"
+
+msgid "Mission"
+msgstr "الرسالة"
+
+msgid "Vision"
+msgstr "الرؤية"
+
+msgid "Value"
+msgstr "القيم"
+
+msgid "Gachana Charity Association is a non-profit organization based in Dire Dawa, founded three years ago, currently providing services within Dire Dawa, with a future goal of expanding its support across Ethiopia. The association focuses on education, healthcare, skills training, women's empowerment, and children's welfare to promote self-reliance and improve community well-being."
+msgstr "جمعية غاتشانا الخيرية منظمة غير ربحية مقرها دير داوا، تأسست قبل ثلاث سنوات، وتقدّم خدماتها حاليًا داخل دير داوا، وتهدف مستقبلًا إلى توسيع دعمها في جميع أنحاء إثيوبيا. تركّز الجمعية على التعليم والرعاية الصحية والتدريب المهني وتمكين المرأة ورعاية الأطفال لتعزيز الاعتماد على الذات وتحسين رفاه المجتمع."
